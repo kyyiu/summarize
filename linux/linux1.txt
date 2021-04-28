@@ -1,0 +1,2524 @@
+绿色文件： 可执行文件，可执行的程序 
+ 
+红色文件：压缩文件或者包文件
+ 
+蓝色文件：目录
+ 
+白色文件：一般性文件，如文本文件，配置文件，源码文件等 
+ 
+浅蓝色文件：链接文件，主要是使用ln命令建立的文件
+ 
+红色闪烁：表示链接的文件有问题
+ 
+黄色：表示设备文件
+ 
+灰色：表示其他文件
+
+
+drwxr-xr-x   2 root root  4096 Jun 12 04:03 bin
+共显示了七列信息，从左至右依次为：权限、文件数、归属用户、归属群组、文件大小、创建日期、文件名称
+
+可以用字符表示的文件类型
+ 
+-：普通文件
+ 
+d：目录文件
+ 
+l：链接文件
+ 
+b：块设备文件
+ 
+c：字符设备文件
+ 
+p：管道文件
+
+
+
+
+
+
+
+一、日常使用命令/常用快捷键命令
+开关机命令
+        1、shutdown –h now：立刻进行关机
+
+        2、shutdown –r now：现在重新启动计算机
+
+        3、reboot：现在重新启动计算机
+
+        4、su -：切换用户；passwd：修改用户密码
+
+        5、logout：用户注销
+
+常用快捷命令
+        1、tab = 补全
+
+        2、ctrl + l -：清屏，类似clear命令
+
+        3、ctrl + r -：查找历史命令（history）；ctrl+c = 终止
+
+        4、ctrl+k = 删除此处至末尾所有内容
+
+        5、ctrl+u = 删除此处至开始所有内容
+
+常用工具命令
+man:帮助命令
+    wc:文本统计统计
+        wordcount
+         3      5         29         a.txt
+         行数    单词数    字符数    文件名
+        常见参数：
+            -l：只查看行数
+            -w: 只查看单词数
+            -c：只查看字符数
+    du:文件大小统计
+        格式：du [选项参数] dir_path
+        常见参数：
+                -s:只统计该文件目录的大小，不递归
+                -h:人性化的显示单位
+    find:文件检索命令
+语法
+ 
+find   path   -option   [   -print ]   [ -exec   -ok   command ]   {} \;
+ 
+参数说明 :
+ 
+find 根据下列规则判断 path 和 expression，在命令列上第一个 - ( ) , ! 之前的部份为 path，之后的是 expression。如果 path 是空字串则使用目前路径，如果 expression 是空字串则使用 -print 为预设 expression。
+ 
+expression 中可使用的选项有二三十个之多，在此只介绍最常用的部份。
+ 
+-mount, -xdev : 只检查和指定目录在同一个文件系统下的文件，避免列出其它文件系统中的文件
+ 
+-amin n : 在过去 n 分钟内被读取过
+ 
+-anewer file : 比文件 file 更晚被读取过的文件
+ 
+-atime n : 在过去n天内被读取过的文件
+ 
+-cmin n : 在过去 n 分钟内被修改过
+ 
+-cnewer file :比文件 file 更新的文件
+ 
+-ctime n : 在过去n天内被修改过的文件
+ 
+-empty : 空的文件-gid n or -group name : gid 是 n 或是 group 名称是 name
+ 
+-ipath p, -path p : 路径名称符合 p 的文件，ipath 会忽略大小写
+ 
+-name name, -iname name : 文件名称符合 name 的文件。iname 会忽略大小写
+ 
+-size n : 文件大小 是 n 单位，b 代表 512 位元组的区块，c 表示字元数，k 表示 kilo bytes，w 是二个位元组。-type c : 文件类型是 c 的文件。
+ 
+d: 目录
+ 
+c: 字型装置文件
+ 
+b: 区块装置文件
+ 
+p: 具名贮列
+ 
+f: 一般文件
+ 
+l: 符号连结
+ 
+s: socket
+ 
+-pid n : process id 是 n 的文件
+ 
+你可以使用 ( ) 将运算式分隔，并使用下列运算。
+ 
+exp1 -and exp2
+ 
+! expr
+ 
+-not expr
+ 
+exp1 -or exp2
+ 
+exp1, exp2
+实例
+ 
+将目前目录及其子目录下所有延伸档名是 c 的文件列出来。
+ 
+# find . -name "*.c"
+ 
+将目前目录其其下子目录中所有一般文件列出
+ 
+# find . -type f
+ 
+将目前目录及其子目录下所有最近 20 天内更新过的文件列出
+ 
+# find . -ctime -20
+ 
+查找/var/log目录中更改时间在7日以前的普通文件，并在删除之前询问它们：
+ 
+# find /var/log -type f -mtime +7 -ok rm {} \;
+ 
+查找前目录中文件属主具有读、写权限，并且文件所属组的用户和其他用户具有读权限的文件：
+ 
+# find . -type f -perm 644 -exec ls -l {} \;
+ 
+为了查找系统中所有文件长度为0的普通文件，并列出它们的完整路径：
+ 
+# find / -type f -size 0 -exec ls -l {} \;
+二、常用目录/文件操作命令
+1.展示目录列表命令ls（list）
+  ls             展示当前目录下的可见文件
+  ls -a         展示当前目录下所有的文件（包括隐藏的文件）
+  ls -l(ll)      展示当前目录下文件的详细信息
+  ll -a          展示当前目录下所有文件的详细信息
+  ll -h          友好的显示当前目录下文件的详细信息（其实就是文件的大小可读性更强了）
+
+  pwd：显示目前的目录
+
+2.切换目录命令cd（change directory）
+  cd test         切换到test目录下
+  cd .. 切换到上一级目录
+  cd / 切换到系统根目录下
+  cd ~ 切换到当前用户的根目录下
+  cd - 切换到上一级所在的目录
+
+3.目录的创建（mkdir）和删除（rmdir）命令
+  mkdir test 在当前目录下创建一个test目录
+  mkdir -p test/a/b 在test目录下的a目录下创建一个b目录，如果上一级目录不存在，则连它的父目录一起创建
+  rmdir test 删除当前目录下的test目录（注意：该命令只能够删除空目录）
+
+4.文件的创建（touch）和删除（rm）命令
+  touch test.txt         在当前目录下创建一个test.txt的文件
+  rm test.txt 删除test.txt的文件（带询问的删除，需输入y才能删除）
+  rm -f test.txt 直接删除text.txt文件
+  rm -r test 递归删除，即删除test目录以及其目录下的子目录（带询问的删除）
+  rm -rf test 直接删除test目录以及其目录下的子目录
+
+5.文件打包或解压命令tar
+打包并压缩文件
+Linux中的打包文件一般是以.tar结尾的，压缩的命令一般是以.gz结尾的。
+
+而一般情况下打包和压缩是一起进行的，打包并压缩后的文件的后缀名一般.tar.gz。
+
+命令：tar -zcvf 打包压缩后的文件名 要打包压缩的文件
+
+其中：z：调用gzip压缩命令进行压缩
+
+  c：打包文件
+
+  v：显示运行过程
+
+  f：指定文件名
+
+示例：打包并压缩/test下的所有文件 压缩后的压缩包指定名称为xxx.tar.gz
+
+tar -zcvf xxx.tar.gz aaa.txt bbb.txt ccc.txt
+
+或：tar -zcvf xxx.tar.gz /test/*
+
+ 
+
+ 
+ 	
+ 
+
+ 
+
+解压压缩包（重点）
+命令：tar [-xvf] 压缩文件
+
+其中：x：代表解压
+
+示例：将/test下的xxx.tar.gz解压到当前目录下
+
+ 
+
+ 
+ 	
+
+tar -xvf xxx.tar.gz
+
+示例：将/test下的xxx.tar.gz解压到根目录/usr下
+
+tar -xvf xxx.tar.gz -C /usr------C代表指定解压的位置
+
+ 
+
+ 
+ 	
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+Linux的权限命令
+权限是Linux中的重要概念，每个文件/目录等都具有权限，通过ls -l命令我们可以 查看某个目录下的文件或目录的权限
+
+ 
+
+文件的类型：
+
+d：代表目录
+
+-：代表文件
+
+l：代表链接（可以认为是window中的快捷方式）
+
+后面的9位分为3组，每3位置一组，分别代表属主的权限，与当前用户同组的     用户的权限，其他用户的权限
+
+r：代表权限是可读，r也可以用数字4表示
+
+w：代表权限是可写，w也可以用数字2表示
+
+x：代表权限是可执行，x也可以用数字1表示
+
+ 
+
+ 
+
+属主（user）
+
+属组（group）
+
+其他用户
+
+r
+
+w
+
+x
+
+r
+
+w
+
+x
+
+r
+
+w
+
+x
+
+4
+
+2
+
+1
+
+4
+
+2
+
+1
+
+4
+
+2
+
+1
+
+linux中用户的分类
+        小李     小李对象    老王
+        所有者u    同组用户g    其他人o
+    linux中文件权限
+        读r        写w        执行x    没有权限-
+        
+    文件详情信息：
+        -rw-r--r--. 1 root root       5 Aug 28 02:27 a.txt    
+        d rwx r-x r-x. 2 root root    4096 Aug 27 08:52 test
+        第一位：d:目录，-：文件
+        rw-                r--                r--
+        所有者           同组用户        其他人
+        只有读写          只有读            只有读
+        
+    1：该文件的链接数
+    root：文件所属者
+    root：文件所属组
+     5 Aug 28 02:27：最后的修改时间
+
+修改文件/目录的权限的命令：chmod
+
+示例：修改/test下的aaa.txt的权限为属主有全部权限，属主所在的组有读写权限，
+
+其他用户只有读的权限
+
+chmod u=rwx,g=rw,o=r aaa.txt
+
+上述示例还可以使用数字表示：
+
+chmod 764 aaa.txt
+
+ 
+
+修改文件的所属用户和所属组 chown
+        chown username:groupName aa.txt
+        chown username: aa.txt
+        chown :groupName aa.txt
+    
+        -R：递归子目录修改所属者和所属组
+
+三、文件/文件夹的cp rm及文件的查看
+cp (复制文件或目录)
+cp 即拷贝文件和目录。
+
+语法:
+
+[root@www ~]# cp [-adfilprsu] 来源档(source) 目标档(destination)
+[root@www ~]# cp [options] source1 source2 source3 .... directory
+选项与参数：
+
+-a：相当於 -pdr 的意思，至於 pdr 请参考下列说明；(常用)
+
+-d：若来源档为连结档的属性(link file)，则复制连结档属性而非文件本身；
+
+-f：为强制(force)的意思，若目标文件已经存在且无法开启，则移除后再尝试一次；
+
+-i：若目标档(destination)已经存在时，在覆盖时会先询问动作的进行(常用)
+
+-l：进行硬式连结(hard link)的连结档创建，而非复制文件本身；
+
+-p：连同文件的属性一起复制过去，而非使用默认属性(备份常用)；
+
+-r：递归持续复制，用於目录的复制行为；(常用)
+
+-s：复制成为符号连结档 (symbolic link)，亦即『捷径』文件；
+
+-u：若 destination 比 source 旧才升级 destination ！
+
+用 root 身份，将 root 目录下的 .bashrc 复制到 /tmp 下，并命名为 bashrc
+
+[root@www ~]# cp ~/.bashrc /tmp/bashrc
+[root@www ~]# cp -i ~/.bashrc /tmp/bashrc
+cp: overwrite `/tmp/bashrc'? n  <==n不覆盖，y为覆盖
+rm (移除文件或目录)
+语法：
+
+ rm [-fir] 文件或目录
+选项与参数：
+
+-f ：就是 force 的意思，忽略不存在的文件，不会出现警告信息；
+-i ：互动模式，在删除前会询问使用者是否动作
+-r ：递归删除啊！最常用在目录的删除了！这是非常危险的选项！！！
+ 
+将刚刚在 cp 的实例中创建的 bashrc 删除掉！
+
+[root@www tmp]# rm -i bashrc
+rm: remove regular file `bashrc'? y
+如果加上 -i 的选项就会主动询问喔，避免你删除到错误的档名！
+
+mv (移动文件与目录，或修改名称)
+语法：
+
+[root@www ~]# mv [-fiu] source destination
+[root@www ~]# mv [options] source1 source2 source3 .... directory
+选项与参数：
+
+-f ：force 强制的意思，如果目标文件已经存在，不会询问而直接覆盖；
+-i ：若目标文件 (destination) 已经存在时，就会询问是否覆盖！
+-u ：若目标文件已经存在，且 source 比较新，才会升级 (update)
+复制一文件，创建一目录，将文件移动到目录中
+
+[root@www ~]# cd /tmp
+[root@www tmp]# cp ~/.bashrc bashrc
+[root@www tmp]# mkdir mvtest
+[root@www tmp]# mv bashrc mvtest
+将某个文件移动到某个目录去，就是这样做！
+
+将刚刚的目录名称更名为 mvtest2
+
+[root@www tmp]# mv mvtest mvtest2
+Linux 文件内容查看
+Linux系统中使用以下命令来查看文件的内容：
+
+cat  由第一行开始显示文件内容
+tac  从最后一行开始显示，可以看出 tac 是 cat 的倒著写！
+nl   显示的时候，顺道输出行号！
+more 一页一页的显示文件内容
+less 与 more 类似，但是比 more 更好的是，他可以往前翻页！
+head 只看头几行
+tail 只看尾巴几行
+你可以使用 man [命令]来查看各个命令的使用文档，如 ：man cp。
+
+cat
+由第一行开始显示文件内容
+
+语法：
+
+cat [-AbEnTv]
+选项与参数：
+
+-A ：相当於 -vET 的整合选项，可列出一些特殊字符而不是空白而已；
+-b ：列出行号，仅针对非空白行做行号显示，空白行不标行号！
+-E ：将结尾的断行字节 $ 显示出来；
+-n ：列印出行号，连同空白行也会有行号，与 -b 的选项不同；
+-T ：将 [tab] 按键以 ^I 显示出来；
+-v ：列出一些看不出来的特殊字符
+检看 /etc/issue 这个文件的内容：
+
+[root@www ~]# cat /etc/issue
+CentOS release 6.4 (Final)
+Kernel \r on an \m
+tac
+tac与cat命令刚好相反，文件内容从最后一行开始显示，可以看出 tac 是 cat 的倒着写！如：
+
+[root@www ~]# tac /etc/issue
+
+Kernel \r on an \m
+CentOS release 6.4 (Final)
+nl
+显示行号
+
+语法：
+
+nl [-bnw] 文件
+选项与参数：
+
+-b ：指定行号指定的方式，主要有两种：
+-b a ：表示不论是否为空行，也同样列出行号(类似 cat -n)；
+-b t ：如果有空行，空的那一行不要列出行号(默认值)；
+-n ：列出行号表示的方法，主要有三种：
+-n ln ：行号在荧幕的最左方显示；
+-n rn ：行号在自己栏位的最右方显示，且不加 0 ；
+-n rz ：行号在自己栏位的最右方显示，且加 0 ；
+-w ：行号栏位的占用的位数。
+实例一：用 nl 列出 /etc/issue 的内容
+
+[root@www ~]# nl /etc/issue
+     1  CentOS release 6.4 (Final)
+     2  Kernel \r on an \m
+more
+一页一页翻动
+
+[root@www ~]# more /etc/man.config
+#
+# Generated automatically from man.conf.in by the
+# configure script.
+#
+# man.conf from man-1.6d
+....(中间省略)....
+--More--(28%)  <== 重点在这一行喔！你的光标也会在这里等待你的命令
+在 more 这个程序的运行过程中，你有几个按键可以按的：
+
+空白键 (space)：代表向下翻一页；
+Enter         ：代表向下翻『一行』；
+/字串         ：代表在这个显示的内容当中，向下搜寻『字串』这个关键字；
+:f            ：立刻显示出档名以及目前显示的行数；
+q             ：代表立刻离开 more ，不再显示该文件内容。
+b 或 [ctrl]-b ：代表往回翻页，不过这动作只对文件有用，对管线无用。
+less
+一页一页翻动，以下实例输出/etc/man.config文件的内容：
+
+[root@www ~]# less /etc/man.config
+#
+# Generated automatically from man.conf.in by the
+# configure script.
+#
+# man.conf from man-1.6d
+....(中间省略)....
+:   <== 这里可以等待你输入命令！
+less运行时可以输入的命令有：
+
+空白键    ：向下翻动一页；
+[pagedown]：向下翻动一页；
+[pageup]  ：向上翻动一页；
+/字串     ：向下搜寻『字串』的功能；
+?字串     ：向上搜寻『字串』的功能；
+n         ：重复前一个搜寻 (与 / 或 ? 有关！)
+N         ：反向的重复前一个搜寻 (与 / 或 ? 有关！)
+q         ：离开 less 这个程序；
+head
+取出文件前面几行
+
+语法：
+
+head [-n number] 文件 
+选项与参数：
+
+-n ：后面接数字，代表显示几行的意思
+[root@www ~]# head /etc/man.config
+默认的情况中，显示前面 10 行！若要显示前 20 行，就得要这样：
+
+[root@www ~]# head -n 20 /etc/man.config
+tail
+取出文件后面几行
+
+语法：
+
+tail [-n number] 文件 
+选项与参数：
+
+-n ：后面接数字，代表显示几行的意思
+-f ：表示持续侦测后面所接的档名，要等到按下[ctrl]-c才会结束tail的侦测
+[root@www ~]# tail /etc/man.config
+# 默认的情况中，显示最后的十行！若要显示最后的 20 行，就得要这样：
+[root@www ~]# tail -n 20 /etc/man.config
+系统常用操作命令
+visudo:编辑sudo命令的配置
+        编辑第98行
+        ## Allow root to run any commands anywhere
+            root    ALL=(ALL)                               ALL
+            用户名  登录的主机=（以什么样的身份运行）  可以执行什么命令
+        如果想让huadian用户也居于root相关权限。。
+            huadian  ALL=(root)  NOPASSWD:service iptables status
+            huadian  ALL=(root)  NOPASSWD:service iptables start
+        推荐用法    
+            huadian  ALL=(root)  NOPASSWD:ALL
+            
+        使用权限：sudo     service iptables status  ----（检查防火墙状态）
+网络管理：ping、ifconfig
+    服务管理命令：
+        service:必须掌握
+            格式：
+                service s_name start|stop|status|restart
+            linux系统所有自带服务名称：/etc/init.d/
+                常用：
+                    关闭防火墙服务
+                    service iptables stop
+                    重启网络服务：
+                    service network restart
+                    mysql数据库服务的名称：
+                        mysql版本低于5.5  mysqld
+                        mysql版本高于5.5  mysql
+            
+        chkconfig:设置是否开机启动           :必须掌握
+            判定是否开机启动
+                chkconfig iptables --list
+                2.3.4.5是on表示开机启动
+            设置
+                chkconfig iptables on|off
+                    
+    进程管理：ps
+        ps:查当前进程
+            查看java的进程
+            ps -ef | grep java
+        jps:==(ps -ef | grep java) 只有在linux中安装了JDK才能用
+        kill :杀死某个进程
+            kill -9 pid
+            
+    端口管理
+        nststat:查看端口开放情况
+            -a:表示列举所有的连接、服务器监听
+            -t:列出所有tcp协议的服务
+            -u:列出所有udp协议的服务
+            -n:使用端口号来显示
+            -l:列出所有的监听
+            -p:列出所有服务的进程id（pid）
+            常用：netstat -atunlp
+        
+    redhat的selinux安全机制
+        关闭selinux安全机制
+            vim /etc/selinux/config
+                SELINUX=disabled
+            重启机器生效
+
+
+
+
+
+
+
+VI是unix上最常用的文本编辑工具，作为unix软件测试人员，有必要熟练掌握它。
+
+进入vi的命令
+vi filename :打开或新建文件，并将光标置于第一行首
+vi +n filename ：打开文件，并将光标置于第n行首
+vi + filename ：打开文件，并将光标置于最后一行首
+vi +/pattern filename：打开文件，并将光标置于第一个与pattern匹配的串处
+vi -r filename ：在上次正用vi编辑时发生系统崩溃，恢复filename
+vi filename....filename ：打开多个文件，依次编辑
+
+移动光标类命令
+h ：光标左移一个字符
+l ：光标右移一个字符
+space：光标右移一个字符
+Backspace：光标左移一个字符
+k或Ctrl+p：光标上移一行
+j或Ctrl+n ：光标下移一行
+Enter ：光标下移一行
+w或W ：光标右移一个字至字首
+b或B ：光标左移一个字至字首
+e或E ：光标右移一个字j至字尾
+) ：光标移至句尾
+( ：光标移至句首
+}：光标移至段落开头
+{：光标移至段落结尾
+nG：光标移至第n行首
+n+：光标下移n行
+n-：光标上移n行
+n$：光标移至第n行尾
+H ：光标移至屏幕顶行
+M ：光标移至屏幕中间行
+L ：光标移至屏幕最后行
+0：（注意是数字零）光标移至当前行首
+$：光标移至当前行尾
+
+屏幕翻滚类命令
+Ctrl+u：向文件首翻半屏
+Ctrl+d：向文件尾翻半屏
+Ctrl+f：向文件尾翻一屏
+Ctrl＋b；向文件首翻一屏
+nz：将第n行滚至屏幕顶部，不指定n时将当前行滚至屏幕顶部。
+
+插入文本类命令
+i ：在光标前
+I ：在当前行首
+a：光标后
+A：在当前行尾
+o：在当前行之下新开一行
+O：在当前行之上新开一行
+r：替换当前字符
+R：替换当前字符及其后的字符，直至按ESC键
+s：从当前光标位置处开始，以输入的文本替代指定数目的字符
+S：删除指定数目的行，并以所输入文本代替之
+ncw或nCW：修改指定数目的字
+nCC：修改指定数目的行
+
+删除命令
+ndw或ndW：删除光标处开始及其后的n-1个字
+do：删至行首
+d$：删至行尾
+ndd：删除当前行及其后n-1行
+x或X：删除一个字符，x删除光标后的，而X删除光标前的
+Ctrl+u：删除输入方式下所输入的文本
+
+搜索及替换命令 :
+/pattern：从光标开始处向文件尾搜索pattern
+?pattern：从光标开始处向文件首搜索pattern
+n：在同一方向重复上一次搜索命令
+N：在反方向上重复上一次搜索命令
+：s/p1/p2/g：将当前行中所有p1均用p2替代
+：n1,n2s/p1/p2/g：将第n1至n2行中所有p1均用p2替代
+：g/p1/s//p2/g：将文件中所有p1均用p2替换
+
+选项设置
+all：列出所有选项设置情况
+term：设置终端类型
+ignorance：在搜索中忽略大小写
+list：显示制表位(Ctrl+I)和行尾标志（$)
+number：显示行号
+report：显示由面向行的命令修改过的数目
+terse：显示简短的警告信息
+warn：在转到别的文件时若没保存当前文件则显示NO write信息
+nomagic：允许在搜索模式中，使用前面不带“\”的特殊字符
+nowrapscan：禁止vi在搜索到达文件两端时，又从另一端开始
+mesg：允许vi显示其他用户用write写到自己终端上的信息
+
+最后行方式命令
+：n1,n2 co n3：将n1行到n2行之间的内容拷贝到第n3行下
+：n1,n2 m n3：将n1行到n2行之间的内容移至到第n3行下
+：n1,n2 d ：将n1行到n2行之间的内容删除
+：w ：保存当前文件
+：e filename：打开文件filename进行编辑
+：x：保存当前文件并退出
+：q：退出vi
+：q!：不保存文件并退出vi
+：!command：执行shell命令command
+：n1,n2 w!command：将文件中n1行至n2行的内容作为command的输入并执行之，若不指
+定n1，n2，则表示将整个文件内容作为command的输入
+：r!command：将命令command的输出结果放到当前行 。
+
+
+
+vi file_path
+        如果编辑的的问价不存在，保存以后，默认该文件会被创建
+    3种模式：
+       1） 命令模式：
+            输入一些命令，比如复制、粘贴、删除等快捷键命令
+            i：进入插入模式。
+            yy:复制当前行
+                3yy:复制当前行开始的，连续3行
+            p：在当前位置粘贴
+            dd:删除当前
+                5dd:删除 当前开始，连续5行
+                9999999999999999999dd
+            u：撤销上一步
+            gg:跳转到第一行
+                5gg:跳转到第5行
+            G:跳转到最后一行
+            o：在下一行进入插入模式
+            O：在上一行进入插入模式
+            按下“shift +:”进入最后行模式
+
+
+        插入模式：
+            对文本进行操作
+            按“ESC”进入命令模式
+            按下“ESC —> shift +:”进入最后行模式
+
+
+      2）  最后行模式：
+            在最后一行能够输入一些命令，检索，显示行号
+            set nu/number:显示行号
+            wq/x/ZZ:保存退出
+            q:不保存退出
+            ！：强制
+                q!:强制退出
+            /string 检索字符串
+                /huadian
+
+            1：按键盘“n”查找下一处
+
+3. 移动光标 
+　　vi可以直接用键盘上的光标来上下左右移动，但正规的vi是用小写英文字母「h」、「j」、「k」、「l」，分别控制光标左、下、上、右移一格。 
+　　按「ctrl」+「b」：屏幕往"后"移动一页。 
+　　按「ctrl」+「f」：屏幕往"前"移动一页。 
+　　按「ctrl」+「u」：屏幕往"后"移动半页。 
+　　按「ctrl」+「d」：屏幕往"前"移动半页。 
+　　按数字「0」：移到文章的开头。 
+　　按「G」：移动到文章的最后。 
+　　按「$」：移动到光标所在行的"行尾"。 
+　　按「^」：移动到光标所在行的"行首" 
+　　按「w」：光标跳到下个字的开头 
+　　按「e」：光标跳到下个字的字尾 
+　　按「b」：光标回到上个字的开头 
+　　按「#l」：光标移到该行的第#个位置，如：5l,56l。 
+
+4）. 删除文字 
+　　「x」：每按一次，删除光标所在位置的"后面"一个字符。 
+　　「#x」：例如，「6x」表示删除光标所在位置的"后面"6个字符。 
+　　「X」：大写的X，每按一次，删除光标所在位置的"前面"一个字符。 
+　　「#X」：例如，「20X」表示删除光标所在位置的"前面"20个字符。 
+　　「dd」：删除光标所在行。 
+　　「#dd」：从光标所在行开始删除#行 
+
+5）. 复制 
+　　「yw」：将光标所在之处到字尾的字符复制到缓冲区中。 
+　　「#yw」：复制#个字到缓冲区 
+　　「yy」：复制光标所在行到缓冲区。 
+　　「#yy」：例如，「6yy」表示拷贝从光标所在的该行"往下数"6行文字。 
+　　「p」：将缓冲区内的字符贴到光标所在位置。注意：所有与"y"有关的复制命令都必须与"p"配合才能完成复制与粘贴功能。 
+
+6）. 替换 
+　　「r」：替换光标所在处的字符。 
+　　「R」：替换光标所到之处的字符，直到按下「ESC」键为止。 
+
+7）. 回复上一次操作 
+　　「u」：如果您误执行一个命令，可以马上按下「u」，回到上一个操作。按多次"u"可以执行多次回复。 
+
+8）. 更改 
+　　「cw」：更改光标所在处的字到字尾处 
+　　「c#w」：例如，「c3w」表示更改3个字 
+
+9）. 跳至指定的行 
+　　「ctrl」+「g」列出光标所在行的行号。 
+　　「#G」：例如，「15G」，表示移动光标至文章的第15行行首。 
+4、Last line mode下命令简介 
+　　在使用「last line mode」之前，请记住先按「ESC」键确定您已经处于「command mode」下后，再按「：」冒号即可进入「last line mode」。 
+
+A) 列出行号 
+
+　「set nu」：输入「set nu」后，会在文件中的每一行前面列出行号。 
+
+B) 跳到文件中的某一行 
+
+　「#」：「#」号表示一个数字，在冒号后输入一个数字，再按回车键就会跳到该行了，如输入数字15，再回车，就会跳到文章的第15行。 
+
+C) 查找字符 
+
+　「/关键字」：先按「/」键，再输入您想寻找的字符，如果第一次找的关键字不是您想要的，可以一直按「n」会往后寻找到您要的关键字为止。 
+
+　「?关键字」：先按「?」键，再输入您想寻找的字符，如果第一次找的关键字不是您想要的，可以一直按「n」会往前寻找到您要的关键字为止。 
+
+D) 保存文件 
+
+　「w」：在冒号输入字母「w」就可以将文件保存起来。 
+
+E) 离开vi 
+
+　「q」：按「q」就是退出，如果无法离开vi，可以在「q」后跟一个「!」强制离开vi。 
+
+　「qw」：一般建议离开时，搭配「w」一起使用，这样在退出的时候还可以保存文件。 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ls命令
+ls（选项）（参数）
+选项
+-a：显示所有档案及目录（ls内定将档案名或目录名称为“.”的视为影藏，不会列出）；
+-A：显示除影藏文件“.”和“..”以外的所有文件列表；
+-C：多列显示输出结果。这是默认选项；
+-l：与“-C”选项功能相反，所有输出信息用单列格式输出，不输出为多列；
+-F：在每个输出项后追加文件的类型标识符，具体含义：“*”表示具有可执行权限的普通文件，“/”表示目录，“@”表示符号链接，“|”表示命令管道FIFO，“=”表示sockets套接字。当文件为普通文件时，不输出任何标识符；
+-b：将文件中的不可输出的字符以反斜线“”加字符编码的方式输出；
+-c：与“-lt”选项连用时，按照文件状态时间排序输出目录内容，排序的依据是文件的索引节点中的ctime字段。与“-l”选项连用时，则排序的一句是文件的状态改变时间；
+-d：仅显示目录名，而不显示目录下的内容列表。显示符号链接文件本身，而不显示其所指向的目录列表；
+-f：此参数的效果和同时指定“aU”参数相同，并关闭“lst”参数的效果；
+-i：显示文件索引节点号（inode）。一个索引节点代表一个文件；
+--file-type：与“-F”选项的功能相同，但是不显示“*”；
+-k：以KB（千字节）为单位显示文件大小；
+-l：以长格式显示目录下的内容列表。输出的信息从左到右依次包括文件名，文件类型、权限模式、硬连接数、所有者、组、文件大小和文件的最后修改时间等；
+-m：用“,”号区隔每个文件和目录的名称；
+-n：以用户识别码和群组识别码替代其名称；
+-r：以文件名反序排列并输出目录内容列表；
+-s：显示文件和目录的大小，以区块为单位；
+-t：用文件和目录的更改时间排序；
+-L：如果遇到性质为符号链接的文件或目录，直接列出该链接所指向的原始文件或目录；
+-R：递归处理，将指定目录下的所有文件及子目录一并处理；
+--full-time：列出完整的日期与时间；
+--color[=WHEN]：使用不同的颜色高亮显示不同类型的。
+
+参数
+目录：指定要显示列表的目录，也可以是具体的文件。
+
+显示当前目录下非影藏文件与目录
+
+[root@localhost ~]# ls
+anaconda-ks.cfg  install.log  install.log.syslog  satools
+显示当前目录下包括影藏文件在内的所有文件列表
+
+[root@localhost ~]# ls -a
+.   anaconda-ks.cfg  .bash_logout   .bashrc  install.log         .mysql_history  satools  .tcshrc   .vimrc
+..  .bash_history    .bash_profile  .cshrc   install.log.syslog  .rnd            .ssh     .viminfo
+输出长格式列表
+
+[root@localhost ~]# ls -1
+
+anaconda-ks.cfg
+install.log
+install.log.syslog
+satools
+显示文件的inode信息
+
+索引节点（index inode简称为“inode”）是Linux中一个特殊的概念，具有相同的索引节点号的两个文本本质上是同一个文件（除文件名不同外）。
+
+[root@localhost ~]# ls -i -l anaconda-ks.cfg install.log
+2345481 -rw------- 1 root root   859 Jun 11 22:49 anaconda-ks.cfg
+2345474 -rw-r--r-- 1 root root 13837 Jun 11 22:49 install.log
+水平输出文件列表
+
+[root@localhost /]# ls -m
+
+bin, boot, data, dev, etc, home, lib, lost+found, media, misc, mnt, opt, proc, root, sbin, selinux, srv, sys, tmp, usr, var
+修改最后一次编辑的文件
+
+最近修改的文件显示在最上面。
+
+[root@localhost /]# ls -t
+
+tmp  root  etc  dev  lib  boot  sys  proc  data  home  bin  sbin  usr  var  lost+found  media  mnt  opt  selinux  srv  misc
+显示递归文件
+
+[root@localhost ~]# ls -R
+.:
+anaconda-ks.cfg  install.log  install.log.syslog  satools
+
+./satools:
+black.txt  freemem.sh  iptables.sh  lnmp.sh  mysql  php502_check.sh  ssh_safe.sh
+打印文件的UID和GID
+
+[root@localhost /]# ls -n
+
+total 254
+drwxr-xr-x   2 0 0  4096 Jun 12 04:03 bin
+drwxr-xr-x   4 0 0  1024 Jun 15 14:45 boot
+drwxr-xr-x   6 0 0  4096 Jun 12 10:26 data
+drwxr-xr-x  10 0 0  3520 Sep 26 15:38 dev
+drwxr-xr-x  75 0 0  4096 Oct 16 04:02 etc
+drwxr-xr-x   4 0 0  4096 Jun 12 10:26 home
+drwxr-xr-x  14 0 0 12288 Jun 16 04:02 lib
+drwx------   2 0 0 16384 Jun 11 22:46 lost+found
+drwxr-xr-x   2 0 0  4096 May 11  2011 media
+drwxr-xr-x   2 0 0  4096 Nov  8  2010 misc
+drwxr-xr-x   2 0 0  4096 May 11  2011 mnt
+drwxr-xr-x   2 0 0  4096 May 11  2011 opt
+dr-xr-xr-x 232 0 0     0 Jun 15 11:04 proc
+drwxr-x---   4 0 0  4096 Oct 15 14:43 root
+drwxr-xr-x   2 0 0 12288 Jun 12 04:03 sbin
+drwxr-xr-x   2 0 0  4096 May 11  2011 selinux
+drwxr-xr-x   2 0 0  4096 May 11  2011 srv
+drwxr-xr-x  11 0 0     0 Jun 15 11:04 sys
+drwxrwxrwt   3 0 0 98304 Oct 16 08:45 tmp
+drwxr-xr-x  13 0 0  4096 Jun 11 23:38 usr
+drwxr-xr-x  19 0 0  4096 Jun 11 23:38 var
+列出文件和文件夹的详细信息
+
+[root@localhost /]# ls -l
+
+total 254
+drwxr-xr-x   2 root root  4096 Jun 12 04:03 bin
+drwxr-xr-x   4 root root  1024 Jun 15 14:45 boot
+drwxr-xr-x   6 root root  4096 Jun 12 10:26 data
+drwxr-xr-x  10 root root  3520 Sep 26 15:38 dev
+drwxr-xr-x  75 root root  4096 Oct 16 04:02 etc
+drwxr-xr-x   4 root root  4096 Jun 12 10:26 home
+drwxr-xr-x  14 root root 12288 Jun 16 04:02 lib
+drwx------   2 root root 16384 Jun 11 22:46 lost+found
+drwxr-xr-x   2 root root  4096 May 11  2011 media
+drwxr-xr-x   2 root root  4096 Nov  8  2010 misc
+drwxr-xr-x   2 root root  4096 May 11  2011 mnt
+drwxr-xr-x   2 root root  4096 May 11  2011 opt
+dr-xr-xr-x 232 root root     0 Jun 15 11:04 proc
+drwxr-x---   4 root root  4096 Oct 15 14:43 root
+drwxr-xr-x   2 root root 12288 Jun 12 04:03 sbin
+drwxr-xr-x   2 root root  4096 May 11  2011 selinux
+drwxr-xr-x   2 root root  4096 May 11  2011 srv
+drwxr-xr-x  11 root root     0 Jun 15 11:04 sys
+drwxrwxrwt   3 root root 98304 Oct 16 08:48 tmp
+drwxr-xr-x  13 root root  4096 Jun 11 23:38 usr
+drwxr-xr-x  19 root root  4096 Jun 11 23:38 var
+列出可读文件和文件夹详细信息
+
+[root@localhost /]# ls -lh
+
+total 254K
+drwxr-xr-x   2 root root 4.0K Jun 12 04:03 bin
+drwxr-xr-x   4 root root 1.0K Jun 15 14:45 boot
+drwxr-xr-x   6 root root 4.0K Jun 12 10:26 data
+drwxr-xr-x  10 root root 3.5K Sep 26 15:38 dev
+drwxr-xr-x  75 root root 4.0K Oct 16 04:02 etc
+drwxr-xr-x   4 root root 4.0K Jun 12 10:26 home
+drwxr-xr-x  14 root root  12K Jun 16 04:02 lib
+drwx------   2 root root  16K Jun 11 22:46 lost+found
+drwxr-xr-x   2 root root 4.0K May 11  2011 media
+drwxr-xr-x   2 root root 4.0K Nov  8  2010 misc
+drwxr-xr-x   2 root root 4.0K May 11  2011 mnt
+drwxr-xr-x   2 root root 4.0K May 11  2011 opt
+dr-xr-xr-x 235 root root    0 Jun 15 11:04 proc
+drwxr-x---   4 root root 4.0K Oct 15 14:43 root
+drwxr-xr-x   2 root root  12K Jun 12 04:03 sbin
+drwxr-xr-x   2 root root 4.0K May 11  2011 selinux
+drwxr-xr-x   2 root root 4.0K May 11  2011 srv
+drwxr-xr-x  11 root root    0 Jun 15 11:04 sys
+drwxrwxrwt   3 root root  96K Oct 16 08:49 tmp
+drwxr-xr-x  13 root root 4.0K Jun 11 23:38 usr
+drwxr-xr-x  19 root root 4.0K Jun 11 23:38 var
+显示文件夹信息
+
+[root@localhost /]# ls -ld /etc/
+
+drwxr-xr-x 75 root root 4096 Oct 16 04:02 /etc/
+按时间列出文件和文件夹详细信息
+
+[root@localhost /]# ls -lt
+
+total 254
+drwxrwxrwt   3 root root 98304 Oct 16 08:53 tmp
+drwxr-xr-x  75 root root  4096 Oct 16 04:02 etc
+drwxr-x---   4 root root  4096 Oct 15 14:43 root
+drwxr-xr-x  10 root root  3520 Sep 26 15:38 dev
+drwxr-xr-x  14 root root 12288 Jun 16 04:02 lib
+drwxr-xr-x   4 root root  1024 Jun 15 14:45 boot
+drwxr-xr-x  11 root root     0 Jun 15 11:04 sys
+dr-xr-xr-x 232 root root     0 Jun 15 11:04 proc
+drwxr-xr-x   6 root root  4096 Jun 12 10:26 data
+drwxr-xr-x   4 root root  4096 Jun 12 10:26 home
+drwxr-xr-x   2 root root  4096 Jun 12 04:03 bin
+drwxr-xr-x   2 root root 12288 Jun 12 04:03 sbin
+drwxr-xr-x  13 root root  4096 Jun 11 23:38 usr
+drwxr-xr-x  19 root root  4096 Jun 11 23:38 var
+drwx------   2 root root 16384 Jun 11 22:46 lost+found
+drwxr-xr-x   2 root root  4096 May 11  2011 media
+drwxr-xr-x   2 root root  4096 May 11  2011 mnt
+drwxr-xr-x   2 root root  4096 May 11  2011 opt
+drwxr-xr-x   2 root root  4096 May 11  2011 selinux
+drwxr-xr-x   2 root root  4096 May 11  2011 srv
+drwxr-xr-x   2 root root  4096 Nov  8  2010 misc
+按修改时间列出文件和文件夹详细信息
+
+[root@localhost /]# ls -ltr
+
+total 254
+drwxr-xr-x   2 root root  4096 Nov  8  2010 misc
+drwxr-xr-x   2 root root  4096 May 11  2011 srv
+drwxr-xr-x   2 root root  4096 May 11  2011 selinux
+drwxr-xr-x   2 root root  4096 May 11  2011 opt
+drwxr-xr-x   2 root root  4096 May 11  2011 mnt
+drwxr-xr-x   2 root root  4096 May 11  2011 media
+drwx------   2 root root 16384 Jun 11 22:46 lost+found
+drwxr-xr-x  19 root root  4096 Jun 11 23:38 var
+drwxr-xr-x  13 root root  4096 Jun 11 23:38 usr
+drwxr-xr-x   2 root root 12288 Jun 12 04:03 sbin
+drwxr-xr-x   2 root root  4096 Jun 12 04:03 bin
+drwxr-xr-x   4 root root  4096 Jun 12 10:26 home
+drwxr-xr-x   6 root root  4096 Jun 12 10:26 data
+dr-xr-xr-x 232 root root     0 Jun 15 11:04 proc
+drwxr-xr-x  11 root root     0 Jun 15 11:04 sys
+drwxr-xr-x   4 root root  1024 Jun 15 14:45 boot
+drwxr-xr-x  14 root root 12288 Jun 16 04:02 lib
+drwxr-xr-x  10 root root  3520 Sep 26 15:38 dev
+drwxr-x---   4 root root  4096 Oct 15 14:43 root
+drwxr-xr-x  75 root root  4096 Oct 16 04:02 etc
+drwxrwxrwt   3 root root 98304 Oct 16 08:54 tmp
+按照特殊字符对文件进行分类
+
+[root@localhost nginx-1.2.1]# ls -F
+
+auto/  CHANGES  CHANGES.ru  conf/  configure*  contrib/  html/  LICENSE  Makefile  man/  objs/  README  src/
+列出文件并标记颜色分类
+
+[root@localhost nginx-1.2.1]# ls --color=auto
+
+auto  CHANGES  CHANGES.ru  conf  configure  contrib  html  LICENSE  Makefile  man  objs  README  src
+
+
+
+
+
+cd命令
+cd命令用来切换工作目录至dirname。 其中dirName表示法可为绝对路径或相对路径。若目录名称省略，则变换至使用者的home directory(也就是刚login时所在的目录)。另外，~也表示为home directory的意思，.则是表示目前所在的目录，..则表示目前目录位置的上一层目录。
+
+语法
+cd (选项) (参数)
+选项
+-p 如果要切换到的目标目录是一个符号连接，直接切换到符号连接指向的目标目录
+-L 如果要切换的目标目录是一个符号的连接，直接切换到字符连接名代表的目录，而非符号连接所指向的目标目录。
+- 当仅实用"-"一个选项时，当前工作目录将被切换到环境变量"OLDPWD"所表示的目录。
+
+实例
+cd    进入用户主目录；
+cd ~  进入用户主目录；
+cd -  返回进入此目录之前所在的目录；
+cd ..  返回上级目录（若当前目录为“/“，则执行完后还在“/"；".."为上级目录的意思）；
+cd ../..  返回上两级目录；
+cd !$  把上个命令的参数作为cd参数使用。
+
+
+
+
+
+
+whereis命令文件查找和比较
+whereis命令用来定位指令的二进制程序、源代码文件和man手册页等相关文件的路径。
+
+whereis命令只能用于程序名的搜索，而且只搜索二进制文件（参数-b）、man说明文件（参数-m）和源代码文件（参数-s）。如果省略参数，则返回所有信息。
+
+和find相比，whereis查找的速度非常快，这是因为linux系统会将 系统内的所有文件都记录在一个数据库文件中，当使用whereis和下面即将介绍的locate时，会从数据库中查找数据，而不是像find命令那样，通 过遍历硬盘来查找，效率自然会很高。 但是该数据库文件并不是实时更新，默认情况下时一星期更新一次，因此，我们在用whereis和locate 查找文件时，有时会找到已经被删除的数据，或者刚刚建立文件，却无法查找到，原因就是因为数据库文件没有被更新。
+
+语法
+whereis(选项)(参数)
+选项
+-b：只查找二进制文件；
+-B<目录>：只在设置的目录下查找二进制文件；
+-f：不显示文件名前的路径名称；
+-m：只查找说明文件；
+-M<目录>：只在设置的目录下查找说明文件；
+-s：只查找原始代码文件；
+-S<目录>只在设置的目录下查找原始代码文件；
+-u：查找不包含指定类型的文件。
+参数
+指令名：要查找的二进制程序、源文件和man手册页的指令名。
+
+实例
+将相关的文件都查找出来
+
+[root@localhost ~]# whereis tomcat
+tomcat:
+
+[root@localhost ~]# whereis svn
+svn: /usr/bin/svn /usr/local/svn /usr/share/man/man1/svn.1.gz
+说明：tomcat没安装，找不出来，svn安装找出了很多相关文件
+
+只将二进制文件查找出来 
+
+[root@localhost ~]# whereis -b svn
+svn: /usr/bin/svn /usr/local/svn
+
+[root@localhost ~]# whereis -m svn
+svn: /usr/share/man/man1/svn.1.gz
+
+[root@localhost ~]# whereis -s svn
+svn:
+说明：whereis -m svn查出说明文档路径，whereis -s svn找source源文件。
+
+
+
+
+
+
+
+
+
+
+cat命令文件处理
+cat命令连接文件并打印到标准输出设备上，cat经常用来显示文件的内容，类似于下的type命令。
+
+注意：当文件较大时，文本在屏幕上迅速闪过（滚屏），用户往往看不清所显示的内容。因此，一般用more等命令分屏显示。为了控制滚屏，可以按Ctrl+S键，停止滚屏；按Ctrl+Q键可以恢复滚屏。按Ctrl+C（中断）键可以终止该命令的执行，并且返回Shell提示符状态。
+
+语法
+cat(选项)(参数)
+选项
+-n或-number：有1开始对所有输出的行数编号；
+-b或--number-nonblank：和-n相似，只不过对于空白行不编号；
+-s或--squeeze-blank：当遇到有连续两行以上的空白行，就代换为一行的空白行；
+-A：显示不可打印字符，行尾显示“$”；
+-e：等价于"-vE"选项；
+-t：等价于"-vT"选项；
+参数
+文件列表：指定要连接的文件列表。
+
+实例
+设ml和m2是当前目录下的两个文件
+
+cat m1 （在屏幕上显示文件ml的内容）
+cat m1 m2 （同时显示文件ml和m2的内容）
+cat m1 m2 > file （将文件ml和m2合并后放入文件file中）
+
+
+
+
+
+
+
+history命令Shell内建命令
+history命令用于显示指定数目的指令命令，读取历史命令文件中的目录到历史命令缓冲区和将历史命令缓冲区中的目录写入命令文件。
+
+该命令单独使用时，仅显示历史命令，在命令行中，可以使用符号!执行指定序号的历史命令。例如，要执行第2个历史命令，则输入!2。
+
+历史命令是被保存在内存中的，当退出或者登录shell时，会自动保存或读取。在内存中，历史命令仅能够存储1000条历史命令，该数量是由环境变量HISTSIZE进行控制。
+
+语法
+history(选项)(参数)
+选项
+-c：清空当前历史命令；
+-a：将历史命令缓冲区中命令写入历史命令文件中；
+-r：将历史命令文件中的命令读入当前历史命令缓冲区；
+-w：将当前历史命令缓冲区命令写入历史命令文件中。
+参数
+n：打印最近的n条历史命令。
+
+实例
+使用history命令显示最近使用的10条历史命令，输入如下命令：
+
+[root@localhost ~]# history 10
+   92  ls
+   93  cd ..
+   94  ls
+   95  exit
+   96  ls -a
+   97  cd .ssh/
+   98  ls
+   99  cat known_hosts
+  100  exit
+  101  history 10
+
+
+
+
+
+
+touch命令文件处理
+touch命令有两个功能：一是用于把已存在文件的时间标签更新为系统当前的时间（默认方式），它们的数据将原封不动地保留下来；二是用来创建新的空文件。
+
+语法
+touch(选项)(参数)
+选项
+-a：或--time=atime或--time=access或--time=use  只更改存取时间；
+-c：或--no-create  不建立任何文件；
+-d：<时间日期> 使用指定的日期时间，而非现在的时间；
+-f：此参数将忽略不予处理，仅负责解决BSD版本touch指令的兼容性问题；
+-m：或--time=mtime或--time=modify  只更该变动时间；
+-r：<参考文件或目录>  把指定文件或目录的日期时间，统统设成和参考文件或目录的日期时间相同；
+-t：<日期时间>  使用指定的日期时间，而非现在的时间；
+--help：在线帮助；
+--version：显示版本信息。
+参数
+文件：指定要设置时间属性的文件列表。
+
+实例
+touch ex2
+在当前目录下建立一个空文件ex2，然后，利用ls -l命令可以发现文件ex2的大小为0，表示它是空文件。
+
+
+
+
+
+
+
+man命令常用工具命令
+man命令是Linux下的帮助指令，通过man指令可以查看Linux中的指令帮助、配置文件帮助和编程帮助等信息。
+
+语法
+man(选项)(参数)
+选项
+-a：在所有的man帮助手册中搜索；
+-f：等价于whatis指令，显示给定关键字的简短描述信息；
+-P：指定内容时使用分页程序；
+-M：指定man手册搜索的路径。
+参数
+数字：指定从哪本man手册中搜索帮助；
+关键字：指定要搜索帮助的关键字。
+实例
+我们输入man ls，它会在最左上角显示“LS（1）”，在这里，“LS”表示手册名称，而“（1）”表示该手册位于第一节章，同样，我们输man ifconfig它会在最左上角显示“IFCONFIG（8）”。也可以这样输入命令：“man [章节号] 手册名称”。
+
+man是按照手册的章节号的顺序进行搜索的，比如：
+
+man sleep
+只会显示sleep命令的手册,如果想查看库函数sleep，就要输入:
+
+man 3 sleep
+
+
+
+
+
+
+
+
+mkdir命令目录基本操作
+mkdir命令用来创建目录。该命令创建由dirname命名的目录。如果在目录名的前面没有加任何路径名，则在当前目录下创建由dirname指定的目录；如果给出了一个已经存在的路径，将会在该目录下创建一个指定的目录。在创建目录时，应保证新建的目录与它所在目录下的文件没有重名。 
+
+注意：在创建文件时，不要把所有的文件都存放在主目录中，可以创建子目录，通过它们来更有效地组织文件。最好采用前后一致的命名方式来区分文件和目录。例如，目录名可以以大写字母开头，这样，在目录列表中目录名就出现在前面。
+
+在一个子目录中应包含类型相似或用途相近的文件。例如，应建立一个子目录，它包含所有的数据库文件，另有一个子目录应包含电子表格文件，还有一个子目录应包含文字处理文档，等等。目录也是文件，它们和普通文件一样遵循相同的命名规则，并且利用全路径可以唯一地指定一个目录。
+
+语法
+mkdir (选项)(参数)
+选项
+-Z：设置安全上下文，当使用SELinux时有效；
+-m<目标属性>或--mode<目标属性>建立目录的同时设置目录的权限；
+-p或--parents 若所要建立目录的上层目录目前尚未建立，则会一并建立上层目录；
+--version 显示版本信息。
+参数
+目录：指定要创建的目录列表，多个目录之间用空格隔开。
+
+实例
+在目录/usr/meng下建立子目录test，并且只有文件主有读、写和执行权限，其他人无权访问
+
+mkdir -m 700 /usr/meng/test
+在当前目录中建立bin和bin下的os_1目录，权限设置为文件主可读、写、执行，同组用户可读和执行，其他用户无权访问
+
+mkdir -p-m 750 bin/os_1
+
+
+
+
+
+
+
+find命令文件查找和比较
+find命令用来在指定目录下查找文件。任何位于参数之前的字符串都将被视为欲查找的目录名。如果使用该命令时，不设置任何参数，则find命令将在当前目录下查找子目录与文件。并且将查找到的子目录和文件全部进行显示。
+语法
+find(选项)(参数)
+选项
+-amin<分钟>：查找在指定时间曾被存取过的文件或目录，单位以分钟计算；
+-anewer<参考文件或目录>：查找其存取时间较指定文件或目录的存取时间更接近现在的文件或目录；
+-atime<24小时数>：查找在指定时间曾被存取过的文件或目录，单位以24小时计算；
+-cmin<分钟>：查找在指定时间之时被更改过的文件或目录；
+-cnewer<参考文件或目录>查找其更改时间较指定文件或目录的更改时间更接近现在的文件或目录；
+-ctime<24小时数>：查找在指定时间之时被更改的文件或目录，单位以24小时计算；
+-daystart：从本日开始计算时间；
+-depth：从指定目录下最深层的子目录开始查找；
+-empty：寻找文件大小为0 Byte的文件，或目录下没有任何子目录或文件的空目录；
+-exec<执行指令>：假设find指令的回传值为True，就执行该指令；
+-false：将find指令的回传值皆设为False；
+-fls<列表文件>：此参数的效果和指定“-ls”参数类似，但会把结果保存为指定的列表文件；
+-follow：排除符号连接；
+-fprint<列表文件>：此参数的效果和指定“-print”参数类似，但会把结果保存成指定的列表文件；
+-fprint0<列表文件>：此参数的效果和指定“-print0”参数类似，但会把结果保存成指定的列表文件；
+-fprintf<列表文件><输出格式>：此参数的效果和指定“-printf”参数类似，但会把结果保存成指定的列表文件；
+-fstype<文件系统类型>：只寻找该文件系统类型下的文件或目录；
+-gid<群组识别码>：查找符合指定之群组识别码的文件或目录；
+-group<群组名称>：查找符合指定之群组名称的文件或目录；
+-help或——help：在线帮助；
+-ilname<范本样式>：此参数的效果和指定“-lname”参数类似，但忽略字符大小写的差别；
+-iname<范本样式>：此参数的效果和指定“-name”参数类似，但忽略字符大小写的差别；
+-inum<inode编号>：查找符合指定的inode编号的文件或目录；
+-ipath<范本样式>：此参数的效果和指定“-path”参数类似，但忽略字符大小写的差别；
+-iregex<范本样式>：此参数的效果和指定“-regexe”参数类似，但忽略字符大小写的差别；
+-links<连接数目>：查找符合指定的硬连接数目的文件或目录；
+-iname<范本样式>：指定字符串作为寻找符号连接的范本样式；
+-ls：假设find指令的回传值为Ture，就将文件或目录名称列出到标准输出；
+-maxdepth<目录层级>：设置最大目录层级；
+-mindepth<目录层级>：设置最小目录层级；
+-mmin<分钟>：查找在指定时间曾被更改过的文件或目录，单位以分钟计算；
+-mount：此参数的效果和指定“-xdev”相同；
+-mtime<24小时数>：查找在指定时间曾被更改过的文件或目录，单位以24小时计算；
+-name<范本样式>：指定字符串作为寻找文件或目录的范本样式；
+-newer<参考文件或目录>：查找其更改时间较指定文件或目录的更改时间更接近现在的文件或目录；
+-nogroup：找出不属于本地主机群组识别码的文件或目录；
+-noleaf：不去考虑目录至少需拥有两个硬连接存在；
+-nouser：找出不属于本地主机用户识别码的文件或目录；
+-ok<执行指令>：此参数的效果和指定“-exec”类似，但在执行指令之前会先询问用户，若回答“y”或“Y”，则放弃执行命令；
+-path<范本样式>：指定字符串作为寻找目录的范本样式；
+-perm<权限数值>：查找符合指定的权限数值的文件或目录；
+-print：假设find指令的回传值为Ture，就将文件或目录名称列出到标准输出。格式为每列一个名称，每个名称前皆有“./”字符串；
+-print0：假设find指令的回传值为Ture，就将文件或目录名称列出到标准输出。格式为全部的名称皆在同一行；
+-printf<输出格式>：假设find指令的回传值为Ture，就将文件或目录名称列出到标准输出。格式可以自行指定；
+-prune：不寻找字符串作为寻找文件或目录的范本样式;
+-regex<范本样式>：指定字符串作为寻找文件或目录的范本样式；
+-size<文件大小>：查找符合指定的文件大小的文件；
+-true：将find指令的回传值皆设为True；
+-type<文件类型>：只寻找符合指定的文件类型的文件；
+-uid<用户识别码>：查找符合指定的用户识别码的文件或目录；
+-used<日数>：查找文件或目录被更改之后在指定时间曾被存取过的文件或目录，单位以日计算；
+-user<拥有者名称>：查找符和指定的拥有者名称的文件或目录；
+-version或——version：显示版本信息；
+-xdev：将范围局限在先行的文件系统中；
+-xtype<文件类型>：此参数的效果和指定“-type”参数类似，差别在于它针对符号连接检查。
+参数
+起始目录：查找文件的起始目录。
+
+实例
+根据文件或者正则表达式进行匹配
+列出当前目录及子目录下所有文件和文件夹
+
+find .
+在/home目录下查找以.txt结尾的文件名
+
+find /home -name "*.txt"
+同上，但忽略大小写
+
+find /home -iname "*.txt"
+当前目录及子目录下查找所有以.txt和.pdf结尾的文件
+
+find . \( -name "*.txt" -o -name "*.pdf" \)
+
+或
+
+find . -name "*.txt" -o -name "*.pdf"
+匹配文件路径或者文件
+
+find /usr/ -path "*local*"
+基于正则表达式匹配文件路径
+
+find . -regex ".*\(\.txt\|\.pdf\)$"
+同上，但忽略大小写
+
+find . -iregex ".*\(\.txt\|\.pdf\)$"
+否定参数
+找出/home下不是以.txt结尾的文件
+
+find /home ! -name "*.txt"
+根据文件类型进行搜索
+find . -type 类型参数
+类型参数列表：
+
+f 普通文件
+l 符号连接
+d 目录
+c 字符设备
+b 块设备
+s 套接字
+p Fifo
+基于目录深度搜索
+向下最大深度限制为3
+
+find . -maxdepth 3 -type f
+搜索出深度距离当前目录至少2个子目录的所有文件
+
+find . -mindepth 2 -type f
+根据文件时间戳进行搜索
+find . -type f 时间戳
+UNIX/Linux文件系统每个文件都有三种时间戳：
+
+访问时间（-atime/天，-amin/分钟）：用户最近一次访问时间。
+修改时间（-mtime/天，-mmin/分钟）：文件最后一次修改时间。
+变化时间（-ctime/天，-cmin/分钟）：文件数据元（例如权限等）最后一次修改时间。
+搜索最近七天内被访问过的所有文件
+
+find . -type f -atime -7
+搜索恰好在七天前被访问过的所有文件
+
+find . -type f -atime 7
+搜索超过七天内被访问过的所有文件
+
+find . -type f -atime +7
+搜索访问时间超过10分钟的所有文件
+
+find . -type f -amin +10
+找出比file.log修改时间更长的所有文件
+
+find . -type f -newer file.log
+根据文件大小进行匹配
+find . -type f -size 文件大小单元
+文件大小单元：
+
+b —— 块（512字节）
+c —— 字节
+w —— 字（2字节）
+k —— 千字节
+M —— 兆字节
+G —— 吉字节
+搜索大于10KB的文件
+
+find . -type f -size +10k
+搜索小于10KB的文件
+
+find . -type f -size -10k
+搜索等于10KB的文件
+
+find . -type f -size 10k
+删除匹配文件
+删除当前目录下所有.txt文件
+
+find . -type f -name "*.txt" -delete
+根据文件权限/所有权进行匹配
+当前目录下搜索出权限为777的文件
+
+find . -type f -perm 777
+找出当前目录下权限不是644的php文件
+
+find . -type f -name "*.php" ! -perm 644
+找出当前目录用户tom拥有的所有文件
+
+find . -type f -user tom
+找出当前目录用户组sunk拥有的所有文件
+
+find . -type f -group sunk
+借助-exec选项与其他命令结合使用
+找出当前目录下所有root的文件，并把所有权更改为用户tom
+
+find .-type f -user root -exec chown tom {} \;
+上例中，{} 用于与-exec选项结合使用来匹配所有文件，然后会被替换为相应的文件名。
+
+找出自己家目录下所有的.txt文件并删除
+
+find $HOME/. -name "*.txt" -ok rm {} \;
+上例中，-ok和-exec行为一样，不过它会给出提示，是否执行相应的操作。
+
+查找当前目录下所有.txt文件并把他们拼接起来写入到all.txt文件中
+
+find . -type f -name "*.txt" -exec cat {} \;> all.txt
+将30天前的.log文件移动到old目录中
+
+find . -type f -mtime +30 -name "*.log" -exec cp {} old \;
+找出当前目录下所有.txt文件并以“File:文件名”的形式打印出来
+
+find . -type f -name "*.txt" -exec printf "File: %s\n" {} \;
+因为单行命令中-exec参数中无法使用多个命令，以下方法可以实现在-exec之后接受多条命令
+
+-exec ./text.sh {} \;
+搜索但跳出指定的目录
+查找当前目录或者子目录下所有.txt文件，但是跳过子目录sk
+
+find . -path "./sk" -prune -o -name "*.txt" -print
+find其他技巧收集
+要列出所有长度为零的文件
+
+find . -empty
+
+
+
+
+
+
+
+
+cp命令目录基本操作
+cp命令用来将一个或多个源文件或者目录复制到指定的目的文件或目录。它可以将单个源文件复制成一个指定文件名的具体的文件或一个已经存在的目录下。cp命令还支持同时复制多个文件，当一次复制多个文件时，目标文件参数必须是一个已经存在的目录，否则将出现错误。
+
+语法
+cp(选项)(参数)
+选项
+-a：此参数的效果和同时指定"-dpR"参数相同；
+-d：当复制符号连接时，把目标文件或目录也建立为符号连接，并指向与源文件或目录连接的原始文件或目录；
+-f：强行复制文件或目录，不论目标文件或目录是否已存在；
+-i：覆盖既有文件之前先询问用户；
+-l：对源文件建立硬连接，而非复制文件；
+-p：保留源文件或目录的属性；
+-R/r：递归处理，将指定目录下的所有文件与子目录一并处理；
+-s：对源文件建立符号连接，而非复制文件；
+-u：使用这项参数后只会在源文件的更改时间较目标文件更新时或是名称相互对应的目标文件并不存在时，才复制文件；
+-S：在备份文件时，用指定的后缀“SUFFIX”代替文件的默认后缀；
+-b：覆盖已存在的文件目标前将目标文件备份；
+-v：详细显示命令执行的操作。
+参数
+源文件：制定源文件列表。默认情况下，cp命令不能复制目录，如果要复制目录，则必须使用-R选项；
+目标文件：指定目标文件。当“源文件”为多个文件时，要求“目标文件”为指定的目录。
+实例
+如果把一个文件复制到一个目标文件中，而目标文件已经存在，那么，该目标文件的内容将被破坏。此命令中所有参数既可以是绝对路径名，也可以是相对路径名。通常会用到点.或点点..的形式。例如，下面的命令将指定文件复制到当前目录下：
+
+cp ../mary/homework/assign .
+所有目标文件指定的目录必须是己经存在的，cp命令不能创建目录。如果没有文件复制的权限，则系统会显示出错信息。
+
+将文件file复制到目录/usr/men/tmp下，并改名为file1
+
+cp file /usr/men/tmp/file1
+将目录/usr/men下的所有文件及其子目录复制到目录/usr/zh中
+
+cp -r /usr/men /usr/zh
+交互式地将目录/usr/men中的以m打头的所有.c文件复制到目录/usr/zh中
+
+cp -i /usr/men m*.c /usr/zh
+我们在Linux下使用cp命令复制文件时候，有时候会需要覆盖一些同名文件，覆盖文件的时候都会有提示：需要不停的按Y来确定执行覆盖。文件数量不多还好，但是要是几百个估计按Y都要吐血了，于是折腾来半天总结了一个方法：
+
+cp aaa/* /bbb
+复制目录aaa下所有到/bbb目录下，这时如果/bbb目录下有和aaa同名的文件，需要按Y来确认并且会略过aaa目录下的子目录。
+
+cp -r aaa/* /bbb
+这次依然需要按Y来确认操作，但是没有忽略子目录。
+
+cp -r -a aaa/* /bbb
+依然需要按Y来确认操作，并且把aaa目录以及子目录和文件属性也传递到了/bbb。
+
+\cp -r -a aaa/* /bbb
+成功，没有提示按Y、传递了目录属性、没有略过目录。
+
+
+
+
+
+
+
+
+rm命令目录基本操作
+rm命令可以删除一个目录中的一个或多个文件或目录，也可以将某个目录及其下属的所有文件及其子目录均删除掉。对于链接文件，只是删除整个链接文件，而原有文件保持不变。
+
+注意：使用rm命令要格外小心。因为一旦删除了一个文件，就无法再恢复它。所以，在删除文件之前，最好再看一下文件的内容，确定是否真要删除。rm命令可以用-i选项，这个选项在使用文件扩展名字符删除多个文件时特别有用。使用这个选项，系统会要求你逐一确定是否要删除。这时，必须输入y并按Enter键，才能删除文件。如果仅按Enter键或其他字符，文件不会被删除。
+
+语法
+rm (选项)(参数)
+选项
+-d：直接把欲删除的目录的硬连接数据删除成0，删除该目录；
+-f：强制删除文件或目录；
+-i：删除已有文件或目录之前先询问用户；
+-r或-R：递归处理，将指定目录下的所有文件与子目录一并处理；
+--preserve-root：不对根目录进行递归操作；
+-v：显示指令的详细执行过程。
+参数
+文件：指定被删除的文件列表，如果参数中含有目录，则必须加上-r或者-R选项。
+
+实例
+交互式删除当前目录下的文件test和example
+
+rm -i test example
+Remove test ?n（不删除文件test)
+Remove example ?y（删除文件example)
+删除当前目录下除隐含文件外的所有文件和子目录
+
+# rm -r *
+应注意，这样做是非常危险的!
+
+
+
+
+
+
+
+
+mv命令目录基本操作
+mv命令用来对文件或目录重新命名，或者将文件从一个目录移到另一个目录中。source表示源文件或目录，target表示目标文件或目录。如果将一个文件移到一个已经存在的目标文件中，则目标文件的内容将被覆盖。
+
+mv命令可以用来将源文件移至一个目标文件中，或将一组文件移至一个目标目录中。源文件被移至目标文件有两种不同的结果：
+
+如果目标文件是到某一目录文件的路径，源文件会被移到此目录下，且文件名不变。
+如果目标文件不是目录文件，则源文件名（只能有一个）会变为此目标文件名，并覆盖己存在的同名文件。如果源文件和目标文件在同一个目录下，mv的作用就是改文件名。当目标文件是目录文件时，源文件或目录参数可以有多个，则所有的源文件都会被移至目标文件中。所有移到该目录下的文件都将保留以前的文件名。
+注意事项：mv与cp的结果不同，mv好像文件“搬家”，文件个数并未增加。而cp对文件进行复制，文件个数增加了。
+
+语法
+mv(选项)(参数)
+选项
+--backup=<备份模式>：若需覆盖文件，则覆盖前先行备份；
+-b：当文件存在时，覆盖前，为其创建一个备份；
+-f：若目标文件或目录与现有的文件或目录重复，则直接覆盖现有的文件或目录；
+-i：交互式操作，覆盖前先行询问用户，如果源文件与目标文件或目标目录中的文件同名，则询问用户是否覆盖目标文件。用户输入”y”，表示将覆盖目标文件；输入”n”，表示取消对源文件的移动。这样可以避免误将文件覆盖。
+--strip-trailing-slashes：删除源文件中的斜杠“/”；
+-S<后缀>：为备份文件指定后缀，而不使用默认的后缀；
+--target-directory=<目录>：指定源文件要移动到目标目录；
+-u：当源文件比目标文件新或者目标文件不存在时，才执行移动操作。
+参数
+源文件：源文件列表。
+目标文件：如果“目标文件”是文件名则在移动文件的同时，将其改名为“目标文件”；如果“目标文件”是目录名则将源文件移动到“目标文件”下。
+实例
+将文件ex3改名为new1
+
+mv ex3 new1
+将目录/usr/men中的所有文件移到当前目录（用.表示）中：
+
+mv /usr/men/* .
+
+
+
+
+
+
+
+wc命令文件过滤分割与合并
+wc命令用来计算数字。利用wc指令我们可以计算文件的Byte数、字数或是列数，若不指定文件名称，或是所给予的文件名为“-”，则wc指令会从标准输入设备读取数据。
+
+语法
+wc(选项)(参数)
+选项
+-c或--bytes或——chars：只显示Bytes数；
+-l或——lines：只显示列数；
+-w或——words：只显示字数。
+参数
+文件：需要统计的文件列表。
+
+
+
+
+
+
+head命令文件内容查看
+head命令用于显示文件的开头的内容。在默认情况下，head命令显示文件的头10行内容。
+
+语法
+head(选项)(参数)
+选项
+-n<数字>：指定显示头部内容的行数；
+-c<字符数>：指定显示头部内容的字符数；
+-v：总是显示文件名的头信息；
+-q：不显示文件名的头信息。
+参数
+文件列表：指定显示头部内容的文件列表。
+
+
+
+
+
+tail命令文件内容查看
+tail命令用于输入文件中的尾部内容。tail命令默认在屏幕上显示指定文件的末尾10行。如果给定的文件不止一个，则在显示的每个文件前面加一个文件名标题。如果没有指定文件或者文件名为“-”，则读取标准输入。
+
+注意：如果表示字节或行数的N值之前有一个”+”号，则从文件开头的第N项开始显示，而不是显示文件的最后N项。N值后面可以有后缀：b表示512，k表示1024，m表示1 048576(1M)。
+
+语法
+tail(选项)(参数)
+选项
+--retry：即是在tail命令启动时，文件不可访问或者文件稍后变得不可访问，都始终尝试打开文件。使用此选项时需要与选项“——follow=name”连用；
+-c<N>或——bytes=<N>：输出文件尾部的N（N为整数）个字节内容；
+-f<name/descriptor>或；--follow<nameldescript>：显示文件最新追加的内容。“name”表示以文件名的方式监视文件的变化。“-f”与“-fdescriptor”等效；
+-F：与选项“-follow=name”和“--retry"连用时功能相同；
+-n<N>或——line=<N>：输出文件的尾部N（N位数字）行内容。
+--pid=<进程号>：与“-f”选项连用，当指定的进程号的进程终止后，自动退出tail命令；
+-q或——quiet或——silent：当有多个文件参数时，不输出各个文件名；
+-s<秒数>或——sleep-interal=<秒数>：与“-f”选项连用，指定监视文件变化时间隔的秒数；
+-v或——verbose：当有多个文件参数时，总是输出各个文件名；
+--help：显示指令的帮助信息；
+--version：显示指令的版本信息。
+参数
+文件列表：指定要显示尾部内容的文件列表。
+
+实例
+tail file （显示文件file的最后10行）
+tail +20 file （显示文件file的内容，从第20行至文件末尾）
+tail -c 10 file （显示文件file的最后10个字符）
+
+
+
+
+
+
+
+rmdir命令目录基本操作
+rmdir命令用来删除空目录。当目录不再被使用时，或者磁盘空间已到达使用限定值，就需要删除失去使用价值的目录。利用rmdir命令可以从一个目录中删除一个或多个空的子目录。该命令从一个目录中删除一个或多个子目录，其中dirname佬表示目录名。如果dirname中没有指定路径，则删除当前目录下由dirname指定的目录；如dirname中包含路径，则删除指定位置的目录。删除目录时，必须具有对其父目录的写权限。
+
+注意：子目录被删除之前应该是空目录。就是说，该目录中的所有文件必须用rm命令全部，另外，当前工作目录必须在被删除目录之上，不能是被删除目录本身，也不能是被删除目录的子目录。
+
+虽然还可以用带有-r选项的rm命令递归删除一个目录中的所有文件和该目录本身，但是这样做存在很大的危险性。
+
+语法
+rmdir(选项)(参数)
+选项
+-p或--parents：删除指定目录后，若该目录的上层目录已变成空目录，则将其一并删除；
+--ignore-fail-on-non-empty：此选项使rmdir命令忽略由于删除非空目录时导致的错误信息；
+-v或-verboes：显示命令的详细执行过程；
+--help：显示命令的帮助信息；
+--version：显示命令的版本信息。
+参数
+目录列表：要删除的空目录列表。当删除多个空目录时，目录名之间使用空格隔开。
+
+实例
+删除子目录os_1和其父目录bin
+
+cd /usr/meng/test
+rmdir -p bin/os_1
+
+
+
+
+
+
+
+
+
+
+
+
+
+echo命令Shell内建命令
+echo命令用于在shell中打印shell变量的值，或者直接输出指定的字符串。linux的echo命令，在shell编程中极为常用, 在终端下打印变量value的时候也是常常用到的，因此有必要了解下echo的用法echo命令的功能是在显示器上显示一段文字，一般起到一个提示的作用。
+
+语法
+echo(选项)(参数)
+选项
+-e：激活转义字符。
+使用-e选项时，若字符串中出现以下字符，则特别加以处理，而不会将它当成一般文字输出：
+
+\a 发出警告声；
+\b 删除前一个字符；
+\c 最后不加上换行符号；
+\f 换行但光标仍旧停留在原来的位置；
+\n 换行且光标移至行首；
+\r 光标移至行首，但不换行；
+\t 插入tab；
+\v 与\f相同；
+\\ 插入\字符；
+\nnn 插入nnn（八进制）所代表的ASCII字符；
+参数
+变量：指定要打印的变量。
+
+实例
+用echo命令打印带有色彩的文字：
+
+文字色：
+
+echo -e "\e[1;31mThis is red text\e[0m"
+This is red text
+\e[1;31m 将颜色设置为红色
+\e[0m 将颜色重新置回
+颜色码：重置=0，黑色=30，红色=31，绿色=32，黄色=33，蓝色=34，洋红=35，青色=36，白色=37
+
+背景色：
+
+echo -e "\e[1;42mGreed Background\e[0m"
+Greed Background
+颜色码：重置=0，黑色=40，红色=41，绿色=42，黄色=43，蓝色=44，洋红=45，青色=46，白色=47
+
+文字闪动：
+
+echo -e "\033[37;31;5mMySQL Server Stop...\033[39;49;0m"
+红色数字处还有其他数字参数：0 关闭所有属性、1 设置高亮度（加粗）、4 下划线、5 闪烁、7 反显、8 消隐
+
+
+
+
+
+
+
+
+
+
+
+
+grep命令文件过滤分割与合并
+grep（global search regular expression(RE) and print out the line，全面搜索正则表达式并把行打印出来）是一种强大的文本搜索工具，它能使用正则表达式搜索文本，并把匹配的行打印出来。
+
+选项
+-a 不要忽略二进制数据。
+-A<显示列数> 除了显示符合范本样式的那一行之外，并显示该行之后的内容。
+-b 在显示符合范本样式的那一行之外，并显示该行之前的内容。
+-c 计算符合范本样式的列数。
+-C<显示列数>或-<显示列数>  除了显示符合范本样式的那一列之外，并显示该列之前后的内容。
+-d<进行动作> 当指定要查找的是目录而非文件时，必须使用这项参数，否则grep命令将回报信息并停止动作。
+-e<范本样式> 指定字符串作为查找文件内容的范本样式。
+-E 将范本样式为延伸的普通表示法来使用，意味着使用能使用扩展正则表达式。
+-f<范本文件> 指定范本文件，其内容有一个或多个范本样式，让grep查找符合范本条件的文件内容，格式为每一列的范本样式。
+-F 将范本样式视为固定字符串的列表。
+-G 将范本样式视为普通的表示法来使用。
+-h 在显示符合范本样式的那一列之前，不标示该列所属的文件名称。
+-H 在显示符合范本样式的那一列之前，标示该列的文件名称。
+-i 忽略字符大小写的差别。
+-l 列出文件内容符合指定的范本样式的文件名称。
+-L 列出文件内容不符合指定的范本样式的文件名称。
+-n 在显示符合范本样式的那一列之前，标示出该列的编号。
+-q 不显示任何信息。
+-R/-r 此参数的效果和指定“-d recurse”参数相同。
+-s 不显示错误信息。
+-v 反转查找。
+-w 只显示全字符合的列。
+-x 只显示全列符合的列。
+-y 此参数效果跟“-i”相同。
+-o 只输出文件中匹配到的部分。
+grep命令常见用法
+在文件中搜索一个单词，命令会返回一个包含“match_pattern”的文本行：
+
+grep match_pattern file_name
+grep "match_pattern" file_name
+在多个文件中查找：
+
+grep "match_pattern" file_1 file_2 file_3 ...
+输出除之外的所有行 -v 选项：
+
+grep -v "match_pattern" file_name
+标记匹配颜色 --color=auto 选项：
+
+grep "match_pattern" file_name --color=auto
+使用正则表达式 -E 选项：
+
+grep -E "[1-9]+"
+或
+egrep "[1-9]+"
+只输出文件中匹配到的部分 -o 选项：
+
+echo this is a test line. | grep -o -E "[a-z]+\."
+line.
+
+echo this is a test line. | egrep -o "[a-z]+\."
+line.
+统计文件或者文本中包含匹配字符串的行数 -c 选项：
+
+grep -c "text" file_name
+输出包含匹配字符串的行数 -n 选项：
+
+grep "text" -n file_name
+或
+cat file_name | grep "text" -n
+
+#多个文件
+grep "text" -n file_1 file_2
+打印样式匹配所位于的字符或字节偏移：
+
+echo gun is not unix | grep -b -o "not"
+7:not
+
+#一行中字符串的字符便宜是从该行的第一个字符开始计算，起始值为0。选项 -b -o 一般总是配合使用。
+搜索多个文件并查找匹配文本在哪些文件中：
+
+grep -l "text" file1 file2 file3...
+grep递归搜索文件
+在多级目录中对文本进行递归搜索：
+
+grep "text" . -r -n
+# .表示当前目录。
+忽略匹配样式中的字符大小写：
+
+echo "hello world" | grep -i "HELLO"
+hello
+选项 -e 制动多个匹配样式：
+
+echo this is a text line | grep -e "is" -e "line" -o
+is
+line
+
+#也可以使用-f选项来匹配多个样式，在样式文件中逐行写出需要匹配的字符。
+cat patfile
+aaa
+bbb
+
+echo aaa bbb ccc ddd eee | grep -f patfile -o
+在grep搜索结果中包括或者排除指定文件：
+
+#只在目录中所有的.php和.html文件中递归搜索字符"main()"
+grep "main()" . -r --include *.{php,html}
+
+#在搜索结果中排除所有README文件
+grep "main()" . -r --exclude "README"
+
+#在搜索结果中排除filelist文件列表里的文件
+grep "main()" . -r --exclude-from filelist
+使用0值字节后缀的grep与xargs：
+
+#测试文件：
+echo "aaa" > file1
+echo "bbb" > file2
+echo "aaa" > file3
+
+grep "aaa" file* -lZ | xargs -0 rm
+
+#执行后会删除file1和file3，grep输出用-Z选项来指定以0值字节作为终结符文件名（\0），xargs -0 读取输入并用0值字节终结符分隔文件名，然后删除匹配文件，-Z通常和-l结合使用。
+grep静默输出：
+
+grep -q "test" filename
+
+#不会输出任何信息，如果命令运行成功返回0，失败则返回非0值。一般用于条件测试。
+打印出匹配文本之前或者之后的行：
+
+#显示匹配某个结果之后的3行，使用 -A 选项：
+seq 10 | grep "5" -A 3
+5
+6
+7
+8
+
+#显示匹配某个结果之前的3行，使用 -B 选项：
+seq 10 | grep "5" -B 3
+2
+3
+4
+5
+
+#显示匹配某个结果的前三行和后三行，使用 -C 选项：
+seq 10 | grep "5" -C 3
+2
+3
+4
+5
+6
+7
+8
+
+#如果匹配结果有多个，会用“--”作为各匹配结果之间的分隔符：
+echo -e "a\nb\nc\na\nb\nc" | grep a -A 1
+a
+b
+--
+a
+b
+
+
+
+
+
+
+
+
+
+
+shutdown命令系统关机和重启
+shutdown命令用来系统关机命令。shutdown指令可以关闭所有程序，并依用户的需要，进行重新开机或关机的动作。
+
+语法
+shutdown(选项)(参数)
+选项
+-c：当执行“shutdown -h 11:50”指令时，只要按+键就可以中断关机的指令；
+-f：重新启动时不执行fsck；
+-F：重新启动时执行fsck；
+-h：将系统关机；
+-k：只是送出信息给所有用户，但不会实际关机；
+-n：不调用init程序进行关机，而由shutdown自己进行；
+-r：shutdown之后重新启动；
+-t<秒数>：送出警告信息和删除信息之间要延迟多少秒。
+参数
+[时间]：设置多久时间后执行shutdown指令；
+[警告信息]：要传送给所有登入用户的信息。
+实例
+指定现在立即关机：
+
+shutdown -h now
+指定5分钟后关机，同时送出警告信息给登入用户：
+
+shutdown +5 "System will shutdown after 5 minutes"
+
+
+
+
+
+
+
+
+
+sort命令文件过滤分割与合并
+sort命令是在Linux里非常有用，它将文件进行排序，并将排序结果标准输出。sort命令既可以从特定的文件，也可以从stdin中获取输入。
+
+语法
+sort(选项)(参数)
+选项
+-b：忽略每行前面开始出的空格字符；
+-c：检查文件是否已经按照顺序排序；
+-d：排序时，处理英文字母、数字及空格字符外，忽略其他的字符；
+-f：排序时，将小写字母视为大写字母；
+-i：排序时，除了040至176之间的ASCII字符外，忽略其他的字符；
+-m：将几个排序号的文件进行合并；
+-M：将前面3个字母依照月份的缩写进行排序；
+-n：依照数值的大小排序；
+-o<输出文件>：将排序后的结果存入制定的文件；
+-r：以相反的顺序来排序；
+-t<分隔字符>：指定排序时所用的栏位分隔字符；
++<起始栏位>-<结束栏位>：以指定的栏位来排序，范围由起始栏位到结束栏位的前一栏位。
+参数
+文件：指定待排序的文件列表。
+
+实例
+sort将文件/文本的每一行作为一个单位，相互比较，比较原则是从首字符向后，依次按ASCII码值进行比较，最后将他们按升序输出。
+
+[root@mail text]# cat sort.txt
+aaa:10:1.1
+ccc:30:3.3
+ddd:40:4.4
+bbb:20:2.2
+eee:50:5.5
+eee:50:5.5
+
+[root@mail text]# sort sort.txt
+aaa:10:1.1
+bbb:20:2.2
+ccc:30:3.3
+ddd:40:4.4
+eee:50:5.5
+eee:50:5.5
+忽略相同行使用-u选项或者uniq：
+
+[root@mail text]# cat sort.txt
+aaa:10:1.1
+ccc:30:3.3
+ddd:40:4.4
+bbb:20:2.2
+eee:50:5.5
+eee:50:5.5
+
+[root@mail text]# sort -u sort.txt
+aaa:10:1.1
+bbb:20:2.2
+ccc:30:3.3
+ddd:40:4.4
+eee:50:5.5
+
+或者
+
+[root@mail text]# uniq sort.txt
+aaa:10:1.1
+ccc:30:3.3
+ddd:40:4.4
+bbb:20:2.2
+eee:50:5.5
+sort的-n、-r、-k、-t选项的使用：
+
+[root@mail text]# cat sort.txt
+AAA:BB:CC
+aaa:30:1.6
+ccc:50:3.3
+ddd:20:4.2
+bbb:10:2.5
+eee:40:5.4
+eee:60:5.1
+
+#将BB列按照数字从小到大顺序排列：
+[root@mail text]# sort -nk 2 -t: sort.txt
+AAA:BB:CC
+bbb:10:2.5
+ddd:20:4.2
+aaa:30:1.6
+eee:40:5.4
+ccc:50:3.3
+eee:60:5.1
+
+#将CC列数字从大到小顺序排列：
+[root@mail text]# sort -nrk 3 -t: sort.txt
+eee:40:5.4
+eee:60:5.1
+ddd:20:4.2
+ccc:50:3.3
+bbb:10:2.5
+aaa:30:1.6
+AAA:BB:CC
+
+# -n是按照数字大小排序，-r是以相反顺序，-k是指定需要爱排序的栏位，-t指定栏位分隔符为冒号
+-k选项的具体语法格式：
+
+-k选项的语法格式：
+
+FStart.CStart Modifie,FEnd.CEnd Modifier
+-------Start--------,-------End--------
+ FStart.CStart 选项  ,  FEnd.CEnd 选项
+这个语法格式可以被其中的逗号,分为两大部分，Start部分和End部分。Start部分也由三部分组成，其中的Modifier部分就是我们之前说过的类似n和r的选项部分。我们重点说说Start部分的FStart和C.Start。C.Start也是可以省略的，省略的话就表示从本域的开头部分开始。FStart.CStart，其中FStart就是表示使用的域，而CStart则表示在FStart域中从第几个字符开始算“排序首字符”。同理，在End部分中，你可以设定FEnd.CEnd，如果你省略.CEnd，则表示结尾到“域尾”，即本域的最后一个字符。或者，如果你将CEnd设定为0(零)，也是表示结尾到“域尾”。
+
+从公司英文名称的第二个字母开始进行排序：
+
+$ sort -t ' ' -k 1.2 facebook.txt
+baidu 100 5000
+sohu 100 4500
+google 110 5000
+guge 50 3000
+使用了-k 1.2，表示对第一个域的第二个字符开始到本域的最后一个字符为止的字符串进行排序。你会发现baidu因为第二个字母是a而名列榜首。sohu和 google第二个字符都是o，但sohu的h在google的o前面，所以两者分别排在第二和第三。guge只能屈居第四了。
+
+只针对公司英文名称的第二个字母进行排序，如果相同的按照员工工资进行降序排序：
+
+$ sort -t ' ' -k 1.2,1.2 -nrk 3,3 facebook.txt
+baidu 100 5000
+google 110 5000
+sohu 100 4500
+guge 50 3000
+由于只对第二个字母进行排序，所以我们使用了-k 1.2,1.2的表示方式，表示我们“只”对第二个字母进行排序。（如果你问“我使用-k 1.2怎么不行？”，当然不行，因为你省略了End部分，这就意味着你将对从第二个字母起到本域最后一个字符为止的字符串进行排序）。对于员工工资进行排 序，我们也使用了-k 3,3，这是最准确的表述，表示我们“只”对本域进行排序，因为如果你省略了后面的3，就变成了我们“对第3个域开始到最后一个域位置的内容进行排序” 了。
+
+
+
+
+
+
+
+
+
+chmod命令文件权限属性设置
+chmod命令用来变更文件或目录的权限。在UNIX系统家族里，文件或目录权限的控制分别以读取、写入、执行3种一般权限来区分，另有3种特殊权限可供运用。用户可以使用chmod指令去变更文件与目录的权限，设置方式采用文字或数字代号皆可。符号连接的权限无法变更，如果用户对符号连接修改权限，其改变会作用在被连接的原始文件。
+
+权限范围的表示法如下：
+
+u User，即文件或目录的拥有者；
+g Group，即文件或目录的所属群组；
+o Other，除了文件或目录拥有者或所属群组之外，其他用户皆属于这个范围；
+a All，即全部的用户，包含拥有者，所属群组以及其他用户；
+r 读取权限，数字代号为“4”;
+w 写入权限，数字代号为“2”；
+x 执行或切换权限，数字代号为“1”；
+- 不具任何权限，数字代号为“0”；
+s 特殊功能说明：变更文件或目录的权限。
+
+语法
+chmod(选项)(参数)
+选项
+-c或——changes：效果类似“-v”参数，但仅回报更改的部分；
+-f或--quiet或——silent：不显示错误信息；
+-R或——recursive：递归处理，将指令目录下的所有文件及子目录一并处理；
+-v或——verbose：显示指令执行过程；
+--reference=<参考文件或目录>：把指定文件或目录的所属群组全部设成和参考文件或目录的所属群组相同；
+<权限范围>+<权限设置>：开启权限范围的文件或目录的该选项权限设置；
+<权限范围>-<权限设置>：关闭权限范围的文件或目录的该选项权限设置；
+<权限范围>=<权限设置>：指定权限范围的文件或目录的该选项权限设置；
+参数
+权限模式：指定文件的权限模式；
+文件：要改变权限的文件。
+
+知识扩展和实例
+Linux用 户分为：拥有者、组群(Group)、其他（other），Linux系统中，预设的情況下，系统中所有的帐号与一般身份使用者，以及root的相关信 息， 都是记录在/etc/passwd文件中。每个人的密码则是记录在/etc/shadow文件下。 此外，所有的组群名称记录在/etc/group內！
+
+linux文件的用户权限的分析图
+
+linux文件的用户权限的分析图
+
+例：rwx　rw-　r--
+
+r=读取属性　　//值＝4
+w=写入属性　　//值＝2
+x=执行属性　　//值＝1
+
+chmod u+x,g+w f01　　//为文件f01设置自己可以执行，组员可以写入的权限
+chmod u=rwx,g=rw,o=r f01
+chmod 764 f01
+chmod a+x f01　　//对文件f01的u,g,o都设置可执行属性
+文件的属主和属组属性设置
+
+chown user:market f01　　//把文件f01给uesr，添加到market组
+ll -d f1  查看目录f1的属性
+
+
+
+
+
+
+reboot命令系统关机和重启
+reboot命令用来重新启动正在运行的Linux操作系统。
+
+语法
+reboot(选项)
+选项
+-d：重新开机时不把数据写入记录文件/var/tmp/wtmp。本参数具有“-n”参数效果；
+-f：强制重新开机，不调用shutdown指令的功能；
+-i：在重开机之前，先关闭所有网络界面；
+-n：重开机之前不检查是否有未结束的程序；
+-w：仅做测试，并不真正将系统重新开机，只会把重开机的数据写入/var/log目录下的wtmp记录文件。
+实例
+reboot        //重开机。
+reboot -w     //做个重开机的模拟（只有纪录并不会真的重开机）。
+
+
+
+
+
+
+
+
+
+
+sudo命令系统安全
+sudo命令用来以其他身份来执行命令，预设的身份为root。在/etc/sudoers中设置了可执行sudo指令的用户。若其未经授权的用户企图使用sudo，则会发出警告的邮件给管理员。用户使用sudo时，必须先输入密码，之后有5分钟的有效期限，超过期限则必须重新输入密码。
+
+语法
+sudo(选项)(参数)
+选项
+-b：在后台执行指令；
+-h：显示帮助；
+-H：将HOME环境变量设为新身份的HOME环境变量；
+-k：结束密码的有效期限，也就是下次再执行sudo时便需要输入密码；。
+-l：列出目前用户可执行与无法执行的指令；
+-p：改变询问密码的提示符号；
+-s<shell>：执行指定的shell；
+-u<用户>：以指定的用户作为新的身份。若不加上此参数，则预设以root作为新的身份；
+-v：延长密码有效期限5分钟；
+-V ：显示版本信息。
+参数
+指令：需要运行的指令和对应的参数。
+
+实例
+配置sudo必须通过编辑/etc/sudoers文件，而且只有超级用户才可以修改它，还必须使用visudo编辑。之所以使用visudo有两个原因，一是它能够防止两个用户同时修改它；二是它也能进行有限的语法检查。所以，即使只有你一个超级用户，你也最好用visudo来检查一下语法。
+
+visudo默认的是在vi里打开配置文件，用vi来修改文件。我们可以在编译时修改这个默认项。visudo不会擅自保存带有语法错误的配置文件，它会提示你出现的问题，并询问该如何处理，就像：
+
+>>> sudoers file: syntax error, line 22 <<
+此时我们有三种选择：键入“e”是重新编辑，键入“x”是不保存退出，键入“Q”是退出并保存。如果真选择Q，那么sudo将不会再运行，直到错误被纠正。
+
+现在，我们一起来看一下神秘的配置文件，学一下如何编写它。让我们从一个简单的例子开始：让用户Foobar可以通过sudo执行所有root可执行的命令。以root身份用visudo打开配置文件，可以看到类似下面几行：
+
+# Runas alias specification
+# User privilege specificationroot    ALL=(ALL)ALL
+我们一看就明白个差不多了，root有所有权限，只要仿照现有root的例子就行，我们在下面加一行（最好用tab作为空白）：
+
+foobar ALL=(ALL)    ALL
+保存退出后，切换到foobar用户，我们用它的身份执行命令：
+
+[foobar@localhost ~]$ ls /root
+ls: /root: 权限不够
+
+[foobar@localhost ~]$ sudo ls /root
+PassWord:
+anaconda-ks.cfg Desktop install.log install.log.syslog
+好了，我们限制一下foobar的权利，不让他为所欲为。比如我们只想让他像root那样使用ls和ifconfig，把那一行改为：
+
+foobar localhost=    /sbin/ifconfig,   /bin/ls
+再来执行命令：
+
+[foobar@localhost ~]$ sudo head -5 /etc/shadow
+Password:
+Sorry, user foobar is not allowed to execute '/usr/bin/head -5 /etc/shadow' as root on localhost.localdomain.
+
+[foobar@localhost ~]$ sudo /sbin/ifconfigeth0      Linkencap:Ethernet HWaddr 00:14:85:EC:E9:9B...
+现在让我们来看一下那三个ALL到底是什么意思。第一个ALL是指网络中的主机，我们后面把它改成了主机名，它指明foobar可以在此主机上执行后面的命令。第二个括号里的ALL是指目标用户，也就是以谁的身份去执行命令。最后一个ALL当然就是指命令名了。例如，我们想让foobar用户在linux主机上以jimmy或rene的身份执行kill命令，这样编写配置文件：
+
+foobar    linux=(jimmy,rene)    /bin/kill
+但这还有个问题，foobar到底以jimmy还是rene的身份执行？这时我们应该想到了sudo -u了，它正是用在这种时候。 foobar可以使用sudo -u jimmy kill PID或者sudo -u rene kill PID，但这样挺麻烦，其实我们可以不必每次加-u，把rene或jimmy设为默认的目标用户即可。再在上面加一行：
+
+Defaults:foobar    runas_default=rene
+Defaults后面如果有冒号，是对后面用户的默认，如果没有，则是对所有用户的默认。就像配置文件中自带的一行：
+
+Defaults    env_reset
+另一个问题是，很多时候，我们本来就登录了，每次使用sudo还要输入密码就显得烦琐了。我们可不可以不再输入密码呢？当然可以，我们这样修改配置文件：
+
+foobar localhost=NOPASSWD:     /bin/cat, /bin/ls
+再来sudo一下：
+
+[foobar@localhost ~]$ sudo ls /rootanaconda-ks.cfg Desktop install.log
+install.log.syslog
+当然，你也可以说“某些命令用户foobar不可以运行”，通过使用!操作符，但这不是一个好主意。因为，用!操作符来从ALL中“剔出”一些命令一般是没什么效果的，一个用户完全可以把那个命令拷贝到别的地方，换一个名字后再来运行。
+
+日志与安全
+
+sudo为安全考虑得很周到，不仅可以记录日志，还能在有必要时向系统管理员报告。但是，sudo的日志功能不是自动的，必须由管理员开启。这样来做：
+
+touch /var/log/sudo
+vi /etc/syslog.conf
+在syslog.conf最后面加一行（必须用tab分割开）并保存：
+
+local2.debug                    /var/log/sudo
+重启日志守候进程，
+
+ps aux grep syslogd
+把得到的syslogd进程的PID（输出的第二列是PID）填入下面：
+
+kill –HUP PID
+这样，sudo就可以写日志了：
+
+[foobar@localhost ~]$ sudo ls /rootanaconda-ks.cfg
+Desktop install.log
+install.log.syslog
+$cat /var/log/sudoJul 28 22:52:54 localhost sudo:   foobar :
+TTY=pts/1 ; pwd=/home/foobar ; USER=root ; command=/bin/ls /root
+不过，有一个小小的“缺陷”，sudo记录日志并不是很忠实：
+
+[foobar@localhost ~]$ sudo cat /etc/shadow > /dev/null
+cat /var/log/sudo...Jul 28 23:10:24 localhost sudo:   foobar : TTY=pts/1 ;
+PWD=/home/foobar ; USER=root ; COMMAND=/bin/cat /etc/shadow
+重定向没有被记录在案！为什么？因为在命令运行之前，shell把重定向的工作做完了，sudo根本就没看到重定向。这也有个好处，下面的手段不会得逞：
+
+[foobar@localhost ~]$ sudo ls /root > /etc/shadowbash: /etc/shadow: 权限不够
+sudo 有自己的方式来保护安全。以root的身份执行sudo-V，查看一下sudo的设置。因为考虑到安全问题，一部分环境变量并没有传递给sudo后面的命令，或者被检查后再传递的，比如：PATH，HOME，SHELL等。当然，你也可以通过sudoers来配置这些环境变量。
+
+
+
+
+
+
+chown命令文件权限属性设置
+chown命令改变某个文件或目录的所有者和所属的组，该命令可以向某个用户授权，使该用户变成指定文件的所有者或者改变文件所属的组。用户可以是用户或者是用户D，用户组可以是组名或组id。文件名可以使由空格分开的文件列表，在文件名中可以包含通配符。
+
+只有文件主和超级用户才可以便用该命令。
+
+语法
+chown(选项)(参数)
+选项
+-c或——changes：效果类似“-v”参数，但仅回报更改的部分；
+-f或--quite或——silent：不显示错误信息；
+-h或--no-dereference：只对符号连接的文件作修改，而不更改其他任何相关文件；
+-R或——recursive：递归处理，将指定目录下的所有文件及子目录一并处理；
+-v或——version：显示指令执行过程；
+--dereference：效果和“-h”参数相同；
+--help：在线帮助；
+--reference=<参考文件或目录>：把指定文件或目录的拥有者与所属群组全部设成和参考文件或目录的拥有者与所属群组相同；
+--version：显示版本信息。
+参数
+用户：组：指定所有者和所属工作组。当省略“：组”，仅改变文件所有者；
+文件：指定要改变所有者和工作组的文件列表。支持多个文件和目标，支持shell通配符。
+
+实例
+将目录/usr/meng及其下面的所有文件、子目录的文件主改成 liu：
+
+chown -R liu /usr/meng
+
+
+
+
+
+
+
+chgrp命令文件权限属性设置
+chgrp命令用来改变文件或目录所属的用户组。该命令用来改变指定文件所属的用户组。其中，组名可以是用户组的id，也可以是用户组的组名。文件名可以 是由空格分开的要改变属组的文件列表，也可以是由通配符描述的文件集合。如果用户不是该文件的文件主或超级用户(root)，则不能改变该文件的组。
+
+在UNIX系统家族里，文件或目录权限的掌控以拥有者及所属群组来管理。您可以使用chgrp指令去变更文件与目录的所属群组，设置方式采用群组名称或群组识别码皆可。
+
+语法
+chgrp(选项)(参数)
+选项
+-c或——changes：效果类似“-v”参数，但仅回报更改的部分；
+-f或--quiet或——silent：不显示错误信息；
+-h或--no-dereference：只对符号连接的文件作修改，而不是该其他任何相关文件；
+-R或——recursive：递归处理，将指令目录下的所有文件及子目录一并处理；
+-v或——verbose：显示指令执行过程；
+--reference=<参考文件或目录>：把指定文件或目录的所属群组全部设成和参考文件或目录的所属群组相同；
+参数
+组：指定新工作名称；
+文件：指定要改变所属组的文件列表。多个文件或者目录之间使用空格隔开。
+实例
+将/usr/meng及其子目录下的所有文件的用户组改为mengxin
+
+chgrp -R mengxin /usr/meng
+
+
+
+
+
+
+
+poweroff命令系统关机和重启
+poweroff命令用来关闭计算机操作系统并且切断系统电源。
+
+语法
+poweroff(选项)
+选项
+-n：关闭操作系统时不执行sync操作；
+-w：不真正关闭操作系统，仅在日志文件“/var/log/wtmp”中；
+-d：关闭操作系统时，不将操作写入日志文件“/var/log/wtmp”中添加相应的记录；
+-f：强制关闭操作系统；
+-i：关闭操作系统之前关闭所有的网络接口；
+-h：关闭操作系统之前将系统中所有的硬件设置为备用模式。
+实例
+如果确认系统中已经没有用户存在且所有数据都已保存，需要立即关闭系统，可以使用poweroff命令。
+
+使用poweroff立即关闭系统：
+
+poweroff
+
+
+
+
+
+
+file命令文件权限属性设置
+file命令用来探测给定文件的类型。file命令对文件的检查分为文件系统、魔法幻数检查和语言检查3个过程。
+
+语法
+file(选项)(参数)
+选项
+-b：列出辨识结果时，不显示文件名称；
+-c：详细显示指令执行过程，便于排错或分析程序执行的情形；
+-f<名称文件>：指定名称文件，其内容有一个或多个文件名称时，让file依序辨识这些文件，格式为每列一个文件名称；
+-L：直接显示符号连接所指向的文件类别；
+-m<魔法数字文件>：指定魔法数字文件；
+-v：显示版本信息；
+-z：尝试去解读压缩文件的内容。
+参数
+文件：要确定类型的文件列表，多个文件之间使用空格分开，可以使用shell通配符匹配多个文件。
+
+实例
+显示文件类型
+
+[root@localhost ~]# file install.log
+install.log: UTF-8 Unicode text
+
+[root@localhost ~]# file -b install.log      <== 不显示文件名称
+UTF-8 Unicode text
+
+[root@localhost ~]# file -i install.log      <== 显示MIME类别。
+install.log: text/plain; charset=utf-8
+
+[root@localhost ~]# file -b -i install.log
+text/plain; charset=utf-8
+显示符号链接的文件类型
+
+[root@localhost ~]# ls -l /var/mail
+lrwxrwxrwx 1 root root 10 08-13 00:11 /var/mail -> spool/mail
+
+[root@localhost ~]# file /var/mail
+/var/mail: symbolic link to `spool/mail'
+
+[root@localhost ~]# file -L /var/mail
+/var/mail: directory
+
+[root@localhost ~]# file /var/spool/mail
+/var/spool/mail: directory
+
+[root@localhost ~]# file -L /var/spool/mail
+/var/spool/mail: directory
+
+
+
+
+
+locate/slocate命令文件查找和比较
+locate命令和slocate命令都用来查找文件或目录。
+
+locate命令其实是find -name的另一种写法，但是要比后者快得多，原因在于它不搜索具体目录，而是搜索一个数据库/var/lib/locatedb，这个数据库中含有本地所有文件信息。Linux系统自动创建这个数据库，并且每天自动更新一次，所以使用locate命令查不到最新变动过的文件。为了避免这种情况，可以在使用locate之前，先使用updatedb命令，手动更新数据库。
+
+语法
+locate/slocate(选项)(参数)
+选项
+-d<目录>或--database=<目录>：指定数据库所在的目录；
+-u：更新slocate数据库；
+--help：显示帮助；
+--version：显示版本信息。
+参数
+查找字符串：要查找的文件名中含有的字符串。
+
+实例
+搜索etc目录下所有以sh开头的文件：
+
+locate /etc/sh
+搜索用户主目录下，所有以m开头的文件：
+
+locate ~/m
+搜索用户主目录下，所有以m开头的文件，并且忽略大小写：
+
+locate -i ~/m
+
+
+
+
+
+
+
+
+alias命令Shell内建命令
+alias命令用来设置指令的别名。我们可以使用该命令可以将一些较长的命令进行简化。使用alias时，用户必须使用单引号''将原来的命令引起来，防止特殊字符导致错误。
+
+alias命令的作用只局限于该次登入的操作。若要每次登入都能够使用这些命令别名，则可将相应的alias命令存放到bash的初始化文件/etc/bashrc中。
+
+语法
+alias(选项)(参数)
+选项
+-p：打印已经设置的命令别名。
+参数
+命令别名设置：定义命令别名，格式为“命令别名=‘实际命令’”。
+
+实例
+alias 的基本使用方法为：
+
+alias 新的命令='原命令 -选项/参数'
+例如：alias l=‘ls -lsh'将重新定义ls命令，现在只需输入l就可以列目录了。直接输入 alias 命令会列出当前系统中所有已经定义的命令别名。
+
+要删除一个别名，可以使用 unalias 命令，如 unalias l。
+
+查看系统已经设置的别名：
+
+alias -p
+alias cp='cp -i'
+alias l.='ls -d .* --color=tty'
+alias ll='ls -l --color=tty'
+alias ls='ls --color=tty'
+alias mv='mv -i'
+alias rm='rm -i'
+alias which='alias | /usr/bin/which --tty-only --read-alias --show-dot --show-tilde'
+
+简单地使用重定向符>,没有命令在他之前，会清空一个已经存在文件的内容或者是创建一个新的空文件
+> xx.txt
+使用>>操作符可以把输出的结果添加到文件内容之后
+string >> xx.txt
+
+
+grep 
+例如查看t.txt文件中的内容，打印与t匹配的内容
+less t.txt | grep t

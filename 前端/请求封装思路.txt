@@ -1,0 +1,48 @@
+请求路径
+请求方法
+请求参数
+请求头
+请求超时
+请求返回结果处理
+
+再原生api的基础上进行二次处理
+如uniapp中的 uni.request
+通过promise
+
+const BASE_URL='http://10.116.98.21:8005/sap/opu/odata/sap/ZODATA_TEST_SRV';
+
+const http = (url,method,params)=>{
+	//通过基础地址，拼接出完整的请求地址
+	url=BASE_URL+url;
+	// 需要token的请求，这里x-csrf-token是后端定义的自定义字段，自定义字段需要后端支持才可以请求成功
+	// 如果
+	params['header']=params['header']||{
+		Accept:"application/json",
+		"x-csrf-token": uni.getStorageSync('token')
+	};
+	return new Promise((resolve,reject)=>{
+		url,
+		method,
+		timeout: 20000,
+		...params,
+		uni.request({
+			success: (res)=>{
+				resolve(res)
+			},
+			fail: (err)=>{
+				reject(err)
+			}
+		})
+	})
+}
+
+使用例子
+export const getToken = (params) => { //获取token
+	return http('/ActionSetSet?sap-client=300', 'GET', {
+		header: {
+			Accept: "application/json",
+			"x-csrf-token": "fetch",
+			Authorization: "Basic YXBwX3Rlc3Q6MTIzNDU2YQ=="
+		}
+	})
+}

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="https://cdn.bootcss.com/angular.js/1.7.0/angular.min.js"></script>
+		<!-- 载入了实现路由的js文件，angular-route.js -->
+		<script src="https://cdn.bootcss.com/angular.js/1.7.0/angular-route.min.js"></script>
+	</head>
+	<body ng-app="routingDemoApp">
+		<h2>ag路由应用</h2>
+		<ul>
+			<li><a href="#!/">首页</a></li>
+			<li><a href="#!/computers">电脑</a></li>
+			<li><a href="#!/printers">打印机</a></li>
+			<li><a href="#!/blabla">其他</a></li>
+		</ul>
+		<!-- 使用ng-view指令，该div内的html内容会根据路由的变化而变化 -->
+		<div ng-view></div>
+		
+		<script type="text/javascript">
+			// 包含了ngRoute模块作为主应用模块的依赖模块
+			var app = angular.module('routingDemoApp', ['ngRoute']);
+			
+			// 配置$routeProvider,Ag $routeProvider用来定义路由规则
+			/*
+			AngularJS 模块的 config 函数用于配置路由规则。通过使用 configAPI，我们请求把$routeProvider注入到我们的配置函数并且使用$routeProvider.whenAPI来定义我们的路由规则。
+			
+			$routeProvider 为我们提供了 when(path,object) & otherwise(object) 函数按顺序定义所有路由，函数包含两个参数:
+			
+			第一个参数是 URL 或者 URL 正则规则。
+			第二个参数是路由配置对象。
+			*/ 
+			app.config(['$routeProvider', function($routeProvider){
+				$routeProvider
+				.when('/', {template: "这是首页页面"})
+				.when('/computers', {template: "这是电脑分类页面"})
+				.when('/printers', {template: "这是打印机页面"})
+				.otherwise({redirectTo: '/'});
+			}]);
+			
+			// 路由设置对象
+			// ag路由也可以通过不同的模板来实现
+			// $routeProvider.when 函数的第一个参数是 URL 或者 URL 正则规则，第二个参数为路由配置对象。
+			// 路由配置对象语法规则如下
+			/**
+			 * 
+			 * $routeProvider.when(url, {
+				template: string,
+				 templateUrl: string,
+				 controller: string, function 或者arr,
+				 controllerAs: string,
+				 redirectTo: string, function,
+				 resolve: object<key, function>
+			 })
+			 */
+			// 参数说明
+			// template 如果我们只需要在ng-view中插入简单的html内容，则使用该参数
+			//  .when('/computers', {template: '这是电脑分类页面'})
+			
+			// templateUrl 如果我们只需要在ng-view中插入html模板文件，则使用该参数
+			// $routeProvider.when('/computers', {
+				// templateUrl: 'views/computers.html',
+			// })
+			// 以上代码会从服务端获取views/computers.html文件内容插入到ng-view中
+			
+			// controller:
+			// function,string,或者数组类型，在当前模板上执行的controller函数，生成新的scope
+			
+			// controllerAs:
+			// string类型，为controller指定别名
+			
+			// redirectTo:
+			// 重定向地址
+			
+			// resolve：
+			// 指定当前controller所依赖的其他模块
+		</script>
+	</body>
+</html>

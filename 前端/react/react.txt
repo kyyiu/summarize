@@ -1,0 +1,949 @@
+react是一个将数据渲染成html的js库
+原生js操作dom繁琐，效率低，dom-api操作ui
+js直接操作dom，浏览器会进行大量的重绘重排
+原生js没有组件化编码方案，代码复用率低
+ 
+react的特点
+1.采用组件化模式，声明式编码，提高开发效率及组件复用率
+2.在react native中可以使用react语法进行移动端开发
+3.使用虚拟dom+优秀的Diffing算法，尽量减少与真实dom的交互
+
+react核心库
+react-dom用于支持react操作dom
+引入babel，用于将jsx转换为js，es6=>es5
+此时script标签中的type要写text/babel
+
+步骤
+<div id='test'><>
+1/创建虚拟dom
+const VDOM = <h1>HH</h1>
+一定不要写引号，因为不是字符串
+2.渲染虚拟dom到页面
+ReactDOM.render(虚拟DOM，容器)
+ReactDOM.render(VDOM,document.getElementById('test'))
+unmountComponentAtNode() 这个方法是解除渲染挂载，作用和 render 刚好相反，
+也就清空一个渲染目标中的 React 部件或 html 内容。
+ReactDOM.unmountComponentAtNode(div);
+
+虚拟dom本质是object对象
+debugger；可以用来断点
+虚拟dom属性少
+
+jsx就是为了简便用js写虚拟dom的语法糖
+
+jsx语法规则
+1.定义虚拟dom时，不要写引号
+2.标签中混入js表达式时要用{}
+	比如( <h1 id={xx}></h1>)
+	表达式：一个表达式会产生一个值，可以放在任何一个需要值的地方
+	如 a，a+b，demo(1),arr.map(),function f(){}
+	语句（代码）
+	如 if(),for(){},switch(){case:xx}
+		
+3.样式的类名指定不要用clss，要用className
+4.内联样式要用style={{key:value}}的形式写，多个单词组合的用驼峰，比如 font-size fontSize:'22px'
+5.虚拟dom必须只有一个跟标签
+6.标签必须闭合
+7.标签首字母
+ （1）若小写字母开头，则将该标签转换为html中同名元素，若html中无该标签对应的同名元素，则报错
+ （2）若大写字母开头，react就去渲染对应的组件，若组件没有定义，则报错。
+ 
+VDOM中循环
+const data=【‘A’，‘B’，‘C’】
+（
+	div
+		h1
+		ul
+			{
+				data.map((item,index)=>{
+					return <li key={index}></li>
+				})
+			}
+）
+
+
+react-dev-tools使用
+下载这个文件在github上
+进入这个文件后npm i下载依赖
+之后使用npm run build:extension:chrome可以打包一份扩展程序
+项目目录中生成一个新的文件夹，shells -> chrome -> build -> unpacked文件夹
+把这个unpacked文件夹选中加入浏览器的扩展程序中即可
+
+函数式组件
+1.创建函数式组件
+function MyComponent(){
+	console.log(this)//这里是undefined，因为babel会开启严格模式，严格模式禁止访问到window
+	return <h1>我是函数定义的组件（适用于简单组件的定义<>
+}
+2.渲染组件到页面
+ReactDOM.render(<MyComponet/>,document.getElementById('test'))
+执行了ReactDOM.render(<MyComponet/>之后，发生了什么
+1.react解析组件标签，找到了MyComponet组件
+2.发现组件是使用函数定义的组件，随后调用该函数，将返回的虚拟dom转换为真实dom，随后呈现在页面
+
+
+类的一些知识
+1.类中的构造器不是必须写的，要对实例进行一些初始化的操作，如添加指定属性时才写
+2.如果A类继承了B类，且A类中写了构造器，那么A类构造器中的super是必须要调用的。
+3.类中所定义的方法，都是放在了类的原型对象上，供实例使用
+
+
+类式组件
+1.创建类式组件
+class MyComponet extends React.Component {
+	render(){
+		return <h1>我是用类定义的组件（适用于复杂组件的定义<>
+	}
+}
+2.渲染组件到页面
+ReactDOm.render(<MyComponet/>,document.getElementById('test'))
+执行了ReactDOM.render(<MyComponet/>之后，发生了什么
+1.react解析组件标签，找到了MyComponet组件
+2.发现组件是使用类定义的组件，随后new出来该类的实例，并通过该实例调用到原型上的render方法
+3.将render返回的虚拟dom转换为真实dom，随后呈现在页面中
+
+
+this丢失问题
+1.创建组件
+class Weather extends React.Componet{
+	constructor(props){
+		super(props)
+		//初始化状态
+		this.state = {isHot: false}
+		// 解决this丢失问题
+		this.changeWeather = this.changeWeather.bind(this) 
+	}
+	render(){
+		//读取状态
+		const {isHot} = this.state
+		//这里的onClick相当于中间变量，加上严格模式会导致this丢失，不能使用this.changeWeather
+		return <h1 onClick={this.changeWeather}>今天天气很{isHot ? '炎热':'凉爽'}</h1>
+	}
+	changeWeather(){
+		// changeWeather的原型对象上，供实例使用
+		// 由于changeWeather是作为onClick的回调，所以不是通过实例调用的，是直接调用
+		// 类似 let onClick = this.weather, onClick()
+		// 相当于 onClick = weather，this作为中间桥，onClick与this没有关系
+		// react中将事件绑定在document上所以直接调用this是window，严格模式中window是undefined
+		// 类中的方法默认开启了局部的严格模式，所以changeWeather中的this为undefined
+		console。log(this)
+		//获取原来的isHot值
+		const isHot  = this。state。isHot
+		// 严重注意，状态必须通过setState进行更新，且更新是一种合并，不是替换
+		this。setState（{isHOt：！isHot}
+	}
+}
+
+以上可以简写
+class Weather extends React.Componet{
+	state = {isHOt: false，wind:'微风'}
+	
+	render(){
+		const {isHot, wind} = this.state
+		return <h1 onClick={this.changeWeather}...><>
+	}
+	// 自定义方法 ， 要用赋值语句的形式+箭头函数
+	// 这种形式会把方法或者变量绑定在实例上
+	changeWeather = ()=>{
+		const isHot = this.state.isHOt
+		this.setState({isHOt:!isHOt})
+	}
+}
+
+组件实例的三大核心属性 
+1.state
+	this.setState((prevState, props)=>({
+		cc: prevState.cc + props.increase
+	}))
+2.props
+类里面使用的例子
+render(){
+	const {name,age,sex} = this.props
+}
+
+//使用传入类型限定需要prop-types包
+Person.propTypes = {
+	// props中的name传入的是字符串类型且必须传入
+	name.PropTypes.string.isRequired
+	//限制函数是func
+}
+//默认值
+Person.defaultProps = {
+	sex: 'xxx'
+}
+
+ReactDOM.render(<Person name = 'jerry' age={19}>,document...)
+这里的{...p}是上面的语法糖，是react和babel共同作用的结果，原生中是复制对象
+const p = {name: '老刘', age: 18,sex: '女'}
+ReactDOM.render(<Person {...p}/>,document...)
+
+构造器是否接受props，是否传递super，取决于是否希望在构造器中通过this访问props
+
+
+refs
+使用方式1
+字符串形式ref， 但是不推荐，因为效率低，可能会未来版本中移除
+input ref="input1"
+this.refs // { input1: input }
+
+使用方式2
+回调形式ref
+input ref={(currentNode) => { this.input1 = currentNode }}
+// react会自动调用ref的回调函数
+// 把当前节点赋值给实例对象并取名为input1
+const {input1} = this
+但是上面的是内联形式的，如果组件更新（第二次及第n执行render时）会执行两次，先把第一次的节点赋值null清空
+然后再把新的赋值上去
+通过class的绑定函数可以解决这个问题
+input ref={this.saveInput}
+类里面
+saveInput = (c) => {
+	this.input1 = c
+}
+
+使用方式3
+class Demo ex...{
+	// 调用后可以返回一个容器，该容器可以存储被ref所标识的节点
+	// 但是这个容器是专用的，即只存储一个对象
+	// myRef这样声明相当于在实例对象上的属性
+	myRef = React.createRef()
+	
+	func = ()=>{
+		// 对节点的使用
+		console.log(this.myRef.current.value)
+	}
+	
+	render(){
+		return (
+			input ref={this.myRef}
+		)
+	}
+}
+
+
+事件
+1.通过onXxx属性指定事件处理函数（注意大小写
+	它使用的是自定义（合成）事件， 而不是使用的原生dom事件---为了更好的兼容性
+	它的事件是通过事件委托的方式处理的--为了高效
+	比如
+	render(
+		return(
+			div
+				li
+				li
+			div
+		)
+	)
+	这里的事件都是绑定在div上面的
+
+2.可以通过event.target得到发生dom事件的对象--不要过度使用refs
+
+
+生命周期
+卸载组件
+class Life ex...{
+	death = ()=>{
+		React.unmountComponentAtNode(document.gid('test'))
+	}
+}
+
+生命周期流程（旧版
+（都是自上而下的顺序
+挂载时(初始化)
+constructor
+componentWillMount
+render
+componentDidMount
+componnentWillUnmount
+
+更新
+父组件重新render
+componentWillReceiveProps //子组件中使用，但是第一次传的不会调用，可以接受一个参数，就是新传入的props
+//下面是父子组件通用流程
+shouldComponentUpdate  <- setState()  调用这个函数后看是否调用前面的钩子
+componentWillUpdate <- forceUpdate() 调用这个函数主要是在不改数据，只是想更新一下页面时使用
+componentDidUpdate
+componetWillUnmount
+
+class COunt ex...{
+	
+	//控制组件是否更新的阀门
+	// 如果写了这个函数在clss中，必须返回true或者flase
+	shouldComponentUpdate() {
+		
+	}
+	
+	// 组件将要更新的钩子
+	componentWillUpdate() {
+		
+	}
+	
+	// 组件更新完成的钩子
+	componentDidUpdate() {
+		
+	}
+	
+	render() {
+		return ()
+	}
+}
+
+总结
+1.初始化阶段：由reactDOm。render触发--初次渲染
+	cosnrutor
+	componetwillMount
+	render --必须
+	com破netDidMount ===>常用一般做一些初始化时的事比如开启定时器，发送网络请求，订阅消息
+2.更新阶段： 由组件内部this.setSate或者父组件render触发
+	shouldComponetUpdate
+	componetWillUpdate
+	render --必须
+	componentDidupdate
+3.卸载，由ReactDom。unmountComonetAtNode触发
+	componetWillUnmount ==》常用，做收尾的事把比如关闭定时器，取消订阅消息
+	
+	
+	
+生命周期流程（新
+componentWillMount
+。。ReceiceProps
+...WillUpdate
+前面要加UNSAFE_
+例如： UNSAFE_componentWillMount
+
+挂载时
+constructor
+getDeriverdStateFromProps // 这个方法适用于state的值在任何时候都取决于props的时候
+render
+componetDidMount
+
+更新时
+线1
+new props传入
+getDeriverdStateFromProps
+shouldComponetUpdate
+render
+getSnapsHotBeforeUpdate  //更新完成前的一个钩子，返回一个值给下面的钩子，接受两个参数，分别是preprops，prestate
+componetDidUpdate //第三个参数接受上面的返回值
+
+线2
+setState()调用
+getDeriverdStateFromProps
+shouldComponetUpdate
+render
+getSnapsHotBeforeUpdate
+componetDidUpdate
+
+线3
+forceUpdate()调用
+getDeriverdStateFromProps
+render
+getSnapsHotBeforeUpdate
+componetDidUpdate
+
+
+diffing算法
+react/vue中的key有什么用（key内部原理是什么
+为什么遍历列表时，最好key不要用index
+1.虚拟dom中key的作用
+  简单地说：eky是虚拟dom对象的标识，在更新显示时key起着极其重要的作用
+  详细地说：当状态中的数据发送变化时，react会根据 新数据 生成 新的虚拟dom
+		   随后react进行新旧dom的diff比较
+  规则如下：
+  a. 旧虚拟dom中找到了与新虚拟dom相同的key：
+	 1. 若虚拟dom中内容没变，直接使用之前的真实dom
+	 2. 若虚拟dom中内容变了，则生成新的真实dom，随后替换页面中之前的真实dom
+  b. 就虚拟dom中未找到与新虚拟dom相同的key
+	根据数据创建新的真实dom，随后渲染到页面
+
+2.使用index作为key可能会语法的问题
+	a. 若对数据进行： 逆序添加，逆序删除等破坏顺序操作：
+		会产生没必要的真实dom更新 =》 页面效果没问题， 但效率低
+	b. 如果结构中还包含输入类的dom：
+		会产生错误dom更新=》界面有问题
+	c. 如果不存在对数据的逆序添加，逆序删除等破坏顺序操作，仅用于渲染列表用于展示，使用index作为key没有问题
+	
+	
+	
+路由
+基石是BOM的history
+封装好的history.js库
+History.createBrowserHistory() // 使用H5推出的history身上的API
+History.createHashHistory() // hash值（锚点
+
+// 安装web专用router库
+npm i react-router-dom
+import { BrowserRouter, Link, Route, Switch } from 'react-router-dom'
+// 假设有组件Xxx
+import Xxx from './componet/Xxx'
+在原生html中，用a跳转不同页面
+在React中考路由链接实现切换组件, 编写路由链接
+Router要包含Link和Route
+BrowserRouter
+	...
+	Link className='' to="/xxx"
+	// 注册路由，Xxx是路由组件
+	Route path="/xxx" componet={Xxx}
+	...
+/BrowserRouter
+
+路由组件与一般组件不同
+ 1.写法不同
+	一般组件 《Demo/》
+	路由组件 <Route path="" componet={}
+ 2.存放位置不同
+	一般组件: componets
+	路由组件: pages
+ 3. 接受到的props不同:
+	一般组件: 写组件标签时传递了什么就能收到什么
+	路由组件： 接受三个规定属性,通过this.props.xx，xx分别是 history，location， match
+
+如果需要路由高亮
+Link需要换成NavLink，并传入activeClassName属性
+例子 NavLink activeClassName="active"
+.active{
+	color: red;
+}
+
+Switch组件，只匹配一个，提高路由匹配效率
+Switch
+	Route path='/ho' comp..
+	Route path="/ho" comp
+/Switch
+这里只匹配第一个Route
+
+解决多级路径刷新页面样式丢失的问题
+	1.public/src/index.html 中引入样式时不写 ./ 写 /
+	2.public/src/index.html 中引入样式时不写 ./ 写 %PUBLIC_URL%
+	3. 使用HashRouter
+	
+严格匹配和模糊匹配
+	默认使用模糊匹配，输入的路径必须包含要匹配的路径，且顺序要一致
+	严格匹配在Route中加入exact属性
+	不要随便使用，有时候会导致二级路由无法匹配
+	
+重定向redirect
+一般写在所有路由注册的最下方
+Import {Redirect} from 'reactr-router-dom'
+BrowserRouter
+	<Redirect to="/xx">
+	
+嵌套路由（子路由
+	1.注册子路由要写上父路由的路径值
+	2.路由匹配是按照路由注册的顺序进行的
+	
+向路由组件传递params参数
+	Link to={`/home/message/detail/${a}/${b}`}
+	//声明parmams参数接受
+	Route path="/home/msessage/detail/:id/:title" componetn={De}
+	在De组件中通过this.props.match.params中获取
+
+向路由组件传递search参数
+	Link to={`/home/message/detail/?id=${a}&title=${b}`}
+	// search参数无需声明接受，正常注册即可
+	Route path="/home/msessage/detail" componetn={De}
+	在De组件中通过this.props.location.search中获取,一个?id=${a}&title=${b}格式的数据
+	额外知识
+	name=tom&age=18, key=kvalue&key=value是urlencode格式编码字符串
+	querystring库可以方便处理
+	import qs from querystring
+	{ id, title} = qs.parse(this.props.location.search.slice(1))
+	
+向路由组件传递state参数
+	Link to={{path: `/home/message/detail` , state:{name: 'tom', age: 18}}}
+	// search参数无需声明接受，正常注册即可
+	Route path="/home/msessage/detail" componetn={De}
+	在De组件中通过this.props.location.state获取
+	刷新也可以保留参数
+	
+编程式路由导航
+	this.props.history.push
+	..replace
+	..goBack
+	..goForward
+	..go
+	
+一般组件中使用路由组件里面的api
+import {withRouter} from 'react-router-dom'
+class Header ex..{
+	
+}
+// withRouter可以加功一般组件，让一般组件具有路由组件所特有的API
+// withRouter的返回值是一个新组件
+export default withRouter(Header)
+
+BrowserRouter和HashRouter的区别
+	1.底层原理不一样
+		前者使用的是H5的histroy APi， 不兼容ie9及一下
+		后者使用的是哈希值
+	2. url表现形式不一样
+		前者路径中没有#
+		后者的路径包含#
+	3. 刷新后对路由state参数的影响
+		1.前者没有任何影响，因为state保存在history对象中
+		2.后者刷新后会导致路由state参数丢失
+	4. 备注后者可以用于解决一些路径错误相关的问题
+	
+	setState
+		用法1:\
+			setState(stateChangeObj，callback)
+			这里的callback相当于vue的$nextTick
+		用法2:
+			setState(updater, callback)
+			例子setState( (state,props) => ({count: state.count+1}), ()=>{})
+其实用法1是用法2的语法糖
+	使用原则，新状态不依赖旧状态用第一种
+	新状态依赖的话用第二种
+	
+路由懒加载
+import {lazy, Suspense} from 'react'
+const Home = lazy(()=>{import('./Home')})
+Suspense fallback={<h1>Loading</h1>} // 当网速差时就会先在请求回来之前显示fallback中的组件
+	Route path=""  component
+	
+
+hooks
+1.React.useState()，让函数式组件能够使用state
+	他能返回一个数组，【a，b】，a是一个初始值，b是一个修改a的方法
+	例子:
+	[a, b] = React.useState(0), a是0， b可以修改更新a
+	setCount(99) 把a改成99 //用法1
+	setCount((preA)=>{ return ++preA })  //用法2
+
+2.React.useEffect()，让函数式组件能够使用模拟的生命周期
+	function Demo(){
+		React.useEffect(()=>{
+			(async()=>{
+				
+			})()
+			return ()=>{}
+		}, [])
+		//这里传入的回调函数就是一个生命周期钩子
+		//空数组就是谁也不检测，如果没有相当于监测所有，前者相当于DidMount，后者相当于update
+		// 回调函数返回的函数相当于WillUnmount
+		//例如 [count] 监测count，第一次时相当于执行didMount,只要count改变则执行回调函数,相当于执行了update
+	}
+
+3. React.useRef()
+	类似craeteRef
+	let r = React.useRef()
+	input ref={this.r}
+	
+	
+	
+
+解决多层标签嵌套
+import {Fragment} from 'react'
+
+return (
+	<Fragment>
+		div
+		div
+	</Fragment
+	或者 
+	<>
+		div
+		div
+	</>
+	前者可以指定key，后者不可以
+)
+
+
+祖组件与后代组件间的通信
+Context
+	// 创建Context容器对象
+	// const XxContext = React.createContext()
+	// 渲染子组件时，外面包裹xxContext.Provider,通过value刷新给后代组件传递参数
+	// <xxContext.Provider value={数据} >  子组件 <>
+	// 后代组件读取数据
+	// 方法1，仅仅适用于类组件
+	// static contextType = xxContext 声明并接受context  ， this.context读取context中的value
+	// 方法2，函数时与类组件都可以
+	// <xxContext.Consumer>{value=>(value就是context中的value数据)}<>
+	
+	const XxContext = React.createContext()
+	const {Provider, Consumer} = XxContext
+	export default class A exd...{
+		render(){
+			return (
+				<B/>
+				//下面是使用context，B组件及其子组件中谁声明了，就可以使用value了
+				<Provider value={this.state.value}>
+					<B/>
+				</Provider>
+			)
+		}
+	}
+	class B exd..{
+		render(){
+			return <c/>
+		}
+	}
+	
+	class C exd..{
+		static conextType = xxContext
+		render(){
+			console.log(this.context)
+		}
+	}
+	
+	function C(){
+		return (
+			<Consumer>
+			{
+				
+				value=>{
+					return
+				}
+			}
+		)
+	}
+	
+
+PureComponent,自动判断是否需要重新渲染真实dom(shouldComponentUpdate里面的对比已经重写了)
+
+import {PureComponet} from 'react'
+class X exd PurComponet {
+	
+}
+
+
+
+redux使用
+结构
+src/actions/xx_actions.js 存放reducer相应的行为
+通过export导出 常量字符串，和方法
+方法接受参数，并返回一个对象{ type: 常量字符串， payload：数据 }
+这个方法在外部调用，reducer中会使用这个type和payload
+例子:
+export const GET = 'g'
+export function get(pp){
+	return {
+		type: GET,
+		payload: { pp }
+	}
+}
+
+src/reducers/xx_reducer.js 存放处理数据的文件
+导入相应的action文件内部的常量，在case中判断处理
+import { GET } from '../actions/products_actions.js';
+export default function(state=[], action) {
+	switch(action.type){
+		case GET: {
+			return {
+				a:action.payload.pp
+			}
+		}
+		default : 
+			return state;
+	}
+	return state;
+}
+src/reducers/index.js 汇总多个reducer的文件
+import { combineReducers } from 'redux';
+import productsReducer from './products-reducer.js';
+import cartReducer from './cart-reducer.js';
+
+const allReducers = {
+	products: productsReducer,
+	shoppingCart: cartReducer
+}
+const rootReducer = combineReducers(allReducers);
+export default rootReducer;
+
+
+/src/store.js 注册reducer进store
+import { createStore } from 'redux';
+import rootReducer from './reducers';
+let store = createStore(rootReducer);
+export default store;
+
+使用
+比如在src/index中
+通过import store from './store.js';导入store文件
+通过import { get } from './actions/products_actions.js';导入aciont中的方法
+通过store的dispatch方法进行使用action方法
+store.dispatch(get('a'));
+通过store.getState()获取返回的处理结果
+
+
+//检测redux中的状态变化，只要变化，就调用render
+store.subscribe(()=>{
+	this.setState({})
+})
+可以在index中写
+diff算法加持，可以保证效率
+stroe.subscribe(()=>{
+	ReactDOM.render(<App/>,docu)
+})
+
+action有两种形式object是同步action
+function是异步action
+例子
+action文件夹中的a.js
+例如
+同步action就是aciton的值是object类型的一般对象
+export const c = data => ({type: II, data})
+异步action就是action的值是函数,
+但是需要中间件redux-thunk
+export const b = (data, t) => {
+	return ()=>{
+		setTimeout(()=>{
+			//引入store文件
+			store.disptch(b(data))
+		})
+	}
+}
+export const b = (data, t) => {
+	//不引入store文件，因为这个回调是store使用的,可以传入一个dispatch参数进行使用同步
+	// 异步action不是必须用的
+	return (dispatch)=>{
+		setTimeout(()=>{
+			
+			disptch(b(data))
+		})
+	}
+}
+npm i redux-thunk -S
+在store.js中
+import {createStore,applyMiddleware} from 'redux'
+import thunk from ‘redux-thunk
+createStore(reducer, applymiddleWare(thunk))
+
+
+
+react16虚拟dom的正式称呼为fiber
+
+react15及以前，Reconciler采用递归的方式创建虚拟dom
+递归过程是不能中断的，如果组件树的层级很深，递归会占用线程很多时间
+造成卡顿，为了解决这个问题，r16将递归的无法中断的更新
+重构成异步的可以中断的更新
+于是，全新的fiber架构诞生了。
+
+fiber有三层含义
+1.作为架构来说，之前r15的Reconciler采用递归的方式执行，
+数据保存在递归调用栈中，所以被称为‘stack Reconciler’
+r16的Reconciler基于Fiber节点实现，被称为Fiber Reconciler
+
+2.作为静态的数据结构来说，每个fiber节点对应一个组件，保存了该组件的类型
+（函数组件/类组件/原生组件。。。）对应的dom节点等信息。
+
+3.作为动态的工作单元来说，每个fiber节点保存了本次更新中该组件改变的状态
+要执行的工作（需要被删除/被插入页面/被更新。。。）
+
+fiber的结构
+
+function FiberNode(
+  tag: WorkTag,
+  pendingProps: mixed,
+  key: null / string,
+  mode: TypeOfMode
+) {
+	// 作为静态数据结构的属性
+	// fiber对应组件的类型 Function/Class/Host
+	this.tag = tag;
+	// key属性
+	this.key = key;
+	// 大部分情况同type，某些情况不同
+	// 比如FunctionComponent使用React.memo包裹
+	this.elementType = null;
+	// 对于FunctionComponet指函数本身
+	// 对于ClassComponent指class
+	// 对于HostComponet指dom节点tagName
+	this.type = null;
+	// Fiber对应的真实dom节点
+	this.stateNode = null;
+	
+	//用于链接其他fiber节点形成fiber树
+	// 指向父级Fiber节点
+	this.return = null;
+	// 指向子Fiber节点
+	this.child = null;
+	// 指向右边第一个兄弟Fiber节点
+	this.sibling = null;
+	this.index = 0;
+	this.ref = null;
+	
+	//作为动态的工作单元的属性
+	//保存本次更新造成的状态改变相关信息
+	this.pendingProps = pendingProps;
+	this.memoizedProps = null;
+	this.updateQueue  = null;
+	this.memoizedState  = null;
+	this.dependencied  = null;
+	this.mode = mode;
+	
+	// 保存本次更新会造成的dom操作
+	this.effectTag = NoEffect;
+	this.nextEffect = null;
+	this.firstEffect = null;
+	this.lastEffect = null;
+	//调度优先级
+	this.lanes = NoLanes;
+	this.childLanes = NoLanes;
+	// 指向该fiber在另一次更新时对应的fiber
+	this.alternate = null;
+}
+
+
+fiber节点可以保存对应的dom节点
+相应的fiber节点构成的fiber树就对应dom树
+双缓存fiber树
+在react中最多会同时存在两科fiber树，当前屏幕上显示内容对应的
+fiber树称为current fiber树
+正在内存构建的称为WorkinProgress fiber树。
+
+他们通过alternate属性链接
+currentFiber.alternate === workInPropgressFiber;
+workInProgressFiber.alternate === currentFiber;
+
+react应用的根节点通过current指针在不同的fiber树的rootFiber间切换
+来实现对fiber树的切换。
+当workInProgress Fibler树 构建完成后交给Renderer渲染在页面上后
+应用根节点的current指针指向workInprogress fiber树
+此时workInProgress Fiber树 就变为current Fiber树
+
+每次状态更新都会产生新的workInprogress Fiber树
+通过current与workInProgress的替换，完成DOm更新
+
+例子，mount，update时的构建/替换流程
+
+mount时
+function App(){
+	const [ num, add ] = useState(0);
+	return(
+		</p onClick={()=>add(num+1)}>{num}</p>
+	)
+}
+ReactDOM.render(<App/>, docuumetn.getElementbYID('root'));
+
+首次执行ReactDom.render会创建rootFiberNode和rootFiber。
+其中rootFiberNode是整个应用的根节点，rootFiber是<App/>所在组件树的根节点
+
+之所以要区分这两个
+因为在应用中我们可以多次调用ReactDOM.render渲染不同的组件树
+他们会拥有不同 的rootFiber
+但是整个应用的根节点只有一个那就是rootFiberNOde
+
+current指向当前fiber树的根fiber
+rootFiberNode.current = rootFiber;
+
+由于是首屏渲染，页面中还没有任何dom，所以rootFiber.child===null
+即current fiber树为空
+
+接下来进入render阶段
+在内存中依此创建workInprogress fiber
+并链接在一起构建 workInprogress fiber树
+已经构建完成的workInprogress fiber树在commit阶段渲染到页面
+
+此时dom更新，rootFiberNode的current指向workInprogress Fiber树
+使其变为current fiber树
+
+
+update时
+
+点击p节点触发状态改变
+这会开启一次新的render阶段，并构建一棵workInProgress Fiber树
+
+其中很多workInProgressFiber的创建可以复用currentFiber树对应 
+的节点数据。
+决定是否复用的过程就是diff算法
+workInprogress Fiber树在render阶段完成构建后进入commit阶段
+渲染到页面上，
+渲染完毕后workInProgress fiber树变为currentFiber树
+
+
+
+
+
+
+使用antd
+npm i create-react-app -S
+create-react-app xx
+cd xx
+npm i antd@3.16.19 -S
+优化
+npm i react-app-rewired -S
+由于新的 react-app-rewired@2.x 版本的关系，你还需要安装 customize-cra。
+npm i customize-cra -S
+/* package.json */
+"scripts": {
+-   "start": "react-scripts start",
++   "start": "react-app-rewired start",
+-   "build": "react-scripts build",
++   "build": "react-app-rewired build",
+-   "test": "react-scripts test",
++   "test": "react-app-rewired test",
+}
+然后在项目根目录创建一个 config-overrides.js 用于修改默认配置。
+
+module.exports = function override(config, env) {
+  // do stuff with the webpack config...
+  return config;
+};
+
+babel-plugin-import 是一个用于按需加载组件代码和样式的 babel 插件（原理），
+现在我们尝试安装它并修改 config-overrides.js 文件。
+npm i babel-plugin-import -S
++ const { override, fixBabelImports } = require('customize-cra');
+
+- module.exports = function override(config, env) {
+-   // do stuff with the webpack config...
+-   return config;
+- };
++ module.exports = override(
++   fixBabelImports('import', {
++     libraryName: 'antd',
++     libraryDirectory: 'es',
++     style: 'css',
++   }),
++ );
+
+然后移除前面在 src/App.css 里全量添加的 @import '~antd/dist/antd.css';
+ 样式代码，并且按下面的格式引入模块。
+   // src/App.js
+   import React, { Component } from 'react';
+ - import Button from 'antd/es/button';
+ + import { Button } from 'antd';
+   import './App.css';
+ 
+   class App extends Component {
+     render() {
+       return (
+         <div className="App">
+           <Button type="primary">Button</Button>
+         </div>
+       );
+     }
+   }
+ 
+export default App;
+
+自定义主题#
+按照 配置主题 的要求，自定义主题需要用到 less 变量覆盖功能。
+我们可以引入 customize-cra 中提供的 less 相关的函数 addLessLoader 来帮助加载 less 样式，
+同时修改 config-overrides.js 文件如下。
+
+npm i less less-loader -S
+- const { override, fixBabelImports } = require('customize-cra');
++ const { override, fixBabelImports, addLessLoader } = require('customize-cra');
+
+module.exports = override(
+  fixBabelImports('import', {
+    libraryName: 'antd',
+    libraryDirectory: 'es',
+-   style: 'css',
++   style: true,
+  }),
++ addLessLoader({
++   javascriptEnabled: true,
++   modifyVars: { '@primary-color': '#1DA57A' },
++ }),
+);
+如果出现
+ TypeError: this.getOptions is not a function
+ 原因： less-loader安装的版本过高
+ 解决方案： 1.npm uninstall less-loader
+ 2.npm install less-loader@5.0.0
+ less版本也可能过高可以试一下less@2.7.2
+看到绿色的按钮则成功配置了以上内容

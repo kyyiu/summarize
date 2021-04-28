@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script crossorigin="anonymous" integrity="sha512-7oYXeK0OxTFxndh0erL8FsjGvrl2VMDor6fVqzlLGfwOQQqTbYsGPv4ZZ15QHfSk80doyaM0ZJdvkyDcVO7KFA==" src="https://lib.baomitu.com/angular.js/1.8.2/angular.min.js"></script>
+	</head>
+	<body>
+		<!-- 一个简单的ag程序
+			 ng-app指令告诉Angularjs，div元素是ajs应用程序的所有者
+			 ng-model指令把输入域的值绑定到应用程序变量name
+			 ng-bind指令把应用程序变量name绑定到每个段落的innerhtml中
+			 如果移除了ng-app，html将直接把表达式显示出来
+		 -->
+		<div>
+			<div ng-app="demo1">
+				<p>名字: <input type="text" ng-model="name"></p>
+				<h1>{{name}}</h1>
+				
+				<div ng-app="" ng-init="name2='HH'">
+					名字是<span ng-bind="name2"></span>
+				</div>
+				
+				<div data-ng-app="" data-ng-init="name3='CC'">
+					<p>名字是<span data-ng-bind="name3"></span></p>
+				</div>
+				
+				<!-- 表达式 -->
+				<div ng-app="">
+					<p>第一个表达式{{5+5}}</p>
+				</div>
+				
+			</div>
+			
+			<!-- <div ng-app="demo2">
+				<p>名字: <input type="text" ng-model="name3"></p>
+				<h1>{{name3}}</h1>
+			</div> -->
+		</div>
+		
+		<script type="text/javascript">
+			var demo1 = angular.module('demo1',[]);
+			// var demo2 = angular.module('demo2', []);
+		</script>
+	</body>
+</html>

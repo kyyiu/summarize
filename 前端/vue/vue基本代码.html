@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="js/vue.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<p>{{ msg }}</p>
+		</div>
+		<script type="text/javascript">
+			//这个对象就是vm（调度者）
+			var vm = new Vue({
+				el: '#app',//表示，当前我们new的这个Vue实例，要控制页面上的哪个区域
+				//这里data就是m，专门保存数据
+				data: { //data属性中，存放的是el中要用到的数据
+					msg: 'welcom'
+				}
+			})
+			
+		</script>
+	</body>
+</html>

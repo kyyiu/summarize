@@ -1,0 +1,20 @@
+微信小程序：
+  阿里图标如果不能上传，换一个目录试一下
+  把static中的iconfont文件夹，剪切出来，再根目录中重新创建一个文件夹如style，复制进去，再在app.vue或者main.js中引入
+如果页面中有多个v-for,为了保证key的唯一性可以采用如下方式
+1、把一些需要v-for的部分做成组件，这样页面上就不存在多个 v-for 了
+2、使用遍历的元素的某个字段值作为key，但是这个字段值必须是唯一的不重复的，如下：list.id或者list.title
+3、可以使用一个函数对key赋值 :key="fun(xx)"
+
+For developer:Do not set same key "[object Object]" in wx:key. at uniapp://ready:1
+解决方式：v-for里的值不能和：key的值相同
+问题1：组件中的v-for中项的点击事件参数报undefined
+解决方式同1
+
+input组件v-model的数据会闪动，使用@input取值比较好
+
+
+使用scroll-view的话最好要使用calc计算高(把这个组件当作主屏，屏幕高减去上下两个部分的高)，
+不然可能出现双层滚动的情况，即组件会滚动，屏幕也会滚动
+
+不使用scroll-view的话，上下两个部分使用定位，并且用占位符，占据定位元素的尺寸，避免遮挡主体内容

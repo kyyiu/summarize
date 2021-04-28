@@ -1,0 +1,667 @@
+第一次安装MySQL，默认安装路径通常是“C:\ProgramFiles\MySQL\MySQL Server 8.0”，
+默认数据存储路径是“C:\ProgramData\MySQL\MySQL Server 8.0”（ProgramData是个隐藏文件夹）
+mysql -u root -p 密码登录 576321487
+
+
+SQL分类：
+1：DDL（Data Definition Language）数据定义语言，这些语句定义了不同的数据段，数据库，表，列，索引等数据库对象。
+2：DML（Daa Manipulation Language）数据操纵语句，用于添加，删除，更新和查询数据库纪录，并检查数据完整性
+3: DCL (Data Control Language)数据控制语句，控制不同数据段直接的许可和访问级别的语句。这些语句定义了数据库，表，字段，用户的访问权限和安全级别。
+
+DDL
+DDL和DML区别是后者只对表内部数据操作，而不涉及表的定义，结构的修改。前者更多由数据库管理员（DBA）使用。
+
+创建数据库： CREATE DATABASE dbname
+查看系统中存在哪些数据库/表： show databases/tables
+选择数据库 : USE dbname
+删除数据库：drop database dbname(删除前做好备份)
+
+命令行中的结束符使用；或者\g
+例子mysql> show databases;
+或者mysql> show databases \g
+
+查看某个表
+mysql> desc xx;
+但是为了得到更全面的表定义信息，有时候就要查看创建表的sql语句
+mysql> show create table xx \G;
+\G选项的含义是使得记录能够按照字段竖向排列，以便更好地显示内容
+
+使用mysql> system cls可以清空命令行
+
+
+1 创建表的时候写注释
+create table test1
+(
+    field_name int comment '字段的注释'
+)comment='表的注释';
+ 
+2 修改表的注释
+alter table test1 comment '修改后的表的注释';
+ 
+3 修改字段的注释
+alter table test1 modify column field_name int comment '修改后的字段注释';
+--注意:字段名和字段类型照写就行
+ 
+4 查看表注释的方法
+--在生成的SQL语句中看
+show  create  table  test1;
+--在元数据的表里面看
+use information_schema;
+select * from TABLES where TABLE_SCHEMA='my_db' and TABLE_NAME='test1' \G
+ 
+5 查看字段注释的方法
+--show
+show  full  columns  from  test1;
+--在元数据的表里面看
+select * from COLUMNS where TABLE_SCHEMA='my_db' and TABLE_NAME='test1' \G
+
+
+创建表:CREATE TABLE tablename(
+column_name_1 column_type_1 constraints,
+column_name_2 column_type_2 constraints,
+....
+column_name_n column_type_n constraints,
+)
+因为MySQL表名是以目录的形式存在于磁盘上的，所以表名的字符可以用任何目录名允许的字符。
+column_name 是列名，column_type 是列数据类型， constraints是列约束条件
+查看表定义： DESC tablename
+删除表： DROP table tablename
+修改表：
+（1）修改表类型：
+ALTER table tablename MODIFY【COLUMN】 column_definition[FIRST|AFTER col_name]
+例如：修改表emp的ename字段定义，将varchar（10）改为20:
+alter table emp modify ename varchar(20)
+
+(2)增加表字段
+ALTER table tablename ADD【COLUMN】 column_definition[FIRST|AFTER col_name]
+例如：在表emp中新加字段age，类型为int（3）
+alter table emp add column age int（3）
+
+（3）删除表字段
+ALTER TABLE tablename DROP [column]
+例如：删除age字段
+alter table emp drop column age
+
+(4)字段改名
+ALTER TABLE tablename CHANGE [COLUMN] old_col_name column_definition [FIRST|AFTER col_name]
+例如：将age改名为age1，同时修改字段类型为int（4）
+alter table emp change age age1 int（4）
+
+注意：change 和 modify 都可以修改表的定义，不同的是change后面需要写两次列名，不方便，但是change的优点是可以修改列名称。
+
+(5)修改字段排序
+可选项first|after column_name可以用来修改字段在表中的位置，add增加的新字段默认是夹在表最后，change和modify都不会改变字段的位置
+例如：将新增的字段birth date夹在ename之后,修改字段age放在最前
+alter table emp add birth date after ename
+alter table emp modify age int(3) first
+
+(6)更改表名
+alter table tablename rename [To] new_tablename
+例如将emp改名为emp1
+alter table emp rename emp1
+
+
+DML语句
+主要包括表记录的插入更新删除和查询，是开发人员日常使用最频繁的操作。
+
+
+插入记录：INSERT INTO tablename（field，field2，。。。fieldn） VALUES(value1,value2,...valuen);
+例如，向表emp中插入以下记录：ename为zzx1，hiredate为2000-01-01，sal为2000，deptno为1，命令执行如下：
+insert into emp(ename,hiredate,sal,deptno) values('zzx1','2000-01-01','2000',1);
+也可以不用指定字段名称，但是values后面的顺序应该与字段排序一致。
+insert into emp values('lisa','2003-01-01','3000',2);
+含可空字段，非空但是含有默认值的字段，自增字段，可以不用在insert后的字段列表里面出现，values后面只写对应字段名称的value。没写的字段可以自动设置为NULL，默认值，自增的下一个数字，这样在某些情况下可以大大缩短SQL语句的复杂性。
+例如，只对表中的ename和sal字段显式插入值。
+insert into emp （ename，sal） values（‘dony’，1000）；
+在MySQL中，insert还有一个很好的特性，可以一次性插入多条记录，语法如下：
+INSETRT INTO tablename（field1，field2，。。。fieldn）
+VALUES
+（record1_value1,record1_value2,...record1_valuesn）,
+（record2_value1,record2_value2,...record2_valuesn）,
+....
+（record1_value1,record1_value2,...record1_valuesn）;
+例如对表dept一次插入两条记录：
+insert into dept values (5,'dept5'),(6,'dept6');
+
+
+更新记录：UPDATE tablename SET field1 = value1,field2 = value2,...fieldn = valuen[WHERE CONDITION]
+例如，将表 emp 中ename 为‘lisa’ 的薪水（sal） 从3000 更改为4000：
+update emp set sal = 4000 where ename = 'lisa';
+在MySQL中，update命令可以同时更新多个表中数据
+UPDATE t1,t2,...tn set t1.field1 = expr1,tn.fieldn = exprn [WHERE CONDITION]
+例如，同时更新表emp中字段sal和表dept中的字段deptname
+update emp a ,dept b set a.sal = a.sal*b.deptno, b.deptname = a.ename where a.deptno = b.deptno;
+注意：多表更新的语法更多地用在了根据一个表的字段来动态地更新另一个表的字段。
+
+
+删除记录：DELETE FROM tablename [WHERE CONDITION]
+例如，在enp 中将ename 为’dony‘ 的记录全部删除
+delete from emp where ename = 'dony';
+在MySQL中可以一次删除多个表的数据，语法如下:
+DELETE t1,t2,...tn FROM t1,t2,...tn [WHERE CONDITION]
+如果from 后面的表名用别名，则delete后面也要用相应的别名，否则会提示语法错误。
+例如同时删除表emp和dept中deptno为3的记录：
+delete a,b from emp a,dept b where a.deptno = b.deptno and a.deptno = 3;
+注意不管单表还是多表，不加where条件将会把表的所有记录删除。
+
+
+查询记录：SELECT基本语法 SELECT * FROM tablename [WHERE CONDITION]
+(1)查询不重复记录
+用distinct关键字实现
+select distinct deptno from emp;
+(2)条件查询 where 略
+(3)排序和限制
+取出按照某个字段进行排序后的记录结果集，这就用到了数据库的排序操作，用关键字ORDER BY 实现
+SELECT * FROM tablename[WHERE CONDITION] [ORDER BY field1[DESC\ASC].field2[DESC\ASC],...fiedn[DESC\ASC]]
+其中，DESC 和 ASC是排序顺序关键字，前者降序，不写默认升序。ORDER BY 后面可以跟多个不同的排序字段，并且每个排序字段可以有不同的排序顺序。
+如果排序字段的值一样，则值相同的字段按照第二排序字段进行排序，一次类推，如果只有一个排序字段，则这些字段相同 的距离将会无序排列。
+例如，把emp表中的记录按照部门编号deptno字段排序。
+select * from emp order by deptno；
+对于deptno相同的前两条记录，如果要按照工资由高到低排序
+select * from emp order by deptno , sal desc;
+对于排序后的记录，如果希望只显示一部分，而不是全部，这时，可以用LIMIT关键字
+SELECT 。。。 [LIMIT offset_start,row_count]
+其中offset_start 表示记录的起始偏移量，row_count 表示显示的行数.
+例如显示emp表中按照sal排序后的前三条记录：
+select * from emp order by sal limit 3;
+如果要显示emp表中按照sal排序后从第二条记录开始的3条记录：
+select * from emp order by sal limit 1,3;
+limit 经常和order by 一起配合使用来进行记录的分页显示
+注意：limit属于MySQL扩展SQL92后的语法，在其他数据库上并不能通用。
+
+
+（4）聚合
+很多情况下，用户需要进行一些汇总操作，比如统计整个公司的人数或者统计每个部门的人数，这时要用到SQL的聚合操作。
+SELECT [field1,field2,...fieldn] fun_name
+FROM tablename
+[WHERE where_contition]
+[GROUP BY field1,field2,...fieldn
+[WITH ROLLUP]]
+[HAVING where_contition]
+fun_name 表示要做的聚合操作，也就是聚合函数，常用的有sum（求和），count（*）记录数，max（）
+GROUP BY关键字表示进行分类聚合的字段，比如要按照部门分类统计员工数量，部门就应该卸载group by后面。
+WITH ROLLUP是可选语法，表明是否对分类聚合后 的结果进行再汇总。
+HAVING关键字表示对分类后的结果再进行条件的过滤
+注意：having和where的区别，前者对聚合后的结果进行条件过滤，后者在聚合前就对记录进行过滤，如果逻辑允许，
+尽可能用where先过滤记录，这样因为结果集减小，将对聚合的效率大大提高，最后在根据逻辑看是否用having再过滤。
+例如，要在emp表中统计公司的总人数
+select count（1） from emp；
+在此基础上，要统计各个部门的人数：
+select deptno，count（1） from emp group by deptno；
+更细一点，既要统计各部门人数，又要统计总人数：
+select deptno ，count（1） from emp group by deptno with rollup；
+统计人数大于1人的部门
+select deptno，count（1） from emp group by deptno having count（1）>1;
+最后统计公司所有员工的薪水总额，最高和最低薪水。
+select sum(sal),max(sal),min(sal) from emp;
+
+
+company
+
+
+（5）表连接
+当需要同时显示多个表中的字段时，就可以用表连接来实现这样的功能。从大类上分，分为内连接和外连接，最主要的区别是，内连接仅选出两张表中互相匹配的记录,而外连接会选出其他不匹配的记录，最常用的是内连接。
+例如，查询出所有雇员的名字和所在部门名称，因为雇员名称和部门分别存放在表emp和dept中，因此，需要用表连接进行查询。
+select ename,deptname from emp,dept where emp.deptno = dept.deptno;
+外连接分为左连接和右连接：
+左连接：包含所有左边表中的记录甚至是右边表中没有和它匹配的记录。
+	将左边的表select的所有字段列出，右边只列出on后面匹配的行
+右连接：包含所有右边表中的记录甚至是左边表中没有和它匹配的记录。
+例如查询 emp 中所有用户名和所在部门名称：
+select ename,deptname from emp left join dept on emp.deptno = dept.deptno;
+列出emp所有的ename,deptname列，dept只列出emp.deptno = dept.deptno;的列
+
+
+(6)子查询
+某些情况下，当进行查询的时候，需要的条件是另外一个select语句的结果，这个时候就要用到子查询。用于子查询的关键字主要包括in，not in， = ，！=，exists，not exists等。
+例如，从emp表中查询出所有部门在dept表中的所有记录；
+select * from emp where deptno in （select deptno from dept）；
+如果子查询记录唯一，还可以用=代替in；
+某些情况，子查询可以转换为表连接
+例如select * from emp where deptno in （select deptno from dept）；转换为表连接后
+select emp.* from emp ,dept where emp.deptno = dept.deptno;
+注意:子查询和表连接之间的转换主要应用在两个方面。
+1.MySQL4.1以前的版本不支持子查询，需要用表连接来实现子查询的功能。
+2.表连接在很多情况下用于优化子查询。
+
+
+
+（7）记录联合
+将两个表的数据按照一定的查询条件查询出来后，将结果合并到一起显示出来，这个时候，就需要用union 和union all 关键字来实现这样的功能，具体语法如下：
+SELECT * FROM t1
+UNION | UNION ALL
+SELECT *FROM t2
+...
+UNION | UNION ALL
+SELECT * FROM tn;
+
+
+UNION和UNION ALL的主要区别是UNION ALL是把结果集直接合并在一起，而UNION是将UNION ALL后的结果进行一次DISTINCT，去除重复记录后的结果。
+例如,将emp和dept表中的部门编号的集合显示出来。
+
+
+
+DCL语句：主要是DBA用来管理系统中的对象权限时使用，一般开发人员很少使用。
+后面扩充。
+
+
+
+
+数据类型
+整数型
+如果一个列被指定为zerofill，则mysql会自动为该列添加unsigned属性
+整数类型还有一个属性：auto_increment.在需要产生唯一标识符或者顺序值的时候，可以使用这个属性
+auto_increment值一般是从1开始，每行增加1.
+对于任何想使用auto_increment的咧，应该定义为not null，并定义为primary key或者定义成unique键
+可以使用下列的任何一种形式定义auto_increment列
+create table xx (x int auto_increment not null primary key);
+create table xx (x int auto_increment not null, primary key(x));
+create table xx (x int auto_increment not null, unique(x));
+
+create table t2(id int auto_increment not null primary key
+-> ,name char );
+insert into t2(name) values('h');
+insert into t2(name) values('h');
+select * from t2;
++----+------+
+| id | name |
++----+------+
+|  1 | h    |
+|  2 | h    |
++----+------+
+
+
+create table t3 (id int auto_increment not null, primary key(id));
+alter table t3 add column name char(5);
+ insert into t3(name) values('hh');
+  insert into t3(name) values('hh');
+select * from t3;
++----+------+
+| id | name |
++----+------+
+|  1 | hh   |
+|  2 | hh   |
++----+------+
+
+
+
+create table t4 (id int auto_increment not null, unique(id));
+alter table t4 add column name char(5);
+insert into t4(name) values('h2');
+insert into t4(name) values('h2');
+select * from t4;
++----+------+
+| id | name |
++----+------+
+|  1 | h2   |
+|  2 | h2   |
++----+------+
+
+
+
+小数类型
+有两种浮点数和定点数
+浮点包括float（单精度和double（双精度
+定点数只有decimal一种
+定点数在mysql内部用字符串存放，比浮点数更加精确，适合表示货币等精度高的数据
+浮点和定点都可以用类型名称后加(M,D)的方式进行表示,
+M 表示这个数据一共有多少位数字(整数位数+小数位数=M)
+D 表示有D位数字在小数点后面，M又称为精度，D又称为标度，（整数位+D=M
+
+比如，定义一个float(7, 4)的一个列可以显示-123.4567。 mysql保存值的时候是四舍五入的，
+所以如果在这个列里面插入123.45678近似的结果是123.4568
+
+注意；f浮点数后面跟着(M, D)是非标准的用法，如果用于数据库的迁移，最好不要这样用
+
+
+日期时间类型
+mysql里面这些类型的主要区别：
+表示年月日用 DATE   4个字节  最小值 1000-01-01 最大值 9999-12-31
+表示年月日时分秒 用DATETIME  8字节 1000-01-01 00：00：00  9999-12-31 23：59：59
+只表示时分秒 用TIME 3字节
+如果要经常插入或者更新日期位当前系统时间，通常用timestamp表示
+timestamp值返回后显示的格式是"YYYY-MM-DD HH:MM:SS"格式的字符串, 显示宽度固定的是19个字符。
+如果想要获取数字值，应该在timestamp列添加+0
+
+如果只表示年份，可以使用year表示，因为比DATE占用更少的空间，
+
+每种日期时间类型都有应该有效值范围，如果超出这个范围，在默认的sqlMOde下，系统会进行错误提示，
+然后用零值来进行存储。不同日期类型零值的表示如下
+DATETIME 0000-00-00 00：00：00
+DATE 0000-00-00
+TIMESTAMP 0x14个
+YEAR 0000
+
+create table date1 (d date, t time, dt datetime);
+insert into date1 values(now(), now(), now());
++------------+----------+---------------------+
+| d          | t        | dt                  |
++------------+----------+---------------------+
+| 2021-04-15 | 10:27:25 | 2021-04-15 10:27:25 |
++------------+----------+---------------------+
+
+current_timestamp 系统当前时间常量
+
+time_stamp 只能存在一列
+create table date2(id int, time timestamp not null default current_timestamp);
+insert into date2(id) values(1);
+select * from date2;
++------+---------------------+
+| id   | time                |
++------+---------------------+
+|    1 | 2021-04-15 10:54:36 |
++------+---------------------+
+
+
+timestamp还有一个重要特点，就是和时区相关，插入日期的时候，会先转换位本地时区之后再存放；
+从数据库里面取出来的时候，也一样需要将日期转换为本地时区后显示。这样，两个不同时区的用户看到的同一个日期可能是不一样的
+
+
+set time_zone=“+00：00”可以设置时区中国是+8:00东八区
+
+插入不同格式的日期
+create table t5 (dt datetime);
+insert into t5 values('2008-1-2 2:1:5');
+insert into t5 values('20090609010203');
+insert into t5 values('20090609123'); //解析成 20 09 06 09 12 3 年份是两位的话是按照70~69 即 1970~2069;
+select * from t5;
++---------------------+
+| dt                  |
++---------------------+
+| 2008-01-02 02:01:05 |
+| 2009-06-09 01:02:03 |
+| 2020-09-06 09:12:03 |
++---------------------+
+
+字符串类型
+char和varchar
+都是用来保存mysql中较短的字符串，检索的时候char列删除了尾部的空格，
+varchar则保留了这些空格。
+create table vc(v varchar(4), c cahr(4));
+insert into vc values('ab', 'ab');
+insert into vc values('cd  ', 'cd  ');
+select length(v), length(c) from vc;
++-----------+-----------+
+| length(v) | length(c) |
++-----------+-----------+
+|         2 |         2 |
+|         4 |         2 |
++-----------+-----------+
+
+enum 枚举类型
+它的值范围需要再创建表时通过枚举方式显式指定，
+
+set 类型和enum很像，也是一个字符串对象
+但是enum只能从成员中选一个，但是seet可以从成员里面选择任意个解析组合，只有插入的值再允许的组合中，就可以插入
+
+
+算数运算符
+ select 1+2,2-3,2*5,10%4,1/2;
++-----+-----+-----+------+--------+
+| 1+2 | 2-3 | 2*5 | 10%4 | 1/2    |
++-----+-----+-----+------+--------+
+|   3 |  -1 |  10 |    2 | 0.5000 |
++-----+-----+-----+------+--------+
+
+比较运算符
+<>相当于！==
+between 运算符的使用格式是 a between min and max 当a大于等于min并且小于等于max的话返回1否则返回0
+等价于 a>=min and a<=max
+in 运算符使用格式为 a in (value1, value2, ...) 当a的值存在于列表中的时候，则整个表达式返回1，否则返回0
+例如 select 1 in (1,2,3)
+1
+
+is null 运算符 当a的值为null时返回1
+select 0 is null , null is null;
+0 1
+is not null 和is null相反
+
+like 运算符 a like %123% 当a里面含有字符串123的时候，则返回1，
+%xx%含有xx，xx%以xx开头，%xx以xx结尾
+select 123456 like "123%", 123456 like "%123%", 123456 like "%456";
++--------------------+---------------------+--------------------+
+| 123456 like "123%" | 123456 like "%123%" | 123456 like "%456" |
++--------------------+---------------------+--------------------+
+|                  1 |                   1 |                  1 |
++--------------------+---------------------+--------------------+
+ select 123456 like  "456%" ;
++---------------------+
+| 123456 like  "456%" |
++---------------------+
+|                   0 |
++---------------------+
+regexp 运算符 使用格式 str regexp str_pat, 当str字符串里面含有 str_pat相匹配的字符串的时候会返回1
+
+
+
+函数
+cancat(s1, s2, ...sn)函数: 把传入的产生链接称为一个字符串。
+任何字符串和null进行链接的结果都会是null。
+insert(str,x,y,instr)函数：把字符串str从第x位置开始，y个字符长的字串替换为字符串instr
+注意mysql里面下标是从1开始的
+select INSERT('abc',2,1,'hh');
+从abc里面的第二个字符开始的一个字符长度的字串替换为hh,即把b替换为hh
++------------------------+
+| INSERT('abc',2,1,'hh') |
++------------------------+
+| ahhc                   |
++------------------------+
+
+lower(str)和upper(str)函数，把字符串转换为小写或者大写
+left(str, x) 和right（str,x) 分别返回字符串最左边的x个字符和最右边的x个字符，如果第二个参数是null，
+那么就不会返回任何的字符串
+lpad(str, n ,pad)和rpad(str, n, pad),用字符pad对str左边/右边进行填充，直到长度达到n个字符长度
+ltrim(str) rtrim(str) 去掉字符串str左边或者右边的空格
+trim(str) 去掉字符串两边的空格
+repeat(str, x)返回str重复x次的结果
+replace(str, a, b) 用字符串b替换字符串str中所有出现的字符串a
+strcmp(s1, s2)比较字符串s1和s2的ascill码的大小，如果s1小于s2返回-1
+substring(str,x, y)返回从字符串str中第x位置起y个长度的字符串
+ select substring('123456',1,3);
++-------------------------+
+| substring('123456',1,3) |
++-------------------------+
+| 123                     |
++-------------------------+
+
+abs(x) 函数： 返回x的绝对值
+ceil(x)函数: 返回大于x最小整数
+floor(x)函数： 返回小于x的最大整数
+rand() 返回0~1的随机数
+round(x, y) 返回参数x的四舍五入 有y位小数的值
+如果是整数，将会保留y位数量的0，如果没有写y，默认y为0，即将x四舍五入后取整
+truncate(x, y) 返回数字x截断为y位小数的结果
+这个仅仅是截断而不是四舍五入
+select round(1.25,1), truncate(1.25,1);
++---------------+------------------+
+| round(1.25,1) | truncate(1.25,1) |
++---------------+------------------+
+|           1.3 |              1.2 |
++---------------+------------------+
+
+日期
+curdate()函数: 返回当前日期，只有年月日
+curtime()函数: 返回当前时间，只有时分秒
+now()返回当前的日期和时间，年月日时分秒
+unix_timestamp(date)返回日期date的unix时间戳
+from_unixtime(unixtime) 返回unixtime时间戳的日期值和unix_timestamp(date)互为逆操作
+week(date) 返回所给日期是一年中的第几周
+year(date) 返回所给日期是那一年
+hour(time) minute(time) 返回小时和分钟
+date_format(date, fmt) 按字符串fmt格式化日期date值
+date_add(date, interval expr type) 返回与所给日期date相差interval时间段的日期
+interval是间隔类型关键字，expr是一个表达式， 对应后面的类型，type是间隔类型，
+select now() current, date_add(now(), interval 30 day) after30days,
+    -> date_add(now(),interval '1_2' year_month) after_oneyear_twomonth;
++---------------------+---------------------+------------------------+
+| current             | after30days         | after_oneyear_twomonth |
++---------------------+---------------------+------------------------+
+| 2021-04-15 17:33:09 | 2021-05-15 17:33:09 | 2022-06-15 17:33:09    |
++---------------------+---------------------+------------------------+
+也可以用负数返回之前的某个日期
+
+datediff(date1, date2)计算两个日期之间相差的天数
+
+流程函数
+if(value, t, f) 如果value是真，返回t，否则返回f
+ifnull(value, value2) 如果value不为空返回value， 否则返回value2
+case when [value1] then[result1]... else[default]end 如果value1为真返回result1 否则返回default
+case [expr] when [value1] then[result1] ...else[default] end 如果expr等于value1返回result1否则返回default
+
+mysql> create table salary(userid int, salary decimal(9,2));
+Query OK, 0 rows affected (0.71 sec)
+mysql> insert into salary values(1,1000), (2,2000), (3,3000), (4,4000),(5,5000), (6,6000), (1,null);
+ select * from salary;
++--------+---------+
+| userid | salary  |
++--------+---------+
+|      1 | 1000.00 |
+|      2 | 2000.00 |
+|      3 | 3000.00 |
+|      4 | 4000.00 |
+|      5 | 5000.00 |
+|      6 | 6000.00 |
+|      1 |    NULL |
++--------+---------+
+select if(salary>2000, 'high','low') from salary;
++-------------------------------+
+| if(salary>2000, 'high','low') |
++-------------------------------+
+| low                           |
+| low                           |
+| high                          |
+| high                          |
+| high                          |
+| high                          |
+| low                           |
++-------------------------------+
+select ifnull(salary, 0) from salary;
++-------------------+
+| ifnull(salary, 0) |
++-------------------+
+|           1000.00 |
+|           2000.00 |
+|           3000.00 |
+|           4000.00 |
+|           5000.00 |
+|           6000.00 |
+|              0.00 |
++-------------------+
+select case when salary<=2000 then 'low' else 'high' end from salary;
++---------------------------------------------------+
+| case when salary<=2000 then 'low' else 'high' end |
++---------------------------------------------------+
+| low                                               |
+| low                                               |
+| high                                              |
+| high                                              |
+| high                                              |
+| high                                              |
+| high                                              |
++---------------------------------------------------+
+select case salary when 1000 then 'low' when 2000 then 'mid' else 'high' end from salary;
++-----------------------------------------------------------------------+
+| case salary when 1000 then 'low' when 2000 then 'mid' else 'high' end |
++-----------------------------------------------------------------------+
+| low                                                                   |
+| mid                                                                   |
+| high                                                                  |
+| high                                                                  |
+| high                                                                  |
+| high                                                                  |
+| high                                                                  |
++-----------------------------------------------------------------------+
+
+database() 返回当前数据库名
+version() 返回当前数据库版本
+user() 返回当前登录用户名
+inet_aton(ip) 返回ip地址的数字表示
+inet_ntoa(num) 返回数字代表的IP地址
+password(str) 返回字符串str的加密版本
+md5（str）返回字符串str的md5值
+
+
+
+引擎
+创建新表的时候如果不指定引擎，系统会使用默认存储引擎，5.5之前的是myISAM，之后是InnoDB
+如果要修改可以再参数外键里面设置default-table-type。
+查看当前默认的存储引擎，可以使用show variables like 'table_type'
+显示当前数据库支持的存储引擎
+show engines;
+或者 show variables like 'have%';
+
+
+
+
+
+如何将myisam存储引擎修改为innodb
+mysql> create table ai(
+    -> i bigint(20) not null auto_increment,
+    -> primary key(i)
+    -> )engine=myisam default charset=gbk;
+Query OK, 0 rows affected, 1 warning (0.56 sec)
+
+mysql> create table country(
+    -> country_id smallint unsigned not null auto_increment,
+    -> country varchar(50) not null,
+    -> last_update timestamp not null default current_timestamp on update current_timestamp,
+    -> primary key(country_id)
+    -> )engine=innodb default charset = gbk;
+Query OK, 0 rows affected (1.12 sec)
+
+alter table ai engine=innodb;
+Query OK, 0 rows affected (1.13 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> show create table ai;
++-------+-------------------------------------------------------------------------------------------------------------------+
+| Table | Create Table                                                                                                      |
++-------+-------------------------------------------------------------------------------------------------------------------+
+| ai    | CREATE TABLE `ai` (
+  `i` bigint NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`i`)
+) ENGINE=InnoDB DEFAULT CHARSET=gbk |
++-------+-------------------------------------------------------------------------------------------------------------------+
+
+myisam，不支持事务和外键，优势是访问速度快，对事务完整型没有要求或者以select，insert为主的应用基本可用这个引擎创建表
+每个myisam在磁盘上存储成3个文件，文件名都和表名相同，但是扩展名分别是
+.frm 存储表定义
+.myd （mydata 存储数据
+.myi  (myindex 存储索引)
+数据文件和索引文件可用放置在不同的目录，平均分布IO，获得更快的速度
+
+innodb
+自动增长列，可用手工插入，但是插入的值是空或者是0，那么实际插入的是自动增长后的值
+自动增长是在目前列中最大的值上增长
+
+外键约束
+mysql只有innodb支持外键，在创建外键的时候，要求父表必须有对应的索引，
+子表在创建外键的时候也会自动创建对应的索引。
+
+
+
+
+
+
+
+实现全局唯一id
+函数uuid
+生成的数据是中划线链接的
+可以用replace函数去掉
+replace(uuid(),'-','');
+
+
+
+
+
+帮助使用：
+1.按层次看帮助
+？ contents命令显示所有可供查询的分类
+使用“？ 类别名称”的方式进一步查看。
+2.快速查询
+例如想知道show命令 --》？ show
+
+
+
+数据类型：p73
+自增1：p74

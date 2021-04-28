@@ -1,0 +1,75 @@
+关键帧，定义方法1
+@keyframes name{
+ from{ css }
+ to{ css }
+}
+关键帧，定义方法2
+@keyframes name{
+ 0%{ css }
+ 100%{ css }
+}
+关键帧动画使用,animation
+语法
+animation: name duration timing-function delay iteration-count direction;
+
+animation-name	规定需要绑定到选择器的 keyframe 名称。 无默认值
+animation-duration	规定完成动画所花费的时间，以秒或毫秒计。 默认值0 所以要设定时间不然无动画效果
+animation-timing-function	规定动画的速度曲线。默认值ease
+	linear	动画从头到尾的速度是相同的。	
+	ease	默认。动画以低速开始，然后加快，在结束前变慢。	
+	ease-in	动画以低速开始。	
+	ease-out	动画以低速结束。	
+	ease-in-out	动画以低速开始和结束。	
+	cubic-bezier(n,n,n,n)	在 cubic-bezier 函数中自己的值。可能的值是从 0 到 1 的数值。
+
+animation-delay	规定在动画开始之前的延迟。
+	time	可选。定义动画开始前等待的时间，以秒或毫秒计。默认值是 0。
+animation-iteration-count	规定动画应该播放的次数。 默认1
+	n	定义动画播放次数的数值。	
+	infinite	规定动画应该无限次播放。
+animation-direction	规定是否应该轮流反向播放动画。
+	normal	默认值。动画应该正常播放。	
+	alternate	动画应该轮流反向播放。
+	
+	
+	
+background-image: linear-gradient(direction, color-stop1, color-stop2, ...);
+direction	用角度值指定渐变的方向（或角度）。
+color-stop1, color-stop2,...	用于指定渐变的起止颜色。
+/* 从上到下，蓝色渐变到红色 */
+linear-gradient(blue, red);
+ 
+/* 渐变轴为45度，从蓝色渐变到红色 */
+linear-gradient(45deg, blue, red);
+ 
+/* 从右下到左上、从蓝色渐变到红色 */
+linear-gradient(to left top, blue, red);
+ 
+/* 从下到上，从蓝色开始渐变、到高度40%位置是绿色渐变开始、最后以红色结束 */
+linear-gradient(0deg, blue, green 40%, red);
+
+
+
+repeating-linear-gradient() 函数
+background: repeating-linear-gradient(angle | to side-or-corner, color-stop1, color-stop2, ...);
+
+
+
+background
+background-color：#fff; //规定要使用的背景颜色。
+background-position:center left;  //规定背景图像的位置。
+background-size：length|percentage|cover|contain;   //规定背景图片的尺寸。
+background-repeat:repeat;  //规定如何重复背景图像。
+background-origin:padding-box|border-box|content-box;默认值是：padding-box//规定背景图片的定位区域。
+background-clip：border-box|padding-box|content-box;默认值是：border-box//规定背景的绘制区域。
+background-attachment：scroll|fixed|inherit; //设置背景图像是否固定或者随着页面的其余部分滚动。
+background-image:#ccc|url(../img/1.jpg); //规定要使用的背景图像。
+
+
+自适应:
+@media 分别写css
+
+父容器
+width: 100% + max-width: xx + min-width: xx
+子容器
+width: xx%

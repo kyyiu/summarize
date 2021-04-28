@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="js/vue.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<h4>{{msg}}</h4>
+			<!-- v-bind只能实现数据的单向绑定,从M自动绑定到V无法实现双向 -->
+			<input type="text" v-bind:value="msg" style="width: 1000px;">
+			<!-- 使用v-model可以实现表单元素和model中数据的双向绑定 只能用在表单元素中-->
+			<!-- inp(radio,text,address..) select checbox textarea -->
+			<input type="text" v-model="msg" style="width: 1000px;">
+		</div>
+		<script type="text/javascript">
+			var vm = new Vue({
+				el: '#app',
+				data: {
+					msg: 'student,type codding',
+				},
+				methods:{
+					
+				}
+			});
+		</script>
+	</body>
+</html>

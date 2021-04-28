@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="js/vue.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<input type="button"  value="stp" @click="stp">
+			<input type="button"  value="act" @click="act">
+			<h4>{{msg}}</h4>
+		</div>
+
+		<script type="text/javascript">
+			//vm实例中，想获取data上的数据或者方法，必须通过this.来进行访问
+			var vm = new Vue({
+				el: '#app',
+				data:{
+					msg:'123456',
+					timer: 'null'
+				},
+				methods:{
+					
+					act(){
+						clearInterval(this.timer);
+						this.timer = setInterval( () => {//这里使用箭头函数后this依旧指向本实例
+							var start = this.msg.substring(0,1);
+							var end = this.msg.substring(1);
+							console.log(start,end)
+							this.msg = end + start;
+						},500);
+				
+					},
+					stp(){
+						clearInterval(this.timer);
+					}
+				}
+			})
+		</script>
+	</body>
+</html>

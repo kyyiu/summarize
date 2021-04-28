@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="js/vue.js"></script>
+		<script src="js/vue-resource.js"></script>
+		<link rel="stylesheet" href="../animate.css-master/animate.css">
+		<!-- 3使用animate.css库,地址http://daneden.github.io/animate -->
+		<!-- 入场bounceIn,离场bounceOut -->
+		<!-- 2.自定义两组样式，控制transition内部的元素实现动画 -->
+		<style type="text/css">
+			/* 淡入淡出 */
+			/* v-enter 是进入之前，元素起始状态，还没开始进入 */
+			/* v-leave-to 是动画离开之后，离开的终止状态，此时此时动画已经结束 */
+			/* .v-enter,
+			.v-leave-to{
+				opacity: 0;
+				transform: translateY(80px);
+			} */
+			/* v-enter-active 入场动画时间段 */
+			/* v-leave-active */
+			/* .v-enter-active,
+			.v-leave-active{
+				transition: 2s ease;
+			} */
+			
+		/* 	.h-enter,
+			.h-leave-to{
+				opacity: 0;
+				transform: translateX(400px);
+			}
+			
+			.h-enter-active,
+			.h-leave-active{
+				transition: 1s;
+			} */
+			.ball{
+				width: 15px;
+				height: 15px;
+				
+				border-radius: 50%;
+				background: red;
+			}
+			li{
+				border: 1px dashed #ccc;
+				margin: 5px;
+				width: 100%;
+				line-height: 35px;
+				padding-left: 5px;
+				font-size: 14px;
+			}
+			li:hover{
+				background-color: hotpink;
+			}
+			
+			/* v-move和v-leave-active配合，能实现列表后续元素，渐飘上效果 */
+			.v-move{
+				transition: all 1s ease;
+			}
+			.v-leave-active{
+				position: absolute;
+			}
+		</style>
+	</head>
+	<body>
+		
+		<!-- 实现列表动画 -->
+		<div id="app3">
+			<div>
+				<label>
+					id:
+					<input type="text" v-model="id">
+				</label>
+				<label>
+					name:
+					<input type="text" v-model="name">
+				</label>
+				<input type="button" @click="add">
+			</div>
+			<ul>
+				<!-- 给transition-group添加appear属性实现页面入场效果 -->
+				<!-- 设置tag属性，指定渲染为什么元素，如果不指定tag属性，默认渲染为span标签 -->
+				<transition-group appear tag="">
+					<li v-for="(item,i) in list" :key="item.id" @click="del(i)">
+						{{item.id}}----{{item.name}}
+					</li>
+				</transition-group>
+			</ul>
+			
+		</div>
+		
+		
+		<div id="app">
+			<input type="button" value="dw" @click="flag =!flag">
+			<!-- 1.使用transition元素，把需要被动画控制的元素包起来 -->
+			<transition>
+				<h3 v-if="flag">hhhhhh</h3>
+			</transition>
+				<hr>
+			<input type="button" value="dw" @click="flag2 =!flag2">
+			<!-- 1.使用transition元素，把需要被动画控制的元素包起来 -->
+			<transition name="h">
+				<h3 v-if="flag2">hhhhhh</h3>
+			</transition>
+			
+			<input type="button" value="dw" @click="flag =!flag">
+			<!-- 1.使用transition元素，把需要被动画控制的元素包起来 -->
+			<!-- <transition enter-active-class="animated bounceIn" leave-active-class="animated bounceOut">
+				<h3 v-if="flag">hhhhhh</h3>
+			</transition> -->
+			
+			<!-- <transition enter-active-class=" bounceIn" leave-active-class="bounceOut">
+				<h3 v-if="flag" class="animated">hhhhhh</h3>
+			</transition> -->
+			
+			<!-- 使用:duration="毫秒"统一设置入场离场时间 -->
+			<transition 
+			enter-active-class=" bounceIn" 
+			leave-active-class="bounceOut"
+			:duration="{enter: 1500,leave: 400}">
+				<h3 v-if="flag" class="animated">hhhhhh</h3>
+			</transition>
+	
+		</div>
+		
+		
+		
+		<!-- 使用钩子函数实现小球半场动画 -->
+		<div id="app2">
+			<input type="button" value="dw" @click="flagb = !flagb">
+			<transition
+			@before-enter="beforeEnter"
+			@enter="enter"
+			@after-enter="afterEnter">
+				<div class="ball" v-show="flagb"></div>
+			</transition>
+		</div>
+		
+		<div>
+			bottom
+		</div>
+		
+		<script type="text/javascript">
+			var vm = new Vue({
+				el: '#app3',
+				data: {
+					id:'',
+					name:'',
+					flag: false,
+					flag2: false,
+					flagb: false,
+					list:[
+							{id:1,name:'a'},
+							{id:2,name:'b'},
+							{id:3,name:'c'},
+					]
+				},
+				methods: {
+					//动画钩子函数的第一个参数el，表示要执行动画的DOm元素
+					//是个原生的js dom对象,可以理解为queryselector
+					beforeEnter(el){
+						//设置动画起始样式
+						el.style.transform = "translate(0,0)"
+					},
+					enter(el,done){
+						//可以设置动画完成后的样式
+						el.offsetWidth//没实际作用，但是不写没动画效果
+						el.style.transform = "translate(150px,300px)"
+						el.style.transition = "all 5s ease"
+						done()//想让结束后立即消失调用这个函数，他即是afterEnter
+					},
+					afterEnter(el){
+						//完成之后调用
+						this.flagb = !this.flagb
+					},
+					
+					add(){
+						this.list.push({id:this.id,name:this.name})
+					},
+					del(id){
+						this.list.splice(id,1);
+					}
+				}
+			})
+		</script>
+	</body>
+</html>

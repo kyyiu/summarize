@@ -1,0 +1,162 @@
+npm安装指定版本的包
+使用包名@版本号指定
+例如安装 Express 3.21.2
+npm install express@3.21.2
+package.json 文件列出了项目所依赖的插件和库，同时也给出了对应的版本说明，
+但是在版本说明前面还有个符号:'^'(插入符号)和'~'(波浪符号)，总结了下他们之间的区别:
+例如:
+'~'(波浪符号):他会更新到当前minor version(也就是中间的那位数字)中最新的版本。
+放到我们的例子中就是:"exif-js": "~2.3.0"，这个库会去匹配更新到2.3.x的最新版本，
+如果出了一个新的版本为2.4.0，则不会自动升级。波浪符号是曾经npm安装时候的默认符号，
+现在已经变为了插入符号。
+'^'(插入符号): 这个符号就显得非常的灵活了，
+他将会把当前库的版本更新到当前major version(也就是第一位数字)中最新的版本。
+放到我们的例子中就是:"vue": "^2.2.2", 这个库会去匹配2.x.x中最新的版本，但是他不会自动更新到3.0.0。
+
+npm init                                              ---- yarn init
+npm install                                         ---- yarn 
+npm install xxx@1.1.1 -g                   ---- yarn global add xxx@1.1.1
+npm install xxx@1.1.1 --save            ---- yarn add xxx@1.1.1
+npm install xxx@1.1.1 --save-dev     ---- yarn add xxx@1.1.1 --dev
+npm uninstall xxx --save(-dev)          ----yarn remove xxx
+npm run xxx                                      ---- yarn run xxxx
+————————————————
+
+weapp-cookie：一行代码让微信、头条、百度、支付宝小程序支持 cookie，兼容 uni-app
+	小程序原生的 request 网络请求接口并不支持传统的 Cookie，
+	但有时候我们现有的后端接口确于依赖 Cookie（比如服务器用户登录态），
+	这个库可用一行代码为你的小程序实现 Cookie 机制，
+	以保证基于 cookie 的服务会话不会失效，与 web 端共用会话机制
+
+set-cookie-parser
+
+antd 是基于 Ant Design 设计体系的 React UI 组件库，主要用于研发企业级中后台产品。
+npm install antd --save
+3.0 之后引入 antd.js 前你需要自行引入 moment。
+
+create-react-app 是来自于 Facebook，通过该命令我们无需配置就能快速构建 React 开发环境。
+create-react-app 自动创建的项目是基于 Webpack + ES6 。
+$ cnpm install -g create-react-app
+$ create-react-app my-app
+$ cd my-app/
+$ npm start
+
+我们需要对 create-react-app 的默认配置进行自定义，
+这里我们使用 react-app-rewired （一个对 create-react-app 进行自定义配置的社区解决方案）。
+引入 react-app-rewired 并修改 package.json 里的启动配置。
+由于新的 react-app-rewired@2.x 版本的关系，你还需要安装 customize-cra。
+npm install react-app-rewired customize-cra
+/* package.json */
+"scripts": {
+-   "start": "react-scripts start",
++   "start": "react-app-rewired start",
+-   "build": "react-scripts build",
++   "build": "react-app-rewired build",
+-   "test": "react-scripts test",
++   "test": "react-app-rewired test",
+}
+然后在项目根目录创建一个 config-overrides.js 用于修改默认配置。
+
+module.exports = function override(config, env) {
+  // do stuff with the webpack config...
+  return config;
+};
+
+使用 babel-plugin-import#
+注意：antd 默认支持基于 ES module 的 tree shaking，js 代码部分不使用这个插件也会有按需加载的效果。
+babel-plugin-import 是一个用于按需加载组件代码和样式的 babel 插件（原理），
+现在我们尝试安装它并修改 config-overrides.js 文件。
+npm install babel-plugin-import
+
++ const { override, fixBabelImports } = require('customize-cra');
+- module.exports = function override(config, env) {
+-   // do stuff with the webpack config...
+-   return config;
+- };
++ module.exports = override(
++   fixBabelImports('import', {
++     libraryName: 'antd',
++     libraryDirectory: 'es',
++     style: 'css',
++   }),
++ );
+
+然后移除前面在 src/App.css 里全量添加的 @import '~antd/dist/antd.css'; 
+样式代码，并且按下面的格式引入模块。
+
+// src/App.js
+  import React, { Component } from 'react';
+- import Button from 'antd/es/button';
++ import { Button } from 'antd';
+  import './App.css';
+
+  class App extends Component {
+    render() {
+      return (
+        <div className="App">
+          <Button type="primary">Button</Button>
+        </div>
+      );
+    }
+  }
+
+  export default App;
+  
+  最后重启 npm start 访问页面，antd 组件的 js 和 css 代码都会按需加载，
+  你在控制台也不会看到这样的警告信息。
+  
+  自定义主题#
+  按照 配置主题 的要求，自定义主题需要用到 less 变量覆盖功能。
+  我们可以引入 customize-cra 中提供的 less 相关的函数 addLessLoader 来帮助加载 less 样式，
+  同时修改 config-overrides.js 文件如下。
+  npm install less less-loader
+  
+  - const { override, fixBabelImports } = require('customize-cra');
+  + const { override, fixBabelImports, addLessLoader } = require('customize-cra');
+  
+  module.exports = override(
+    fixBabelImports('import', {
+      libraryName: 'antd',
+      libraryDirectory: 'es',
+  -   style: 'css',
+  +   style: true,
+    }),
+  + addLessLoader({
+  +   javascriptEnabled: true,
+  +   modifyVars: { '@primary-color': '#1DA57A' },
+  + }),
+  );
+  
+  这里利用了 less-loader 的 modifyVars 来进行主题配置，变量和其他配置方式可以参考 配置主题 文档。
+  
+  修改后重启 npm start，如果看到一个绿色的按钮就说明配置成功了。
+  
+  你也可以使用 craco 和 craco-antd 来实现和 customize-cra 一样的修改 create-react-app 配置的功能。
+  
+  
+  使用 Day.js 替换 momentjs 优化打包大小
+  可以使用 antd-dayjs-webpack-plugin 插件用 Day.js 替换 momentjs 来大幅减小打包大小。
+  npm install antd-dayjs-webpack-plugin
+  const { override, addWebpackPlugin } = require('customize-cra');
+  const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin');
+  module.exports = override(addWebpackPlugin(new AntdDayjsWebpackPlugin()));
+
+
+
+hard-source-webpack-plugin
+npm i hard-source-webpack-plugin  -D
+在config.override.js中
+module.exports = {
+  webpack: function(config, env){
+	config.plugins.push(new Hardxx())  
+
+  }
+}
+
+
+
+
+
+
+验证码包
+cnpm install svg-captcha --save

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style type="text/css">
+			[v-cloak]{
+				display: none;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app">
+			<!-- 使用v-cloak,能够解决 插值表达式闪烁问题，网络差的情况下会先看到msg而不是msg的值 -->
+			<p v-cloak> {{ msg }}</p>
+			<!-- 默认v-text没有闪烁问题，但会覆盖原本元素中的内容 -->
+			<h4 v-text="msg"></h4>
+			<div>{{msg2}}</div>
+			<div v-text="msg2"></div>
+			<!-- v-html可以插入标签 -->
+			<div v-html="msg2"></div>
+			<!-- v-bind:是vue中用于绑定属性的指令 可以简写为'：'-->
+			<!-- v-on绑定事件 简写@-->
+			<input type="button" value="button" v-bind:title="mytitle" v-on:click="aler" />
+			<input type="text" value="" placeholder="place"/>
+		</div>
+		
+		<script src="js/vue.js"></script>
+		<script type="text/javascript">
+			var vm = new Vue({
+				el: '#app',
+				data:{
+					msg:'123',
+					msg2: '<h1>good</h1>',
+					mytitle: 'define'
+				},
+				methods:{ //这个属性中定义了当前vue实例所有可用方法
+				aler:function(){
+					alert('hello');
+				}
+					
+				}
+			});
+			
+		</script>
+	</body>
+</html>

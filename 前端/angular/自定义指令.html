@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script crossorigin="anonymous" integrity="sha512-7oYXeK0OxTFxndh0erL8FsjGvrl2VMDor6fVqzlLGfwOQQqTbYsGPv4ZZ15QHfSk80doyaM0ZJdvkyDcVO7KFA==" src="https://lib.baomitu.com/angular.js/1.8.2/angular.min.js"></script>
+		
+	</head>
+	<body ng-app = "app">
+		<!-- 1通过元素名使用 -->
+		<runoob-directive></runoob-directive>
+		<!-- 2通过属性使用 -->
+		<div runoob-directive></div>
+		<!-- 3.通过类名使用 -->
+		<div class="runoob-directive"></div>
+		<!-- 4.通过注释使用 -->
+		<!-- directive: runoob-directive -->
+		
+		
+		<script type="text/javascript">
+			var app = angular.module('app', []);
+			app.directive('runoobDirective', function(){
+				return {
+					restrict: 'EACM',
+					replace: true,
+					template: "<h1>自定义指令</h1>"
+				}
+			})
+		</script>
+	</body>
+</html>

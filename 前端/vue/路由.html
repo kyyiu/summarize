@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="js/vue.js"></script>
+		<script src="js/vue-resource.js"></script>
+		<script src="js/vue-router.js"></script>
+		<style type="text/css">
+			/* 激活类 */
+			.router-link-active , .myclass{
+				color: red;
+				font-weight: 800;
+				font-size: 30px;
+			}
+			.v-enter,
+			.v-leave-to{
+				opacity: 0;
+				transform: translateX(100px);
+			}
+			.v-enter-active,
+			.v-leave-active{
+				transition: 1s;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app">
+			<!-- <a href="#/login">lg</a>
+			<a href="#/register">rg</a> -->
+			<!-- 上面相当于router-link -->
+			<!-- 默认渲染为一个a标签 -->
+			<!-- 路由规则传参方法1 -->
+			
+			<router-link to="/register">rg</router-link>
+			
+			<!-- <router-link to="/login?id=1&name=s" tag="span">lg</router-link> -->
+			<!-- 路由规则传参方法2 -->
+			<!-- <router-link :to="'/login/1/'+num" tag="span">lg</router-link> -->
+			<router-link :to=`/login/1/${num}` tag="span">lg</router-link>
+			<!-- 下面改成 -->
+			<!-- {path:'/login/:id/:name',component: login}, -->
+			<!-- 展示vue-router提供的元素，专门用来当作占位符，将来，路由规则，匹配到的组件，就会到其中去
+			 所以可以把他认为是一个占位符-->
+			<transition mode="out-in">
+				<router-view></router-view>
+			</transition>
+			
+		</div>
+		
+		
+		<script type="text/javascript">
+			var login = {
+				// template: '<h1>123==={{$route.query.id}}</h1>',
+				template: '<h1>123==={{$route.params.id}}</h1>',
+				data(){
+					return{
+						msg:'123',
+					}
+				},
+				created(){
+					// console.log(this.$route.query);
+					console.log(this.$route.params.name)
+				}
+			}
+			var login2 = {
+				template:'<h1>HELO</h1>'
+			}
+			var register = {
+				template: '<div><router-link to="register/login2">sss</router-link><router-view></router-view></div>'
+			}
+			//创建一个路由对象，当导入vue-router包后，在window全局对象中就有了一个路由的构造函数 叫做VueRouter
+			//在new路由对象的时候，可以为构造函数，传递一个配置对象
+			var routerObj = new VueRouter({
+				//route 这个配置对象中的toute表示路由匹配规则的意思
+				routes:[
+					//每个路由匹配规则,都是一个对象，这个规则对象，身上有两个必须的属性：
+					//1path 表示监听，哪个路由链接地址
+					//2component 表示如果路由前面匹配到的path，则展示component属性对应的那个组件
+					//component属性值，必须是一个组件的模板对象，不能是组件的引用名
+					{path:'/', redirect: '/login'}, //设置默认页面//这里的redirect和Node中的redirect两码事
+					// {path:'/login',component: login},
+					{path:'/login/:id/:name',component: login},
+					{path: '/register', 
+					component: register,
+					children:[
+						{path:'login2',component: login2}//children实现路由嵌套,同时子路由path前不带/,否则永远以根目录开始请求,不利于用户理解url地址
+					]}
+					
+				],
+				linkActiveClass: 'myclass',//设置自己的激活类
+			})
+			
+			var vm = new Vue({
+				el: '#app',
+				data: {
+					num: 10
+				},
+				methods:{},
+				filters:{},
+				directives:{},
+				components:{},
+				router: routerObj,//将路由规则对象，注册到vm实例，用来监听url地址的变化，然后展示对应的组件
+				
+				beforeCreate(){},
+				created(){},
+				beforeMount(){},
+				mounted(){},
+				beforeUpdate(){},
+				updated(){},
+				beforeDestroy(){},
+				destroyed(){}
+			})
+		</script>
+	</body>
+</html>

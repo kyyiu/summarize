@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script crossorigin="anonymous" integrity="sha512-7oYXeK0OxTFxndh0erL8FsjGvrl2VMDor6fVqzlLGfwOQQqTbYsGPv4ZZ15QHfSk80doyaM0ZJdvkyDcVO7KFA==" src="https://lib.baomitu.com/angular.js/1.8.2/angular.min.js"></script>
+		
+	</head>
+	<body>
+		<div ng-app="" ng-init="names=['1', '2', '3']">
+			<p>使用ng-repeat来循环数组</p>
+			<ul>
+				<li ng-repeat="x in names">
+					{{x}}
+				</li>
+			</ul>
+		</div>
+		<!-- 遍历对象数组 -->
+		<div id="obj" ng-app="obj" ng-init="names=[
+			{name: '1'},
+			{name: '2'},
+			{name: '3'}
+		]">
+			<p>循环对象</p>
+			<ul>
+				<li ng-repeat="x in names">
+					{{x.name}}
+				</li>
+			</ul>
+		</div>
+		<script type="text/javascript">
+			var app = angular.module('obj', []);
+			angular.element(document).ready(function(){
+				angular.bootstrap(document.getElementById('obj'), ['obj']);
+			})
+		</script>
+	</body>
+</html>

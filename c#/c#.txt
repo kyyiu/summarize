@@ -1,0 +1,78 @@
+下载一个.net Core的SDK
+在VS Code里找插件
+安装完成.net Core SDK之后，打开命令行，输入dotnet -h
+出来内容，就证明SDK安装是没问题的
+输入
+
+dotnet new console -o D:\study\NetCore
+讲解一下，new是新建，console是控制台，-o是IO路径，后面的是我准备安放的路径，
+D盘的study目录下，项目名称是NetCore
+
+接下来就会创建一个默认的C#控制台程序，把这个程序拖进VS Code
+点击运行-》调试 就可以看到hello world了
+
+
+C# string 字符串的前面可以加 @（称作"逐字字符串"）将转义字符（\）当作普通字符对待，比如：
+
+string str = @"C:\Windows";
+等价于：
+
+string str = "C:\\Windows";
+@ 字符串中可以任意换行，换行符及缩进空格都计算在字符串长度之内。
+
+string str = @"<script type=""text/javascript"">
+    <!--
+    -->
+</script>";
+
+C# 单问号 ? 与 双问号 ??
+? : 单问号用于对 int,double,bool 等无法直接赋值为 null 的数据类型进行 null 的赋值，
+意思是这个数据类型是 Nullable 类型的。
+比如 int? i 就是为i赋初始值为null
+
+?? : 双问号 可用于判断一个变量在为 null 时返回一个指定的值。
+比如int? i
+int j = i ?? 2;
+如果i是null则赋予2给j，如果i有值则直接赋予j
+
+
+多维数组
+声明一个3行四列的数组
+int [,] a = new int [3,4] {
+ {0, 1, 2, 3} ,   /*  初始化索引号为 0 的行 */
+ {4, 5, 6, 7} ,   /*  初始化索引号为 1 的行 */
+ {8, 9, 10, 11}   /*  初始化索引号为 2 的行 */
+};
+
+交错数组
+是数组的数组，当每个元素的长度相同的情况下相当于二维数组
+
+
+继承
+class 派生类: 基类{}
+
+子类中对父类进行初始化
+class 派生类: 基类{
+	public 派生类: base( a , b){}
+	public void fun(){
+		// 调用父类的fun方法
+		base.fun();
+		console.WriteLine('son use father function')
+	}
+}
+
+抽象类
+abstract class Shape {
+	abstract public int area ();
+}
+
+class Rectangle: Shape {
+	public override int area() {
+		return 100;
+	}
+}
+
+
+#region
+#endregin
+产生可折叠的代码块

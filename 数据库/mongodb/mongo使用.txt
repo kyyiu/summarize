@@ -1,0 +1,226 @@
+mongodb 的服务启动
+1.首先打开dos窗口，然后选择路径到你的安装路径下的bin目录（我的路径是的D:mongo\mongodb\bin）
+2.然后输入启动命令(D:mongo\data\db 是我的数据库文件的目录前边两个 – 不能少)  mongod --dbpath D:mongo\data\db  
+3．回车dos界面出现 12701 的字样说明服务启动成功了如图所示
+法2：
+mongo的bin目录下 mongod.exe --logpath F:\moggodb\log\mongodb.log --logappend 
+--dbpath F:\moggodb\data --directoryperdb --serviceName MongoDB --install
+再net start MongoDB
+如果报错100
+在data中找到mongo。lock和stroage。bson删除掉重新net
+
+
+show dbs //查看数据库
+默认有admin，config, local三个数据库
+
+使用数据库 use databasename
+如果震的想把这个数据库创建成功，那么必须插入一个数据
+数据库中不能直接插入数据，只能往几何（collections）中插入数据，
+下面命令表示给databasename数据库的
+user表中插入数据
+db.user.insert({'name':'lihua'})
+db.表名.操作(数据)
+
+命令行中就是
+use dataN //使用dataN数据库
+db.user.insert({'name':'lihua'}) //往user中插入数据，让数据库创建成功
+
+删除数据库
+use databasename
+db.dropDatabase()
+
+显示当前的数据集合
+show collections
+
+显示集合中的数据
+db.表名.find() 类似select * from 表名
+
+查询
+db.表名.distinct('键名')
+会过滤掉键名中的相同数据
+类似select distict 键名 from 表名
+
+查询指定数据
+db.表名.find({'键名':'值'}) 类似 select * from 表名 where 键名=值
+查询age>22的记录:  db.表名.find({age:{$gt:22}}) 相当于 select * from 表名 where age>22
+查询age<22的记录： db.表名.find({age:{$lt:22}}) 相当于select * from 表名 where age<22
+查询age>=22  db.表名.find({age:{$gte:22}})
+查询age>=23 并且 age<=26 db.表名.find({age:{$gte:23,$lte:26}})
+
+模糊查询
+查询name中包含mongo的数据
+db.表名.find({name: /mongo/})
+查询name中以mongo开头的数据
+db.表名.find({name: /^mongo/})
+
+查询指定列
+find的第二个参数里面
+db.表名.find({name: /^mongo/},{name:1}) 查询name中以mongo开头的数据，且只显示name列
+db.表名.find({name: /^mongo/},{name:1，age:1}) 查询name中以mongo开头的数据，且只显示name,age列
+
+
+删除集合
+db.表名.drop()
+
+插入数据
+db.表名.insert({})
+
+升序
+db.表名.find().sort({age:1})
+降序
+db.表名.find().sort({age:-1})
+
+查询前五个数据
+db。表名。find（）。limit（5）
+查询十条以后的数据
+db。表名。find（）。skip（10）
+查询五到10之间的数据
+db。表名。find（）。limit（10）.skip（5）
+
+
+or 与 查询
+db。表名。find（{$or:[{age: 22},{age:25}]}） 
+类似 select * from 表名 where age = 22 or age =25
+
+
+查询结果集的条数
+db。表名。find（{age:{$gte: 22}}）.count()
+
+
+
+修改数据
+语法 db。表名。update（{条件}，{$set:{修改数据}}，{multi：true}）
+multi可选参数，默认false，true会修改多条数据，不然只修改一个
+例如 db.student.update({'name':'xiaoming'},{$set:{'age':17}}) 
+把学生表中的name为xiaoming的age改成17
+如果不写set是完整替换，即相当于把条件查询出来的的数据，替换成第二个参数的数据
+
+删除数据
+db。表名。remove（{age：111}），如果不写条件，会全部删除
+如果只删除一个数据
+db。表名。remove（{age：111}，{justOne：true）
+
+
+
+
+
+
+
+
+explain executionStats 查询具体的执行时间
+
+db.表名.find().explain('executionStats')
+输出中的explain.executionStats.executionTimeMillis就是执行时间
+
+索引基础
+创建索引的命令
+db.user.ensureIndex(要设置索引的字段)
+例如 db.user.ensureIndex({'username':1})
+
+获取当前集合的索引
+db.user.getIndexes()
+
+删除索引的命令
+db.user.dropIndex({'username'：1})
+
+复合索引
+db.user.ensureIndex({'username':1,'age':-1})
+该索引被创建后，基于username和age的查询会用到该索引，或者是基于username的查询
+也会用到该索引，但是只是基于age的查询将不会用到该复合索引，因此可以说，如果想用到复合索引
+必须在查询条件中包含复合索引中的前n个索引列
+
+mogo账号权限配置
+1 创建超级管理员
+use admin
+db.createUser({
+	user: 'admin',
+	pwd:'123456',
+	roles: [{role: 'root', db: 'admin'}]
+})
+
+2 修改mog数据库配置文件
+路径 C:/proggram files / mongoDb/server/4.x/bin/mongod.cfg
+配置 
+security:
+	authorization: enabled
+	
+3 重启服务
+
+4 用超级管理员账号链接数据库
+	mongo admin -u 用户名 -p 密码
+	mongo admin -u admin -p 123456
+5 给其他数据库例如eggcms，创建一个用户，只能访问eggcms不能访问其他数据库
+	use eggcms
+	db.createUser({
+		user:'eggadmin',
+		pwd:"12345"
+		,roles:[{role:'dbOwner',db'eggcms}]
+	})
+mogo数据库角色
+db.createUser({
+		user:'eggadmin',
+		pwd:"12345",
+		roles:[{role:'dbOwner',db'eggcms}]
+	})
+指的是roles中的role
+1 数据库用户角色 read，readWrite
+2 数据库管理角色 dbAdmin，dbOwner，userAdmin
+3 集群管理角色 clusterAdmin，clusterManager，clusterMonitor，hostManager
+4 备份恢复角色， backup，restore
+5 所有数据库角色 readAnyDatabase， readWriteAnyDatabase，userAdminAnyDatabase，dbADminAnyDatabase
+6 超级用户角色 root
+
+通过show users查看是否创建成功
+
+show users 查看当前库下的用户
+
+db。dropUser（‘用户名’） 删除用户
+
+db。updateUser（‘admin’，{pwd:'password'}）修改用户密码
+
+db。auth（‘admin’，‘password’） 密码验证
+
+在nodejs中需要配置账号密码
+const p = 'mongodb://admin:123456@localhost:27017/'
+
+
+聚合管道 Aggregation Pipeline
+使用聚合管道可以对集合中的文档进行变化和组合
+
+
+使用db。COLLECTION_NAME.aggregate([{<stage>}])方法
+来构建和使用聚合管道，实际项目中主要用于：表关联查询，数据统计
+
+管道操作符
+$project : 增加，删除，重命名字段，筛选列
+$match: 条件匹配
+$skip: 跳过文档数量
+$limit ： 限制结果的数量
+$group: 条件组合结果，统计
+$lookup: 以引入其他集合的数据，表关联
+
+例如
+db.order.aggregate([
+	$project: {order_id:1,trade_no:1,all_price:1}
+])
+
+寻找 order_id，trade_no，all_price三列的数据
+
+db.order.aggregate([
+	{$project: {order_id:1,trade_no:1,all_price:1}}.
+	{$match:{'all_price':{$gte:90}}}
+])
+寻找 order_id，trade_no，all_price三列，all_price大于90的数据
+
+例子 order表和order_item进行关联
+db.order.aggregate([
+	{
+		$lookup:
+		{
+			from: 'order_item', //和orer_item进行关联
+			localField: 'order_id'， //关联条件是order的order_id和order_item的order_id相等
+			foreignField: 'order_id',
+			as: 'items' // 把查找到的数据放在items列中
+		}
+	}
+])

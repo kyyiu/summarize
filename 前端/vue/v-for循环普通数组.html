@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="js/vue.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<!-- in左右有空格 -->
+			<!-- <p v-for="item in list">{{item}}</p> -->
+			<!-- <p v-for="(item ,i) in list">{{i}},{{item}}</p> -->
+			<!-- v-for循环对象数组 -->
+			<!-- <p v-for="user in list2">{{user.id}}{{user.name}}</p> -->
+			<!-- <p v-for="(user,i) in list2">{{i}}{{user.id}}{{user.name}}</p> -->
+			<!-- v-for循环对象 -->
+			<!-- <p v-for="(val,key,i) in list3">{{val}}{{key}}{{i}}</p> -->
+			<!-- 迭代数字 -->
+			<!-- 从1开始 -->
+			<!-- <p v-for="count in 10">{{count}}</p> -->
+			<!-- key属性的使用 -->
+			<label>id:
+				<input type="text" v-model="id">
+			</label>
+			<label>name:
+			<input type="text" v-model="name">
+			</label>
+			<input type="button" value="add" @click="add">
+			<!-- v-for循环时，key属性只能用number获取string
+			 key使用时必须用v-bind
+			 如果v-for有问题，必须在使用的同时，指定唯一的字符串/数字 类型:key值 
+			 -->
+			<div class="c" v-for="item in list2" :key="item.id">
+				<input type="checkbox">
+				{{item.name}}
+			</div>
+			<div>
+				<div v-for="(val,k,i) in list3"
+				:key="k"
+				@click="cc(k)">{{k}}</div>
+			</div>
+		</div>
+		<script type="text/javascript">
+			var vm = new Vue({
+				el: '#app',
+				data:{
+					id:'',
+					name: '',
+					list:[1,2,3,4],
+					list2: [
+						{id: 1,name: 'a'},
+						{id: 2,name:'b'},
+						{id: 3,name: 'c'}
+					],
+					list3:{
+						id: 1,
+						name: 'a',
+						sex: 'n'
+					}
+				},
+				methods:{
+					add(){
+						this.list2.push({id:this.id,name:this.name});
+					},
+					cc(k){
+						console.log(typeof k)
+					}
+				}
+			})
+		</script>
+	</body>
+</html>

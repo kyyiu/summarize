@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="./js/vue.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<input type="checkbox" value="1" v-model="arr" @change="handle"/>
+			<input type="checkbox" value="2" v-model="arr" @change="handle"/>
+			<input type="checkbox" value="3" v-model="arr" @change="handle"/>
+			<input type="checkbox" :checked="total" @change="f" />
+		</div>
+		<script type="text/javascript">
+			var vm = new Vue({
+				el: '#app',
+				data:{
+					total: false,
+					arr: [],
+					arr2: ['1','2','3']
+				},
+				methods:{
+					handle(){
+						console.log(this.arr)
+					},
+					f(){
+						this.total = !this.total
+						if(this.total){
+							this.arr  = this.arr2
+						}else{
+							this.arr = []
+						}
+					}
+				}
+			})
+		</script>
+	</body>
+</html>

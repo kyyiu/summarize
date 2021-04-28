@@ -1,0 +1,86 @@
+// 模块化
+1 我们可以把公共的功能抽离成为一个单独的js文件作为一个模块
+默认情况下这个模块里面的方法或者属性外面是无法访问的
+如果要让外部能访问到里面的方法或者属性
+必须在模块里通过exports或者module.exports 暴露
+exports.a = 10
+moudel.exports = 函数名或者变量名；
+module.exports.showForm = showForm;
+module.exports.subForm = subForm;
+可简写
+module.exports = {
+  showForm: showForm,
+  subForm: subForm
+}
+
+2在需要使用这些模块的文件中，通过require的方式引入这个模块
+这样就可以使用里面暴露的属性和方法了
+
+pacage.json 中的main设置入口文件
+dependencies中 ^表示第一位版本号不变，后类取最新，~表示前两位不变，最后一个区最新，*表示全部取最新
+
+动态网页实现
+1 后端渲染  ejs
+2 前后端分离 主要是移动端
+
+
+
+中间件( 简单来说就是匹配路由之前或者匹配路由完成做的一系列操作，如果中间件中想往下匹配需要next（） )
+express应用可使用如下几种中间件
+1 应用级（用于权限判断）
+	app.use(function(req,res,next){
+		// res.send('中间件')
+		console.log(new Date())
+		next() //表示匹配完成着中间件以后程序继续向下执行
+	})
+2 路由级(路由匹配到一个后就不会往后匹配，但是next可以)
+	app.get('/news/a',(req,res,next)=>{
+		next()
+	})
+	app.get('/news/:b',(req,res,next)=>{
+		console.log('req.query['b']')
+	})
+3 错误处理（放在最后一个路由后面）
+	app.use(function(req,res,next){
+		res.status(404).send('404')
+		
+	})
+4 内置
+	app.use(express.static('static'))
+5 第三方
+	npm i body-parser -S
+	npm i cookie-parser -S
+	npm i express-session -S
+	
+	
+session是另一种记录客户状态的机制，不同的是cookie保存在客户端浏览器中，而session保存在服务器上
+常用方法：
+	req.session.cookie.maxAge = 0 它会把所有的session都销毁
+	或者 req.session.destroy()
+
+将session保存到mongo中  npm i connect-mongo -S
+
+
+路由模块化
+
+
+
+mongoose介绍
+是在node异步环境下对mogodb进行便捷操作的对象模型工具，是node驱动的，不能作为其他语言的驱动
+特点1 通过关系型数据库的思想来设计非关系型数据库 2基于mogdb驱动，简化操作
+
+
+npm i mongoose -S
+引入 并链接数据库
+const mongoose = require('mongoose')
+mongoose.connect('mongodb://localhost/test')
+//如果有账号密码需要采用下面的链接方式
+mongoose.connect('mongodb://admin:123456@localhost:27017/dataN')
+
+定义Schema，为数据库对象的集合。它是mongoose里会用到的一种数据模式，可以理解为表结构的定义。
+每个都会映射到mongodb中的一个collection，它不具有操作数据库的能力
+let UserSchema = mongoose.Schema({
+	name: String,
+	age: Number,
+	status: 'number'
+})

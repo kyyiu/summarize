@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script crossorigin="anonymous" integrity="sha512-7oYXeK0OxTFxndh0erL8FsjGvrl2VMDor6fVqzlLGfwOQQqTbYsGPv4ZZ15QHfSk80doyaM0ZJdvkyDcVO7KFA==" src="https://lib.baomitu.com/angular.js/1.8.2/angular.min.js"></script>
+		
+	</head>
+	<body>
+		<!-- 应用、控制器和模块 -->
+		<!-- 加载多个ng-app -->
+		<div ng-app="app" ng-controller="myCtrl">
+			名: <input type="text" ng-model="f"/> <br/>
+			姓: <input type="text" ng-model="l">
+			<h2> {{f + '  ' + l}} </h2>
+		</div>
+		
+		<div id="myApp" ng-app="myApp" ng-controller="myCtrl">  
+		  
+			<h1>姓氏为 {{lastname}} 家族成员:</h1>  
+			  
+			<ul>  
+				<li ng-repeat="x in names">{{x}} {{lastname}}</li>  
+			</ul>  
+		  
+		</div>  
+		      
+		<div id="myApp2" ng-app="myApp2" ng-controller="myCtrl">  
+			<h1>myApp2 姓氏为 {{lastname}} 家族成员:</h1>  
+			<ul>  
+				<li ng-repeat="x in names">{{x}}</li>  
+			</ul>  
+		</div>  
+		  
+		<div id="myApp3" ng-app="myApp3" ng-controller="myCtrl">  
+			<h1>myApp3 姓氏为 {{lastname}} 家族成员:</h1>  
+			<input type="button" value="rootScope共享" ng-click="say()">  
+		</div>
+		
+		<!-- 控制器方法 -->
+		<div ng-app="myApp4" id = "myApp4" ng-controller = "personCtrl">
+			名: <input type="text" ng-model="firstName"/>
+			姓: <input type="text" ng-model="lastName"/>
+			<br/>
+			姓名: {{fullName()}}
+		</div>
+		
+		<script type="text/javascript">
+			// aj模块定义应用
+			var app = angular.module('app', []);
+			// aj控制器控制应用
+			app.controller('myCtrl', function($scope){
+				$scope.f = 'H1';
+				$scope.l = 'H2';
+			})
+			
+			var a1 = angular.module('myApp', []);
+			a1.controller('myCtrl', function($scope, $rootScope){
+				$scope.names = [ 'Emil', 'Tobias', 'linus' ];
+				$scope.lastname = 'hello' 
+			})
+			
+			
+			var app2 = angular.module('myApp2', []);  
+			app2.controller('myCtrl', function($scope, $rootScope) {  
+			        $scope.names = ["Emil2", "Tobias2", "Linus2"];  
+			    $rootScope.lastname = "Refsnes--2";  
+			});  
+			  
+			var app3 = angular.module('myApp3', []);  
+			app3.controller('myCtrl', function($scope, $rootScope) {  
+			    $rootScope.lastname = "Refsnes--3";  
+			    $rootScope.say = function(){  
+			            $rootScope.lastname = "Refsnes---";  
+			        }  
+			});  
+			  
+			var app4 = angular.module('myApp4', []);
+			app4.controller('personCtrl', function($scope){
+				$scope.firstName = 'huang';
+				$scope.lastName = "Hao";
+				$scope.fullName = function(){
+					return $scope.firstName + "  " + $scope.lastName;
+				}
+			});
+			
+			// controller有两种写法
+			// 写法1
+			// app.controller('xx',function($scope,$location){})
+			// 写法2
+			// app.controller('xx', ['$scope', '$location', function($scope, $location){}]);
+			// 推荐写法2，因为的一种写法再js压缩后会出现问题，原因是js压缩后，变量名会重命名，所以第一种会报错
+			// 写法2还可以写成
+			// app.controller('xx', ['$scope', '$location', function(a,b){}]);
+			
+			
+			//页面加载完成后，再加载模块
+			angular.element(document).ready(function(){
+				//手动加载 ng-app  
+				angular.bootstrap(document.getElementById('myApp'), ['myApp']);
+				angular.bootstrap(document.getElementById("myApp2"), ['myApp2']);  
+				angular.bootstrap(document.getElementById("myApp3"), ['myApp3']);
+				angular.bootstrap(document.getElementById('myApp4'), ['myApp4']);
+			})
+			
+		</script>
+	</body>
+</html>

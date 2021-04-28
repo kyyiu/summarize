@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="js/vue.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<!-- 对象就是无序键值对的集合 -->
+			<!-- 如果属性里面有特殊符号如- 需要加引号 -->
+			<h1 :style="{color: 'red','font-weight': 200}">hello</h1>
+			<h1 :style="styleObj1">hello</h1>
+			<h1 :style="[styleObj1 , styleObj2]">hello</h1>
+		</div>
+		<script type="text/javascript">
+			var vm = new Vue({
+				el: '#app',
+				data:{
+					styleObj1: {color:'red','font-weight':200},
+					styleObj2: {'font-size': '20px'}
+				},
+				methods:{}
+			})
+		</script>
+	</body>
+</html>

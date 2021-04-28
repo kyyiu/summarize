@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script crossorigin="anonymous" integrity="sha512-7oYXeK0OxTFxndh0erL8FsjGvrl2VMDor6fVqzlLGfwOQQqTbYsGPv4ZZ15QHfSk80doyaM0ZJdvkyDcVO7KFA==" src="https://lib.baomitu.com/angular.js/1.8.2/angular.min.js"></script>
+		
+	</head>
+	<body>
+		<!-- uppercase 将字符串格式化为大写 -->
+		<div ng-app="app" ng-controller = "personCtrl">
+			<p>姓名为 {{lastName | uppercase}}</p>
+		</div>
+		
+		<!-- orderBy 排列 -->
+		<div ng-app="app2" id="app2" ng-controller="ctrl_1">
+			<ul>
+				<!-- 按照country的值, 进行排序 -->
+				<li ng-repeat="x in names | orderBy : 'country'">
+					{{ x.name + " - " + x.country }}
+				</li>
+			</ul>
+		</div>
+		
+		<!-- 过滤输入 -->
+		<div id = "app3" ng-app="app3" ng-controller="ctrl_2">
+			<!-- 输入过滤器可以通过一个管道符(|)和一个过滤器添加到指令中，该过滤器后跟一个冒号和一个模型名称 -->
+			<!-- filter 过滤器从数组中选择一个子集 -->
+			<p><input type="text" ng-model="test"/></p>
+			<ul>
+				<!-- 从names 筛选出含有test的值的子集按照country排序 -->
+				<li ng-repeat="x in names | filter:test | orderBy : 'country' ">
+					{{ (x.name | uppercase) + ' - ' + x.country }}
+				</li>
+			</ul>
+		</div>
+		
+		<!-- 自定义过滤器 -->
+		<!-- 自定义一个过滤器reverse，将字符串反转 -->
+		<div id="app4" ng-app="app4" ng-controller="ctrl_3">
+			自定义反转过滤器:{{ msg | reverse }}
+		</div>
+		
+		<!-- 自定义过滤器之多参数 -->
+		<!-- 具体的操作就是在调用的时候用"：参数" 的格式在后面追加即可 -->
+		<div id="app5" ng-app="app5" ng-controller="ctrl_4">
+			<div>
+				{{'jj' | manyArgu:'X':'Y':'Z' }}
+			</div>
+		</div>
+		
+		<!-- date格式化, number保留小数, currency货币格式化, limitTo截取 -->
+		<div id = "app6" ng-app="app6" ng-controller="ctrl_5">
+			<p>date格式化: {{1490161945000 | date: "yyyy-MM-dd HH:mm:ss"}}</p>
+			<p>number格式化(保留两位小数): {{12345.122211 | number: 2}}</p>
+			<p>currency货币格式化: {{250 | currency }}, {{400 | currency:"RMB ￥"}}</p>
+			<p>从前面开始截取6位{{"123456789" | limitTo: 6}},从后面开始截取4位{{"123456789" | limitTo: -4}}</p>
+			<p>根据id降序排序
+				<ul>
+					<li ng-repeat="x in id | orderBy:'id':true">
+						{{x.id}}
+					</li>
+				</ul>
+			</p>
+			<p>根据id升序排序
+				<ul>
+					<li ng-repeat="x in id | orderBy:'id'">
+						{{x.id}}
+					</li>
+				</ul>
+			</p>
+		</div>
+		
+		<script type="text/javascript">
+			var app = angular.module('app', []);
+			app.controller('personCtrl', function($scope){
+				$scope.lastName = "gg"
+			});
+			
+			var app2 = angular.module('app2', []);
+			app2.controller('ctrl_1', function($scope){
+				$scope.names = [
+					{ name: 'x', country: 'z'},
+					{ name: 'y', country: 'x'},
+					{ name: 'z', country: 'y'}
+				]
+			});
+			
+			var app3 = angular.module('app3', []);
+			app3.controller('ctrl_2', function($scope){
+				$scope.names = [
+					{name:'Jani',country:'Norway'},
+					{name:'Hege',country:'Sweden'},
+					{name:'Kai',country:'Denmark'}
+				]
+			});
+			
+			var app4 = angular.module('app4', []);
+			app4.controller('ctrl_3', function($scope){
+				$scope.msg = 'Runoob';
+			});
+			
+			app4.filter('reverse', function(){
+				return function(txt){
+					return txt.split('').reverse().join('');
+				}
+			});
+			
+			var app5 = angular.module('app5', []);
+			app5.controller('ctrl_4', function($scope){});
+			
+			app5.filter('manyArgu', function(){
+				return function(txt){
+					// var argu = Array.prototype.slice.call(arguments);
+					var argu = Array.from(arguments);
+					return txt + ' - ' + argu.join(',');
+				}
+			})
+			
+			var app6 = angular.module('app6', []);
+			app6.controller('ctrl_5', function($scope){
+				$scope.id = [
+					{ id: 4 },
+					{ id: 3 },
+					{ id: 5 }
+				]
+			});
+			
+			angular.element(document).ready(function(){
+				angular.bootstrap(document.getElementById('app2'), ['app2']);
+				angular.bootstrap(document.getElementById('app3'), ['app3']);
+				angular.bootstrap(document.getElementById('app4'), ['app4']);
+				angular.bootstrap(document.getElementById('app5'), ['app5']);
+				angular.bootstrap(document.getElementById('app6'), ['app6']);
+			});
+		</script>
+	</body>
+</html>

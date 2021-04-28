@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="js/vue.js"></script>
+		<script src="js/vue-resource.js"></script>
+		<style type="text/css">
+			.v-enter,
+			.v-leave-to{
+				opacity: 0;
+				transform: translateX(100px);
+			}
+			
+			.v-enter-active,
+			.v-leave-active{
+				transition: 0.5s;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="app">
+			<!-- 如果要用组件，直接把组件名称，以html标签形式引入页面中 -->
+			<!-- <mycom1></mycom1>
+			<mycom2></mycom2>
+			<mycom3></mycom3>
+			<login></login>
+			<mycom4></mycom4>
+			<mycom5></mycom5>
+			<hr>
+			<mycom5></mycom5>
+			<hr>
+			<mycom5></mycom5> -->
+			
+			<!-- <a href="" @click.prevent="flag = !flag">log</a>
+			<a href="" @click.prevent="flag = !flag">register</a>
+			<loginn v-if="flag"></loginn>
+			<register v-else="flag"></register> -->
+			
+			<!-- vue提供了component，来展示对应名称的组件 -->
+			<!-- component是一个占位符，：is属性可以用来指定要展示的组件的名称 -->
+	
+		<!-- 	<a href="" @click.prevent="comName='loginn'">log</a>
+			<a href="" @click.prevent="comName='register'">register</a>
+			<component :is="comName"></component> -->
+		
+		
+		<a href="" @click.prevent="comName='loginn'">log</a>
+		<a href="" @click.prevent="comName='register'">register</a>
+		<!-- 通过mode属性，设置组件切换时候的模式 -->
+		<transition mode="out-in">
+			<component :is="comName"></component>
+		</transition>
+		</div>
+		
+		<template id="tmpl">
+			<div>
+				good
+			</div>
+		</template>
+		
+		<template id="ctpl">
+			<div>
+				<input type="button" @click="increase">
+				<h3>{{count}}</h3>
+			</div>
+		</template>
+		
+		<script type="text/javascript">
+			
+			Vue.component('loginn',{
+				template:'<h4>log</h4>',
+				
+			})
+			Vue.component('register',{
+				template:'<h4>register</h4>',
+				
+			})
+			
+			
+			//不论哪种方式创建出来的组件，template属性指向的模板内容必须只有唯一根元素
+			//使用vue.extend创建全局的vue组件
+			var com1 = Vue.extend({
+				//使用template属性指定组件要展示的html结构
+				template:'<h3>只是1</h3>'
+			})
+			//使用Vue.component('组件名称'，创建出来的组件模板对象)
+			//如果使用vue.component定义全局组件的时候，组件名称使用驼峰命名，则在引用组件的时候
+			//需要把大写的驼峰改为小写的字母，同时，两个单词之前使用-链接
+			//如果不使用驼峰，则直接拿名称使用即可
+			Vue.component('mycom1',com1)
+			
+			
+			Vue.component('mycom2',{
+				template:'<h3>只是2</h3>'
+			})
+			
+			
+			
+			Vue.component('mycom3',{
+				template:'#tmpl',
+			
+			})
+			
+			
+			//组件可以有自己的data数据
+			//组件的data和实例的data有点不一样，实例中的data可以作为一个对象
+			//但是组件中的data必须是一个方法
+			//组件中的data除了必须为一个方法之外,这个方法内部，还必须返回一个对象才行
+			
+			Vue.component('mycom4',{
+				template: '<h1>456{{msg}}</h1>',
+				data: function(){
+					return{
+						msg:'展示'
+					}
+				}
+			})
+			
+			
+			// var dataObj = { count: 0}
+			
+			Vue.component('mycom5',{
+				template: '#ctpl',
+				data: function(){
+						// return dataObj;
+						//这样保证模板中每个都有独有的对象数据,而不是共享
+						return {count: 0}
+					},
+				methods:{
+					increase(){
+						this.count++;
+					}
+				}
+				
+			})
+			
+			
+			
+			
+			
+			
+			var vm = new Vue({
+				el: '#app',
+				data: {
+					flag: true,
+					comName: 'loginn',//
+				},
+				methods:{},
+				//定义内部私有组件
+				components:{
+					login:{
+						template:'<h1>123</h1>'
+					}
+				}
+			})
+			
+			
+		</script>
+	</body>
+</html>

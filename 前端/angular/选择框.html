@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script crossorigin="anonymous" integrity="sha512-7oYXeK0OxTFxndh0erL8FsjGvrl2VMDor6fVqzlLGfwOQQqTbYsGPv4ZZ15QHfSk80doyaM0ZJdvkyDcVO7KFA==" src="https://lib.baomitu.com/angular.js/1.8.2/angular.min.js"></script>
+		
+	</head>
+	<body>
+		<div ng-app="app1" ng-controller="ctrl_1">
+			<!-- ng-init 和ng-model配合 设置默认的选中项 -->
+			<select ng-init="selectedName = names[0]" ng-model="selectedName" ng-options="x for x in names">
+			</select>
+			
+			<!-- 也可以使用ng-repeat 指令来创建下拉列表 -->
+			<!-- 使用repeat创建下拉列表 -->
+			<select>
+				<option ng-repeat="x in names">
+					{{x}}
+				</option>
+			</select>
+		</div>
+		
+		<script type="text/javascript">
+			var app = angular.module('app1', []);
+			app.controller('ctrl_1', ['$scope', function($scope){
+				$scope.names = ['Google', 'Runoob', 'Taobao'];
+			}]);
+		</script>
+	</body>
+</html>

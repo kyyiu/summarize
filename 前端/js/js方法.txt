@@ -1,0 +1,6 @@
+会改变原来的值:
+splice(index, count, newItem)
+
+不会改变原来的值:
+x.concat(y),返回一个新的拼接值
+x.slice(...[start, end]), 返回新的值

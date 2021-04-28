@@ -1,0 +1,250 @@
+git init //把这个目录变成Git可以管理的仓库
+
+git add README.md //文件添加到仓库
+
+git add . //不但可以跟单一文件，还可以跟通配符，更可以跟目录。一个点就把当前目录下所有未追踪的文件全部add了 
+
+git commit -m "first commit" //把文件提交到仓库
+git remote add origin git@github.com:wangjiax9/practice.git //关联远程仓库
+
+git push -u origin master //把本地库的所有内容推送到远程库上
+
+
+安装git
+
+绑定用户
+打开git-bash.exe，在桌面快捷方式/开始菜单/安装目录中
+因为Git是分布式版本控制系统，所以需要填写用户名和邮箱作为一个标识，用户和邮箱为你github注册的账号和邮箱
+git config --global user.name "kyyiu"
+git config --global user.email "1308936944@qq.com"
+
+
+为Github账户设置SSH key
+
+众所周知ssh key是加密传输。
+
+加密传输的算法有好多，git使用rsa，rsa要解决的一个核心问题是，如何使用一对特定的数字，使其中一个数字可以用来加密，而另外一个数字可以用来解密。这两个数字就是你在使用git和github的时候所遇到的public key也就是公钥以及private key私钥。
+
+其中，公钥就是那个用来加密的数字，这也就是为什么你在本机生成了公钥之后，要上传到github的原因。从github发回来的，用那公钥加密过的数据，可以用你本地的私钥来还原。
+
+如果你的key丢失了，不管是公钥还是私钥，丢失一个都不能用了，解决方法也很简单，重新再生成一次，然后在github.com里再设置一次就行
+
+
+
+生成ssh key
+首先检查是否已生成密钥 cd ~/.ssh，ls如果有3个文件，则密钥已经生成，id_rsa.pub就是公钥
+如果没有生成，那么通过$ ssh-keygen -t rsa -C “邮箱”来生成。
+然后会询问
+1）是路径确认，直接按回车存默认路径即可
+
+2）直接回车键，这里我们不使用密码进行登录, 用密码太麻烦;
+
+3）直接回车键
+生成成功后，去对应目录用记事本打开id_rsa.pub，得到ssh key公钥
+
+C:\Users\asus\.ssh
+
+为github账号配置ssh key
+切换到github，展开个人头像的小三角，点击settings
+
+然后打开SSH keys菜单， 点击Add SSH key新增密钥，填上标题，跟仓库保持一致吧，好区分。
+
+接着将id_rsa.pub文件中key粘贴到此，最后Add key生成密钥吧。
+
+
+
+上传本地项目到github
+创建一个本地项目
+建立本地仓库
+再来复习一下创建新仓库的指令：
+git init //把这个目录变成Git可以管理的仓库
+git add README.md //文件添加到仓库
+git add . //不但可以跟单一文件，还可以跟通配符，更可以跟目录。一个点就把当前目录下所有未追踪的文件全部add了 
+git commit -m "first commit" //把文件提交到仓库
+git remote add origin git@github.com:wangjiax9/practice.git //关联远程仓库
+git push -u origin master //把本地库的所有内容推送到远程库上
+首先，进入到beautifulDay项目目录，还记得创建仓库成功后的那个页面吧，指令都在呢。
+然后执行指令： git init
+
+初始化成功后你会发现项目里多了一个隐藏文件夹.git
+这个目录是Git用来跟踪管理版本库的，没事千万不要手动修改这个目录里面的文件，不然改乱了，就把Git仓库给破坏了。
+
+接着，将所有文件添加到仓库
+执行指令： git add .
+
+然后，把文件提交到仓库，双引号内是提交注释。
+执行指令： git commit -m "提交文件"
+如此本地仓库建立好了。
+
+
+
+关联github仓库
+到github 复制仓库地址 这里是复制的ssh：  git@github.com:kyyiu/-.git
+
+然后执行指令： git remote add origin git@github.com:kyyiu/-.git
+
+上传本地代码
+执行指令： git push -u origin master
+1）敲一个：yes， 然后回车
+到此，本地代码已经推送到github仓库了，我们现在去githubt仓库看看。
+咦！奇怪了，我的目录呢？这个坑突然冒出来是不是印象很深刻呢~
+注意咯： git是不能管理空的文件夹的，文件夹里必须有文件才能add
+
+执行指令添加文件->提交文件->推送文件
+git add .
+git commit -m "提交xx文件"
+git push -u origin master
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+获取远程文件到本地
+git fetch
+git checkout origin/master -- path/folder/filename (.代表整个分支所有文件)
+或者
+git pull 远程名 分支名
+如果出现
+fatal: refusing to merge unrelated histories
+解决方法，原因是之前的历史不同
+git pull origin master --allow-unrelated-histories 
+可能出现文件缺失，使用第一种方法选择单个文件下载
+
+git忽略规则以及.gitignore文件不生效解决办法  
+原因是.gitignore只能忽略那些原来没有被追踪的文件，如果某些文件已经被纳入了版本管理中，则修改.gitignore是无效的。
+
+那么解决方法就是先把本地缓存删除（改变成未被追踪状态），然后再提交：
+git rm -r --cached .
+git add .
+git commit -m '.gitignore'    
+
+
+
+failed to push some refs to git的解决方法
+push前先将远程repository修改pull下来
+$ git pull origin master
+$ git push -u origin master
+
+
+
+
+git pull = git fetch + git merge
+git pull --rebase = git fetch + git rebase
+git pull --rebase origin master 获取远程仓库master分支
+
+fatal: You are not currently on a branch.
+To push the history leading to the current (detached HEAD)
+state now, use
+
+    git push origin HEAD:<name-of-remote-branch>
+	
+	
+	
+	
+集中式 svn
+sv因为每次存的都是差异，需要的硬盘空间会新对的小，但是回滚速度很慢
+	优点: 代码存放在单一的服务器上，便于项目的管理，
+	缺点：
+		服务器宕机：写的代码得不到保障
+		服务器炸了： 整个项目的历史记录都会丢失
+分布式 git
+	git每次存的都是项目的完整快照，需要空间会多一点
+	但是git对压缩做到了极致，需要的比svn多不了多少，且回滚极快
+	
+区域
+  工作区
+  暂存区
+  版本库
+  
+对象
+  Git对象
+	key:val组成的键值对(key是val对应的hash)，键值对在git内部是一个blob类型
+  树对象
+  提交对象
+  
+git add .
+先把工作目录生成的git对象传入到版本库再到暂存区
+git rm 文件名
+删除文件
+
+打印日志(一行输出)
+git log --oneline
+
+分支
+git branch 分支名 哈希值
+例如 git branch xx 8d21235
+创建一个xx分支，指向哈希的git对象，再切换到xx分支可以看到那个git版本库
+即切换分支会改变工作目录
+
+最佳实践，每次切换分支前，当前分支一定得是干净的（已提交状态
+坑： 在切换分支时如果当前分支上有为暂存的修改（第一次）或者有未提交的暂存（第一次
+分支可以切换成功，但是可能会污染其他分支
+
+		master
+c1-->c2-->c3
+
+git checkout -b m2
+
+		master
+c1-->c2-->c3
+		  c3
+		  m2
+m2修改文件并提交后
+		master
+c1-->c2-->c3
+		  c3-->c31
+				m2
+超前合并
+切换到master
+master merge m2
+c1-->c2-->c3	master
+		  c3-->c31
+				m2
+				
+如果有冲突进入相关文件修改后提交即可
+
+配置别名
+git config --global alias co checkout
+直接git co 可以使用git checkout
+
+后悔药
+查看文件名 git ls-file -s
+	工作区
+		如何撤回自己的工作目录的修改： git checkout --filename
+	暂存区
+		如何撤回自己的暂存 ： git reset HEAD filename
+	版本库
+		如何撤回自己的提交：注释写错了git commit --amend
+		
+git log --online --graph 查看提交分支图
+git config --list 查看配置信息
+		
+git checkout master
+git pull
+git checkout local
+#切换到local分支后， 就是修改代码
+#修改完了， 就正常提交代码-------git commit
+#如果有多次local分支的提交，就合并，只有一次可以不合并
+git rebase -i HEAD~2  //合并提交 --- 2表示合并两个
+#将master内容合并到local
+git rebase master---->解决冲突--->git rebase --continue
+#再起切换到master或其他目标分支
+git checkout master
+#将local合并到master
+git merge local
+#推送到远程仓库
+git push
+
+
+rebase 把两个分支最近的公共祖先开始提取两个分支的最新提交上的修改

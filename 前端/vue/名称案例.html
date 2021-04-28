@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="js/vue.js"></script>
+		<script src="js/vue-resource.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<!-- <input type="text" v-model="firstname" @keyup="getFullName">
+			<input type="text" v-model="lastname" @keyup="getFullName">=
+			<input type="text" v-model="fullname"> -->
+			
+			
+			<input type="text" v-model="firstname" >
+			<input type="text" v-model="lastname" >=
+			<input type="text" v-model="fullname">
+		</div>
+		
+		
+		<script type="text/javascript">
+			var vm = new Vue({
+				el: '#app',
+				data: {
+					firstname: '',
+					lastname: '',
+					// fullname: ''
+				},
+				methods:{
+					// getFullName(){
+					// 	this.fullname = this.firstname+this.lastname
+					// }
+					
+				},
+				watch:{//使用者属性可以监视data中指定数据变化然后触发对应的function处理函数
+				//优势是可以监听虚拟数据,如路由
+					// '$route.path': function(newVal,oldVal){
+					// 	if(newVal === '/login'){
+					// 		console.log('1')
+					// 	}
+					// },
+					'firstname': function(newVal,oldVal){
+						//newVal是改变后的值，oldval是改变之前的值
+						this.fullname = newVal+this.lastname
+					},
+					'lastname': function(){
+						
+						this.fullname = this.firstname+this.lastname
+					}
+				},
+				computed:{//可以定义一些属性，叫做计算属性，本质就是一个方法，只不过
+				//使用的时候是把他们的名称直接当作属性使用
+				//并不会当方法调用,引用时不要加（）
+				//只要改变了内部苏用到的任何数据，就会重新计算
+				//求值的结果会被缓存起来，方便下次使用
+				// 'fullname': function(){
+				// 	return this.firstname + this.lastname
+				// },
+				// set(){
+				// 			}
+				fullname:{
+					get:function(){
+						return this.firstname + this.lastname
+					},
+					set: function(){}
+				}
+
+				},
+				filters:{},
+				directives:{},
+				components:{},
+				
+				beforeCreate(){},
+				created(){},
+				beforeMount(){},
+				mounted(){},
+				beforeUpdate(){},
+				updated(){},
+				beforeDestroy(){},
+				destroyed(){}
+			})
+		</script>
+	</body>
+</html>

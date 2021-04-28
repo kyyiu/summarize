@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="js/vue.js"></script>
+		<script src="js/vue-resource.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			
+			<div>
+				<div>
+					<h3>add brand</h3>
+				</div>
+				<div>
+					<label>Id:
+					<input type="text" v-model="id">
+					</label>
+					
+					<label>name:
+					<input type="text" v-model="name">
+					</label>
+					<input type="button" @click="add">
+				</div>
+			</div>
+			
+			
+			
+			
+			<table>
+				<thead>
+					<tr>
+						<th>Id</th>
+						<th>Name</th>
+						<th>Ctime</th>
+						<th>Operation</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr v-for="item in list" :key="item.id">
+						<td>{{item.id}}</td>
+						<td>{{item.name}}</td>
+						<td>{{item.ctime}}</td>
+						<td>
+							<a href="" @click.prevent="del(item.id)">del</a>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			
+		</div>
+		
+		<script type="text/javascript">
+			//如果通过全局配置了请求的数据接口根域名，则在每次单独发起http请求时，
+			//请求的url路径都应该以相对路径开头,前面不能带/，否则不会启用拼接
+			Vue.http.options.root = 'http://www.liulongbin.top:3005/';
+			//全局启用emulateJSON
+			Vue.http.options.emulateJSON = true;
+			var vm = new Vue({
+				el: '#app',
+				data: {
+					id: '',
+					name: '',
+					list: [
+						{id:1,name:'a',ctime: new Date()},
+						{id:2,name:'b',ctime: new Date()}
+					]
+				},
+				
+				
+				created(){//生命周期函数
+					//当vm实例的data和methods初始化完毕后，自动调用
+
+					this.getAllList();
+				},
+				
+				
+				
+				methods: {
+					add(){
+						this.$http.post('api/addproduct',{name: this.name},{emulateJSON: true}).then(rs => {
+							var rs = rs.body;
+							console.log(rs.message,'a')
+							if(rs.status === 0){
+								this.getAllList()
+								this.name = ''
+							}else{
+								console.log('failed')
+							}
+						})
+					},
+					
+					del(id){
+						this.$http.get('http://www.liulongbin.top:3005/api/delproduct/' + id).then(rs =>{
+							console.log(rs.body.message,'d');
+							if(rs.body.status === 0){
+								this.getAllList()
+							}
+						})
+					},
+										
+					getAllList(){
+						this.$http.get('http://www.liulongbin.top:3005/api/getprodlist').then(function(rs){
+							// 通过$http获取的都在 rs.body中
+							var rs = rs.body;
+							if(rs.status === 0){
+								console.log(rs.message);
+								this.list = rs.message
+							}else{
+								console.log('failed')
+							}
+						})
+					}
+				}
+			})
+		</script>
+	</body>
+</html>

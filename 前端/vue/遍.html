@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="./js/vue.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<div class="c" >
+				<input type="text" v-for="item in obj" :key="item.id">
+			</div>
+			<Test>
+				<!-- <template v-slot:default="data"> -->
+					<!-- data={sg:{
+									mg: 'Hello World!',
+									a: 'hhha'}} -->
+					<!-- <h3>这里是test组件</h3>
+					<p>{{data.sg.a}}</p>
+					<p>{{data.sg.mg}}</p> -->
+				<!-- </template> -->
+				<template slot-scope="scope">
+					<p>{{scope.sg.a}}</p>
+					<p>{{scope.sg.mg}}</p>
+				</template>
+			</Test>
+			
+			<!-- <template id="test">
+				<div> -->
+					<!-- <h3>这里是test组件</h3> -->
+					<!-- <slot :sg="ob"></slot> -->
+				<!-- </div>
+			</template> -->
+			<div id="ref">
+				<input type="button" value="getEleText" @click="getElement">
+				<p ref="rp" >xxxxxx</p>
+			</div>
+			<div>自己的v-model</div>
+			<input type="text" :value="sth" @input="mp">
+			<com :value="va" @input="mp2"></com>
+			
+			<com_v_model v-model="va2"></com_v_model>
+			<!-- 上面的相当于 -->
+			<com_v_model
+			v-bind:value="va2" 
+			v-on:inp="function(val) { return va2 = val }"  
+			>
+			</com_v_model>
+			<cv v-model="va2"></cv>
+			<!-- 实现双向绑定的关键代码就是定义model属性中的prop和event，
+			v-model中的值传递给model属性中的prop对应的变量。
+			然后在自定义组件中选择一个要传递出去值的基本组件，
+			通过$emit发送event事件并传递一个结果值，这样外部的v-model就收到了传出的值，
+			因此就实现了双向传递。 -->
+			<cc v-model="va2"></cc>
+			<p>{{msge2 | dateF(5)}}</p>
+		</div>
+		<script type="text/javascript">
+			Vue.component('cc',{
+				model: {
+					prop: 'vv',
+					event: 'ii'
+				},
+				props: {
+					'vv': String
+				},
+				template: ` <input type='text' :value='vv' @input="$emit('ii',$event.target.value)"/>`
+			})
+			let g = Vue.component('Test', {
+				// template: '#test',
+				template: '<div><h3>这里是test组件</h3> <slot :sg="ob"></slot></div>',
+				data() {
+					return {
+						ob: {
+							mg: 'Hello World!',
+							a: 'hhha'
+						}
+					}
+				}
+			})
+			Vue.component('com',{
+				// props:['value']可以用下面的方式严格要求传入值类型
+				props: {
+					value: String
+				},
+				template: `
+				<input 
+				 type="text"
+				 :value="value"
+				 @input="$emit('input',$event.target.value)"
+				/>
+				`
+				})
+			Vue.component('com_v_model',{
+				model: {
+					prop: 'va3',
+					event: 'inp'
+				},
+				props: {
+					va3: String
+				},
+				template: `
+					<input type="text" :value="va3" @input="$emit('inp',$event.target.value)">
+				`
+				})
+			Vue.component('cv',{
+				model: {
+					prop: 'va4',
+					event: 'ip'
+				},
+				props: {
+					va4: String
+				},
+				template: `
+					<input type="text" :value="va4" @input="$emit('ip',$event.target.value)">
+				`
+			    })
+			Vue.filter('dateF',function(mg,ele){
+				return mg.replace(6,ele)
+			})
+			let vm = new Vue({
+				el: '#app',
+				data: {
+					sth: '',
+					va: '2',
+					va2: 'self_define_v-model',
+					msge: 'hhh',
+					msge2: '666',
+					obj: [
+						{
+							id: 1,
+							name: 'a'
+						},
+						{
+							id: 2,
+							name: 'b'
+						}
+					]
+				},
+				methods: {
+					getElement(){
+						console.log(this.$refs.rp.innerText,this.va2)
+						
+					},
+					mp(e){
+						this.sth = e.target.value
+						console.log(this.sth)
+					},
+					mp2(newValue){
+						this.va = newValue
+						console.log(this.va)
+					}
+				},
+				
+				// render: c=>c(g)
+			})
+		</script>
+	</body>
+</html>

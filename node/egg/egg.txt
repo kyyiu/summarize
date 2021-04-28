@@ -1,0 +1,1226 @@
+环境准备
+操作系统：支持 macOS，Linux，Windows
+运行环境：建议选择 LTS 版本，最低要求 8.x。
+
+命名规定
+服务(service)
+app/service/a/b.js => ctx.service.a.b.fun()
+app/service/a_b.js => ctx.service.aB.fun()
+app/service/HacNe.js => ctx.service.hacNe.fun()
+
+
+小写
+约定
+model file		class name
+user.js			app.model.User
+person.js		app.model.Person
+user_group.js	app.model.UserGroup
+user/profile.js	app.model.User.Profile
+
+快速搭建
+使用脚手架
+$mkdir egg-exp && cd egg-exp
+npm init egg --type=simple
+npm i
+npm run dev 
+open http://localhost:7001
+
+安装ejs渲染引擎
+cnpm install egg-view-ejs --save
+ejs配置
+// config/plugin.js
+'use strict';
+exports.ejs = {
+	enable: true,
+	package: 'egg-view-ejs',
+};
+//config/config.default
+config.view={
+	mapping: {
+		//调用 render 渲染文件时指定.html结尾的文件用ejs引擎渲染
+		'.html': 'ejs',
+	}
+}
+上面的配置需要在调用render的时候带后缀
+例如 awiat ctx.render('home.html');
+
+可以使用defaultViewEngine做全局配置
+// config/config.default.js
+module.exports = {
+  view: {
+    defaultViewEngine: 'ejs',
+  },
+};
+awiat ctx.render('home');
+意思是如果文件后缀没有找到对应的模板引擎，会使用默认的模板引擎进行渲染，对于只使用一种模板引擎的一样
+建议配置这个选项
+
+逐步搭建
+1.初始化项目
+$ mkdir egg-example
+$ cd egg-example
+$ npm init
+$ npm i egg --save
+$ npm i egg-bin --save-dev
+
+添加npm scripts到 package.json
+{
+	"name": "egg-example",
+	"scripts": {
+		"dev": "egg-bin dev"
+	}
+}
+
+2.编写Controller
+// app/controller/home.js
+const Controller = require('egg').Controller;
+
+class HomeController extends Controller {
+	async index() {
+		this.ctx.body = "hello world";
+	}
+}
+
+module.exports = HomeController;
+
+配置路由映射:
+// app/router.js
+module.exports = app => {
+	const { router, controller } = app;
+	router.get('/', controller.home.index);
+};
+
+加一个配置文件
+// config/config.default.js
+exports.keys = 我自己的Cookie安全字符串；
+
+此时目录结构如下
+egg-example
+├── app
+│   ├── controller
+│   │   └── home.js
+│   └── router.js
+├── config
+│   └── config.default.js
+└── package.json
+现在可以启动应用来体验一下
+npm run dev 
+open http://localhost:7001
+完整目录结构：
+https://eggjs.org/zh-cn/basics/structure.html
+
+Controller 有class和exports两种编写方式，本文示范的是前者
+Config也有module.exports 和exports的写法
+
+3.静态资源
+egg内置了static插件，线上环境建议部署到CDN，无需该插件。
+static插件默认映射 /public/*->app/public/*目录
+此处我们把静态资源都放到app/public目录即可
+app/public
+├── css
+│   └── news.css
+└── js
+    ├── lib.js
+    └── news.js
+	
+模板渲染
+绝大多数情况下，我们都需要读取数据后渲染模板，然后呈现给用户，所以我们需要引入对应的模板引擎
+框架并不强制使用某种模板引擎，只是约定了view插件开发规范
+
+在本例中，我们使用 Nunjucks 来渲染，先安装对应的插件 egg-view-nunjucks ：
+$ npm i egg-view-nunjucks --save
+
+开启插件：
+
+// config/plugin.js
+exports.nunjucks = {
+  enable: true,
+  package: 'egg-view-nunjucks'
+};
+// config/config.default.js
+exports.keys = <此处改为你自己的 Cookie 安全字符串>;
+// 添加 view 配置
+exports.view = {
+  defaultViewEngine: 'nunjucks',
+  mapping: {
+    '.tpl': 'nunjucks',
+  },
+};
+
+注意：是 config 目录，不是 app/config!
+
+为列表页编写模板文件，一般放置在 app/view 目录下
+
+<!-- app/view/news/list.tpl -->
+<html>
+  <head>
+    <title>Hacker News</title>
+    <link rel="stylesheet" href="/public/css/news.css" />
+  </head>
+  <body>
+    <ul class="news-view view">
+      {% for item in list %}
+        <li class="item">
+          <a href="{{ item.url }}">{{ item.title }}</a>
+        </li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>
+
+添加 Controller 和 Router
+
+// app/controller/news.js
+const Controller = require('egg').Controller;
+
+class NewsController extends Controller {
+  async list() {
+    const dataList = {
+      list: [
+        { id: 1, title: 'this is news 1', url: '/news/1' },
+        { id: 2, title: 'this is news 2', url: '/news/2' }
+      ]
+    };
+    await this.ctx.render('news/list.tpl', dataList);
+  }
+}
+
+module.exports = NewsController;
+
+// app/router.js
+module.exports = app => {
+  const { router, controller } = app;
+  router.get('/', controller.home.index);
+  router.get('/news', controller.news.list);
+};
+启动浏览器，访问 http://localhost:7001/news 即可看到渲染后的页面。
+
+提示：开发期默认开启了 development 插件，修改后端代码后，会自动重启 Worker 进程。
+
+获取get传值，xx?yy=zz  this.ctx.query
+获取动态路由传值路由/xx/:yy，this.ctx.params获取
+
+
+编写service
+在实际应用中，Controller一般不会自己产出数据，也不会包含复杂的逻辑，复杂的过程应抽象为业务逻辑层Service
+我们来添加一个Service抓取Hacker News的数据，如下：
+// app/service/news.js
+const Service = require('egg').Service
+class NewsService extends Service {
+	async list(page = 1) {
+		// read config 
+		const { serverUrl, pageSize } = this.config.news;
+		// use build-in http client to GET hacker-news api
+		const { data: idList } = await this.ctx.curl(`${serverUrl}/topstories.json`, {
+			data: {
+				orderBy: '"$key"',
+				startAt: `"${pageSize * (page - 1)}"`,
+				endAt: `"${pageSize * page - 1}"`,
+			},
+			dataType: 'json',
+		});
+		
+		// parallel GET detail 
+		const newList = await Promise.all(
+			Object.keys(idList).map(key => {
+				const url = `${serverUrl}/item/${idList[key]}.json`;
+				return this.ctx.curl(url, { dataType: 'json'});
+			})
+		);
+		return newsList.map(res => res.data);
+	}
+}
+module.exports = NewsService;
+
+框架提供了内置的HttpClient来方便开发者使用http请求
+然后稍微修改之前的Controller:
+// app/controller/news.js
+const Controller  = require('egg').Controller;
+class NewsController extends Controller {
+	async list() {
+		const ctx = tihs.ctx;
+		const page = ctx.query.page || 1;
+		const newsList = await ctx.service.news.list(page);
+		await ctx.render('news/list.tpl', { list: newsList });
+	}
+}
+
+module.exports = NewsController;
+
+还需要增加 app/service/news.js中读取到的配置:
+// config/config.default.js
+// 添加news的配置项
+exports.news = {
+	pageSize: 5,
+	serverUrl: 'https://hacker-news.firebaseio.com/v0',
+};
+
+编写扩展
+遇到一个小问题，我们的咨询时间的数据是UnixTime格式的，我们希望显示为便于阅读的格式。
+框架提供了一种快速扩展的方式，只需在app/extend 目录下提供扩展脚本即可，
+在这里，我们可以使用view插件支持的Helper来实现:
+npm i moment -S
+// app/extend/helper.js
+const moment = require('moment');
+exports.relativeTime = time => moment(new Date(time * 1000)).fromNow();
+
+在模板里面使用
+app/view/news/list.tpl
+{{ helper.relativeTime(item.time) }}
+
+编写MiddleWare
+假设有个需求，一个新闻站点，禁止百度爬虫访问
+可以通过 Middleware 判断 User-Agent，如下：
+
+应用级中间件可以理解为小区的大门
+路由级中间件可以理解为小区里面楼房的门禁
+
+文件名是带下划线的，方法要用驼峰
+例如middleware/admin_auth.js
+使用这个中间件的方法时使用adminAuth
+
+// app/middleware/robot.js
+// options === app.config.robot
+module.exports = (options, app) => {
+  return async function robotMiddleware(ctx, next) {
+    const source = ctx.get('user-agent') || '';
+    const match = options.ua.some(ua => ua.test(source));
+    if (match) {
+      ctx.status = 403;
+      ctx.message = 'Go away, robot.';
+    } else {
+      await next();
+    }
+  }
+};
+
+// config/config.default.js
+// add middleware robot
+exports.middleware = [
+  'robot'
+];
+// robot's configurations
+exports.robot = {
+  ua: [
+    /Baiduspider/i,
+  ]
+};
+现在可以使用 curl http://localhost:7001/news -A "Baiduspider" 看看效果。
+
+配置文件
+在写业务的时候，不可避免的需要有配置文件，框架提供了强大的配置合并管理功能
+	支持按环境变量加载不同的配置文件，如config.local.js,  config.prod.js等等
+	应用/插件/框架都可以配置自己的配置文件，框架将按顺序合并加载。
+	
+// config/config.default.js
+exports.robot = {
+  ua: [
+    /curl/i,
+    /Baiduspider/i,
+  ],
+};
+
+// config/config.local.js
+// only read at development mode, will override default
+exports.robot = {
+  ua: [
+    /Baiduspider/i,
+  ],
+};
+
+// app/service/some.js
+const Service = require('egg').Service;
+
+class SomeService extends Service {
+  async list() {
+    const rule = this.config.robot.ua;
+  }
+}
+
+module.exports = SomeService;
+
+curl方法可以获取远程的数据
+this.ctx.curl(url)
+buffer类型的数据也可以使用json.parse来转换
+
+单元测试
+框架提供了egg-bin来帮助开发者无痛的编写测试
+测试文件应该放在项目根目录下的test目录下，并以test.js为后缀名，即{app_root}/test/**/*.test.js
+
+// test/app/middleware/robot.test.js
+const { app, mock, assert } = require('egg-mock/bootstrap');
+
+describe('test/app/middleware/robot.test.js', () => {
+  it('should block robot', () => {
+    return app.httpRequest()
+      .get('/')
+      .set('User-Agent', "Baiduspider")
+      .expect(403);
+  });
+});
+
+然后配置依赖和 npm scripts：
+
+{
+  "scripts": {
+    "test": "egg-bin test",
+    "cov": "egg-bin cov"
+  }
+}
+$ npm i egg-mock --save-dev
+执行测试：
+
+$ npm test
+
+
+框架内置基础对象
+Application是全局应用对象，在一个应用中，只会实例化一个，它继承自Koa.Application，在它上面我们可以
+挂载一些全局的方法和对象，我们可以轻松的在插件或者应用中扩展Application对象。
+
+事件
+在框架运行时，会在Application实例上触发一些事件，应用开发者或者插件开发者可以监听这些事件做一些操作，
+作为应用开发者，我们一般会在启动自定义脚本中进行监听。
+
+server: 该事件一个worker进程只会触发一次，在http服务完成启动后，会将http server通过这个事件暴露出来给开发者。
+error: 运行时有任何的异常被onerror插件捕获后都会触发error事件，将错误对象和关联的上下文(如果有)暴露给开发者
+可以进行自定义的日志记录上报等处理。
+request和response： 应用收到请求和响应请求时，分别会触发request和respond事件，并将当前请求上下文暴露，
+开发者可以监听两个事件来进行日志记录。
+
+// app.js
+module.exports = app => {
+	app.once('server', server => {
+		// websocket
+	} );
+	app.on('error', (err, ctx) =>{
+		// report error
+	});
+	app.on('response', ctx => {
+		// ctx.starttime is  set by framework
+		const used = Date.now() - ctx.starttime;
+		// log total cost
+	});
+};
+
+获取方式
+Application对象几乎可以在编写应用时的任何一个地方获取到，下面介绍几个经常用到的获取方式:
+几乎所有被框架Loader加载的文件(Controller, Service, Schedule等)， 都可以export一个函数，
+这个函数会被Loader调用，并使用app作为参数。
+
+启动自定义脚本
+// app.js
+module.exports = app => {
+	app.cache = new Cache();
+}
+
+Controller文件
+// app/controller/user.js
+class UserController extends Controller {
+	async fetch(){
+		this.ctx.body = this.app.cache.get(this.ctx.query.id);
+	}
+}
+和Koa一样，在Context对象上，可以通过ctx.app访问到Application对象。以上面的Controller文件举例：
+// app/controller/user.js
+class UserController extends Controller {
+	async fetch(){
+		this.ctx.body = this.ctx.app.cache.get(this.ctx.query.id);
+	}
+}
+
+在继承于Controller,Service基类的实例中，可以通过this.app访问到Application对象
+// app/controler/user.js
+class UserController extends Controller {
+	async fetch() {
+		this.ctx.body = this.app.cache.get(this.ctx.query.id);
+	}
+};
+
+Context
+是一个请求级别的对象，继承自Koa.Context.在每一次收到用户请求时，框架会实例化一个Context对象，这个对象
+封装了这次用户请求的信息，并提供了许多便捷的方法获取请求参数或者设置响应信息。框架会将所有的Service挂在到
+Context实例上，一些插件也会将一些其他的方法和对象挂在到它上面(egg-sequelize会将所有的model挂载到Context上)
+
+。。。
+
+
+指定运行环境
+框架有两种方式指定运行环境
+1.通过config/env文件指定，该文件的内容就是运行环境，如prod。一般通过构建工具来生成这个文件
+// config/env
+prod
+2.通过EGG_SERVER_ENV环境变量指定运行环境更加方便，比如在生产环境启动应用:
+EGG_SERVER_ENV = rpod npm start
+
+应用内获取运行环境
+框架提供了变量app.config.env 来表示应用当前的运行环境
+
+
+如何定义Router
+在app/router.js 里面定义URL路由规则
+// app/router.js
+module.exports = app => {
+	const { router, controller } = app;
+	router.get('/user/:id', controller.user.info);
+};
+
+app/controller目录下面实现Controller
+// app/controller/user.js
+class UserController extends Controller {
+	async info() {
+		const { ctx } = this;
+		ctx.body = {
+			name: `hello${ctx.params.id}`,
+		};
+	}
+}
+这样就完成了一个最简单的Router定义，当用户执行GET /user/123， user.js 这个里面的info方法就会执行
+
+Router 详细定义说明
+下面是路由的完整定义，参数可以根据场景的不同，自由选择：
+
+router.verb('path-match', app.controller.action);
+router.verb('router-name', 'path-match', app.controller.action);
+router.verb('path-match', middleware1, ..., middlewareN, app.controller.action);
+router.verb('router-name', 'path-match', middleware1, ..., middlewareN, app.controller.action);
+路由完整定义主要包括5个主要部分:
+verb - 用户触发动作，支持 get，post 等所有 HTTP 方法，后面会通过示例详细说明。
+router.head - HEAD
+router.options - OPTIONS
+router.get - GET
+router.put - PUT
+router.post - POST
+router.patch - PATCH
+router.delete - DELETE
+router.del - 由于 delete 是一个保留字，所以提供了一个 delete 方法的别名。
+router.redirect - 可以对 URL 进行重定向处理，比如我们最经常使用的可以把用户访问的根目录路由到某个主页。
+router-name 给路由设定一个别名，可以通过 Helper 提供的辅助函数 pathFor 和 urlFor 来生成 URL。(可选)
+path-match - 路由 URL 路径。
+middleware1 - 在 Router 里面可以配置多个 Middleware。(可选)
+controller - 指定路由映射到的具体的 controller 上，controller 可以有两种写法：
+app.controller.user.fetch - 直接指定一个具体的 controller
+'user.fetch' - 可以简写为字符串形式
+
+注意事项
+在 Router 定义中， 可以支持多个 Middleware 串联执行
+Controller 必须定义在 app/controller 目录中。
+一个文件里面也可以包含多个 Controller 定义，在定义路由的时候，可以通过 ${fileName}.${functionName} 的方式指定对应的 Controller。
+Controller 支持子目录，在定义路由的时候，可以通过 ${directoryName}.${fileName}.${functionName} 的方式制定对应的 Controller。
+下面是一些路由定义的方式：
+
+// app/router.js
+module.exports = app => {
+  const { router, controller } = app;
+  router.get('/home', controller.home);
+  router.get('/user/:id', controller.user.page);
+  router.post('/admin', isAdmin, controller.admin);
+  router.post('/user', isLoginUser, hasAdminPermission, controller.user.create);
+  router.post('/api/v1/comments', controller.v1.comments.create); // app/controller/v1/comments.js
+};
+
+参数获取
+Query String方式
+// app/router.js
+module.exports = app => {
+	app.router.get('/search', app.controller.search.index);
+}
+
+// app/controller/search.js
+exports.index = async ctx => {
+	ctx.body = `search: ${ctx.query.name}`;
+};
+// curl http://127.0.0.1:7001/search?name=egg
+
+参数命名方式
+// app/router.js
+module.exports = app => {
+	app.router.get('/user/:id/:name', app.controller.user.info);
+};
+
+// app/controller/user.js
+exports.info = async ctx => {
+	ctx.body = `user: ${ctx.params.id}, ${ctx.params.name}`;
+};
+// curl http://127.0.0.1:7001/user/123/xiaoming
+
+复杂参数的获取
+路由里面也支持定义正则，可以更加灵活的获取参数：
+
+// app/router.js
+module.exports = app => {
+  app.router.get(/^\/package\/([\w-.]+\/[\w-.]+)$/, app.controller.package.detail);
+};
+
+// app/controller/package.js
+exports.detail = async ctx => {
+  // 如果请求 URL 被正则匹配， 可以按照捕获分组的顺序，从 ctx.params 中获取。
+  // 按照下面的用户请求，`ctx.params[0]` 的 内容就是 `egg/1.0.0`
+  ctx.body = `package:${ctx.params[0]}`;
+};
+
+// curl http://127.0.0.1:7001/package/egg/1.0.0
+
+什么是controller
+简单地说就是否则解析用户的输入，处理好后返回相应的结果
+如何编写controller
+所有controller文件必须放在app/controller目录下，可以支持多级目录，访问的时候可以通过目录名级联访问。
+
+定义的 Controller 类，会在每一个请求访问到 server 时实例化一个全新的对象，
+而项目中的 Controller 类继承于 egg.Controller，会有下面几个属性挂在 this 上。
+this.ctx: 当前请求的上下文 Context 对象的实例，通过它我们可以拿到框架封装好的处理当前请求的各种便捷属性和方法。
+this.app: 当前应用 Application 对象的实例，通过它我们可以拿到框架提供的全局对象和方法。
+this.service：应用定义的 Service，通过它我们可以访问到抽象出的业务层，等价于 this.ctx.service 。
+this.config：应用运行时的配置项。
+this.logger：logger 对象，上面有四个方法（debug，info，warn，error），分别代表打印四个不同级别的日志，使用方法和效果与 context logger 中介绍的一样，
+但是通过这个 logger 对象记录的日志，在日志前面会加上打印该日志的文件路径，以便快速定位日志打印位置。
+
+获取上传的文件
+请求body除了可以带参数以外，还可以发送文件，一般来说，浏览器上都是通过Multipart/form-data格式发送文件的，
+框架通过内置的Multipart插件来支持获取用户上传的文件，egg中有两种方式:
+File模式
+1.在config文件中启用file模式：
+// confnig/config.default.js
+exports.multipart = {
+	mode: 'file',
+};
+2.上传/接收文件：
+	1. 上传/接收单个文件:
+	前端静态页面代码应该看上去如下样子：
+	<form method="POST" action="/upload?_csrf={{ ctx.csrf | safe }}" enctype="multipart/form-data">
+	  title: <input name="title" />
+	  file: <input name="file" type="file" />
+	  <button type="submit">Upload</button>
+	</form>
+	
+	对应的后端代码如下：
+	// app/controller/upload.js
+	const Controller = require('egg').Controller;
+	const fs = require('mz/fs');
+	
+	module.exports = class extends Controller {
+	  async upload() {
+	    const { ctx } = this;
+	    const file = ctx.request.files[0];
+	    const name = 'egg-multipart-test/' + path.basename(file.filename);
+	    let result;
+	    try {
+	      // 处理文件，比如上传到云端
+	      result = await ctx.oss.put(name, file.filepath);
+	    } finally {
+	      // 需要删除临时文件
+	      await fs.unlink(file.filepath);
+	    }
+	
+	    ctx.body = {
+	      url: result.url,
+	      // 获取所有的字段值
+	      requestBody: ctx.request.body,
+	    };
+	  }
+	};
+	
+	2.上传/接收多个文件:
+	对于多个文件，我们借助 ctx.request.files 属性进行遍历，然后分别进行处理：
+	
+	你的前端静态页面代码应该看上去如下样子：
+	<form method="POST" action="/upload?_csrf={{ ctx.csrf | safe }}" enctype="multipart/form-data">
+	  title: <input name="title" />
+	  file1: <input name="file1" type="file" />
+	  file2: <input name="file2" type="file" />
+	  <button type="submit">Upload</button>
+	</form>
+	
+	对应的后端代码：
+	// app/controller/upload.js
+	const Controller = require('egg').Controller;
+	const fs = require('mz/fs');
+	
+	module.exports = class extends Controller {
+	  async upload() {
+	    const { ctx } = this;
+	    console.log(ctx.request.body);
+	    console.log('got %d files', ctx.request.files.length);
+	    for (const file of ctx.request.files) {
+	      console.log('field: ' + file.fieldname);
+	      console.log('filename: ' + file.filename);
+	      console.log('encoding: ' + file.encoding);
+	      console.log('mime: ' + file.mime);
+	      console.log('tmp filepath: ' + file.filepath);
+	      let result;
+	      try {
+	        // 处理文件，比如上传到云端
+	        result = await ctx.oss.put('egg-multipart-test/' + file.filename, file.filepath);
+	      } finally {
+	        // 需要删除临时文件
+	        await fs.unlink(file.filepath);
+	      }
+	      console.log(result);
+	    }
+	  }
+	};
+	
+	Stream模式
+	https://eggjs.org/zh-cn/basics/controller.html#stream-模式
+	
+	service
+	简单来说，就是在复杂业务场景下用于做业务逻辑封装的一个抽象层，
+	
+	
+	
+	
+	
+	
+	
+	
++Mysql（sequelize)+vue使用
+
+
+CREATE TABLE `collect` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '收藏id',
+  `author` varchar(255) DEFAULT NULL COMMENT '作者',
+  `date` varchar(255) DEFAULT NULL COMMENT '日期',
+  `link` varchar(255) DEFAULT NULL COMMENT '链接',
+  `title` varchar(255) DEFAULT NULL COMMENT '标题',
+  `created_at` datetime DEFAULT NULL COMMENT '创建时间',
+  `updated_at` datetime DEFAULT NULL COMMENT '更改时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `title` (`title`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='收藏表';
+	
+egg安装模块
+cnpm install egg-sequelize egg-cors mysql2 --save
+
+//config/pulgin.js
+exports.sequelize = {
+  enable: true,
+  package: 'egg-sequelize',
+};
+exports.cors = {
+  enable: true,
+  package: 'egg-cors',
+};
+
+//config/config.default.js
+ //mysql配置开始
+  config.sequelize = {
+    dialect: 'mysql', // support: mysql, mariadb, postgres, mssql
+    dialectOptions: {
+      charset: 'utf8mb4',
+    },
+    database: 'egg04',
+    host: 'localhost',
+    port: '3306',
+    username: 'root',
+    password: '123456',
+    timezone: '+08:00',
+  };
+  //mysql配置结束
+  //cors配置开始
+  config.security = {
+    csrf: {
+      enable: false,
+    },
+    domainWhiteList: [ 'http://localhost:8080' ],
+  };
+  config.cors = {
+    credentials: true,
+  };
+    //cors配置结束
+
+//数据建模
+//model/collect.js
+'use strict';
+module.exports = app => {
+    const {
+        INTEGER,
+        STRING,
+        DATE
+    } = app.Sequelize;
+    const Collect = app.model.define('collect',{
+        id:{
+            type:INTEGER,
+            primaryKey:true,
+            autoIncrement:true
+        },
+        author:STRING,
+        date:STRING,
+        link:STRING,
+        title:STRING,
+        created_at:DATE,
+        updated_at:DATE
+    },{
+        freezeTableName: true, //使用默认表名，不会变以collects
+    })
+    return Collect;
+}
+
+//controller/collect.js
+'use strict';
+
+const Controller = require('egg').Controller;
+
+class CollectController extends Controller {
+    async create(){
+        const {ctx} = this;
+        const body = ctx.request.body;
+        ctx.body = await ctx.service.collect.create(body);
+    }
+    
+    async destroy(){
+        const {ctx} = this;
+        const id = +ctx.params.id;
+        ctx.body = await ctx.service.collect.destroy(id)
+    }
+
+    async update(){
+        const {ctx} = this;
+        const id = +ctx.params.id;
+        const body = ctx.request.body;
+        ctx.body = await ctx.service.collect.update({
+            id,
+            body
+        })
+    }
+
+    async find() {
+        const {ctx} = this;
+        const id = +ctx.params.id;
+        ctx.body = await ctx.service.collect.find(id)
+      }
+
+    async list(){
+        const {ctx} = this;
+        const query = ctx.query;
+        ctx.body = await ctx.service.collect.list(query)
+    }
+}
+
+module.exports = CollectController;
+
+//util/util
+'use strict';
+module.exports = {
+  ERROR: {
+    code: 1,
+    msg: 'failed',
+  },
+  SUCCESS: {
+    code: 0,
+    msg: 'success',
+  },
+  unique(arr) {
+    return arr.filter(function(item, index, arr) {
+      return arr.indexOf(item) === index;
+    });
+  },
+};
+
+//service/collect.js
+'use strict';
+
+const Service = require('egg').Service;
+const{ERROR,SUCCESS} = require('../util/util')
+class CollectService extends Service {
+    async create(collect){
+        const {ctx} = this;
+        try{
+            collect = await ctx.model.Collect.create(collect);
+            if(!collect){
+                ctx.status = 400;
+                return Object.assign(ERROR,{
+                    msg:`expectd collect,but got ${JSON.stringify(collect)}`
+                })
+            }
+            ctx.status = 200;
+            return Object.assign(SUCCESS,{
+                data:collect
+            })
+        }catch(error){
+            ctx.status = 500;
+            throw(error)
+        }
+    }
+
+    async destroy(id){
+        const {ctx} = this;
+        try{
+            const collect = await ctx.model.Collect.findById(id);
+            if(!collect){
+                ctx.status = 400;
+                return Object.assign(ERROR,{
+                    msg:'not found collect'
+                })
+            }
+            const res = await collect.destroy();
+            ctx.status = 200;
+            return Object.assign(SUCCESS,{
+                data:res
+            })
+        }catch(error){
+            ctx.status = 500;
+            throw(error)
+        }
+    }
+
+    async update({
+        id,
+        body
+    }){
+        const {ctx} = this;
+        try{
+            const collect = await ctx.model.Collect.findById(id);
+            if(!collect){
+                ctx.status = 400;
+                return Object.assign(ERROR,{
+                    msg:'not fount collect'
+                })
+            }
+            const res = await collect.update(body);
+            ctx.status = 200;
+            return Object.assign(SUCCESS,{
+                data:res
+            })
+        }catch(error){
+            ctx.status = 500;
+            throw(error)
+        }
+    }
+
+    async find(id) {
+        const {ctx} = this;
+        try{
+            const collect = await ctx.model.Collect.findById(id);
+            if(!collect){
+                ctx.status = 400;
+                return Object.assign(ERROR,{
+                    msg:'not found collection'
+                })
+            }
+            ctx.status = 200;
+            return Object.assign(SUCCESS,{
+                data:collect
+            })
+        }catch(error){
+            ctx.status = 500;
+            throw(error)
+        }
+      }
+
+    async list({
+        offset = 0,
+        limit = 10,
+        order_by ='created_at',
+        order = 'DESC'
+    }){
+        const {ctx} = this;
+        const options = {
+            offset:parseInt(offset),
+            limit:parseInt(limit),
+            order:[
+                [order_by,order.toUpperCase()]
+            ]
+        }
+        try{
+            const res = await ctx.model.Collect.findAndCountAll(options);
+            if(!res){
+                ctx.status = 400;
+                return Object.assign(ERROR,{
+                    msg:'not fount collect'
+                })
+            }
+            ctx.status = 200;
+            return Object.assign(SUCCESS,{
+                data:res
+            })
+        }catch(error){
+            ctx.status = 500;
+            throw(error)
+        }
+    }
+}
+
+module.exports = CollectService;
+
+// router.js
+  router.post('/api/collect',controller.collect.create)
+  router.delete('/api/collect/:id',controller.collect.destroy)
+  router.put('/api/collect/:id',controller.collect.update)
+  router.get('/api/collect',controller.collect.list)
+  router.get('/api/collect/:id',controller.collect.find)
+
+
+// 前端，查找删除
+
+<template>
+    <div class="app-collect">
+        <header>
+            <router-link to="/collectCreate">新建收藏</router-link>
+        </header>
+
+        <ul class="collect-main">
+            <li class="main-item" v-for="item in collecData" :key="item.id">
+                <a :href="item.link">{{item.title}}</a>
+                <div v-if="$store.state.userInfo.username === 'admin'">
+                    <router-link :to="{path:'/collectEdit',query:{id:item.id}}">编辑</router-link>
+                    <button @click="deleteCollect(item.id)">删除</button>
+                </div>
+                
+            </li>
+        </ul>
+
+    </div>
+</template>
+
+<script>
+export default {
+    data() {
+        return {
+            collecData: []
+        };
+    },
+    methods: {
+        getCollect() {
+            axios
+                .get("http://localhost:7001/api/collect",{
+                    params:{
+                        limit:2
+                    }
+                })
+                .then(response => {
+                    console.log(response);
+                    this.collecData = response.data.data.rows;
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        },
+        deleteCollect(id){
+            axios
+                .delete("http://localhost:7001/api/collect/" + id)
+                .then(response => {
+                    console.log(response);
+                    this.getCollect();
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        }
+    },
+    created() {
+        this.getCollect();
+    }
+};
+</script>
+
+//增加
+<template>
+    <div>
+        <div>
+            <label>
+                <span>作者</span>
+                <input type="text" v-model="author">
+            </label>
+        </div>
+        <div>
+            <label>
+                <span>日期</span>
+                <input type="text" v-model="date">
+            </label>
+        </div>
+        <div>
+            <label>
+                <span>链接</span>
+                <input type="text" v-model="link">
+            </label>
+        </div>
+        <div>
+            <label>
+                <span>标题</span>
+                <input type="text" v-model="title">
+            </label>
+        </div>
+        <div>
+            <button @click="createCollect">确定</button>
+        </div>
+    </div>
+</template>
+
+<script>
+export default {
+    data() {
+        return {
+            author: "",
+            date: "",
+            link: "",
+            title: ""
+        };
+    },
+    methods: {
+        createCollect() {
+            axios
+                .post("http://localhost:7001/api/collect", {
+                    author: this.author,
+                    date: this.date,
+                    link: this.link,
+                    title: this.title
+                })
+                .then(response => {
+                    console.log(response);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        }
+    }
+};
+</script>
+
+
+//修改
+<template>
+    <div>
+        <div>
+            <label>
+                <span>作者</span>
+                <input type="text" v-model="author">
+            </label>
+        </div>
+        <div>
+            <label>
+                <span>日期</span>
+                <input type="text" v-model="date">
+            </label>
+        </div>
+        <div>
+            <label>
+                <span>链接</span>
+                <input type="text" v-model="link">
+            </label>
+        </div>
+        <div>
+            <label>
+                <span>标题</span>
+                <input type="text" v-model="title">
+            </label>
+        </div>
+        <div>
+            <button @click="editCollect">确定</button>
+        </div>
+    </div>
+</template>
+
+<script>
+export default {
+    data() {
+        return {
+            collectId:this.$route.query.id,
+            author: "",
+            date: "",
+            link: "",
+            title: ""
+        };
+    },
+    methods: {
+        getCollect() {
+            axios
+                .get("http://localhost:7001/api/collect/" + this.collectId)
+                .then(response => {
+                    console.log(response);
+                    this.author = response.data.data.author;
+                    this.date = response.data.data.date;
+                    this.link = response.data.data.link;
+                    this.title = response.data.data.title;
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        },
+        editCollect(){
+            axios
+                .put("http://localhost:7001/api/collect/" + this.collectId,{
+                    author: this.author,
+                    date: this.date,
+                    link: this.link,
+                    title: this.title
+                })
+                .then(response => {
+                    console.log(response);
+                    this.$router.push({path:'/'})
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        }
+    },
+    created(){
+        this.getCollect()
+    }
+};
+</script>
+
+
+
++redis使用
+npm i egg-redis --save
+config/plugin.js
+redis: {
+	  enable: true,
+	  package: 'egg-redis',
+  },
+  
+config/config.default.js
+config.redis = {
+	  // 单个数据库用client
+	 // client: {
+	//	  port: 6379,
+	//	  host: '127.0.0.1',
+	//	  password: null,
+	//	  db: 0,
+	 // }
+	  clients: {
+		  db0: {
+			port: 6379,
+			host: '127.0.0.1',
+			password: null,
+			db: 0,
+		  },
+		  db1: {
+			  port: 6379,
+			  host: '127.0.0.1',
+			  password: null,
+			  db: 1,
+		  }
+	  }
+  }
+  
+// app/controller/home.js
+ 
+module.exports = app => {
+  return class HomeController extends app.Controller {
+    async index() {
+      const { ctx, app } = this;
+      // set
+      await app.redis.set('foo', 'bar');
+      // get
+      ctx.body = await app.redis.get('foo');
+    }
+  };
+};
+
+//多个连接
+// app/controller/home.js
+ 
+module.exports = app => {
+  return class HomeController extends app.Controller {
+    async index() {
+      const { ctx, app } = this;
+      console.log(await app.redis.get('db0').get('foo'));
+      app.redis.get('db1').set('d','dd');
+      ctx.body = await app.redis.get('db1').get('d');
+    }
+  };
+};
+
+
+
+sequelize:

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script crossorigin="anonymous" integrity="sha512-7oYXeK0OxTFxndh0erL8FsjGvrl2VMDor6fVqzlLGfwOQQqTbYsGPv4ZZ15QHfSk80doyaM0ZJdvkyDcVO7KFA==" src="https://lib.baomitu.com/angular.js/1.8.2/angular.min.js"></script>
+		<style type="text/css">
+			input.ng-invalid{
+				background-color: red;
+			}
+			input.ng-valid{
+				background-color: green;
+			}
+			
+		</style>
+	</head>
+	<body>
+		<!-- 双向绑定 -->
+		<div id="myApp" ng-app="myApp" ng-controller="myCtrl">
+			名字 <input type="text" ng-model="name"/>
+			<h1>你输入了{{name}}</h1>
+		</div>
+		
+		<!-- 验证用户输入 -->
+		<form id="myApp2"  ng-app="myApp2" name="myForm">
+			Email:
+			<input type="email" name="myAddress" ng-model="text"/>
+			<!-- <input type="email" name="myAddress" ng-model="text"> -->
+			<!-- <span ng-show="myForm.myAddress.$error.email">不是一个合法的邮箱地址</span> -->
+			<span ng-show="myForm.myAddress.$error.email">不是一个合法的邮箱地址</span>
+		</form>
+			
+		<!-- 应用状态 -->
+		<!-- 可以为应用数据提供状态值(invalid, dirty, touched, error); -->
+		<br/>
+		<form id="myApp3" ng-app="myApp3" name="myForm" ng-init="myText='test@runoob.com'">
+			Email:
+			<input type="email" name="myAddress" ng-model="myText" required/>
+			<p>编辑邮箱地址，查看状态的改变</p>
+			<h1>状态</h1>
+			<p>Valid: {{myForm.myAddress.$valid}}(如果输入的值是合法的则为true)</p>
+			<p>Dirty: {{myForm.myAddress.$dirty}}(如果值改变则为true)</p>
+			<p>Tounded: {{myForm.myAddress.$touched}}(如果通过触屏点击则为true)</p>
+		</form>
+		
+		<br/>
+		<!-- css类 -->
+		<form id="myApp4" name="myForm" ng-app="myApp4">
+			<input type="text" name="myAddress" ng-model="x" required/>
+		</form>
+			
+		<script type="text/javascript">
+			var app1 = angular.module('myApp', []);
+			app1.controller('myCtrl', function($scope){
+				$scope.name=''
+			})
+			var app2 = angular.module('myApp2', []);
+			var app3 = angular.module('myApp3', []);
+			var app4 = angular.module('myApp4', []);
+			angular.element(document).ready(function(){
+				// angular.bootstrap(document.getElementById('myApp'), ['myApp']);
+				angular.bootstrap(document.getElementById('myApp2'), ['myApp2']);
+				angular.bootstrap(document.getElementById('myApp3'), ['myApp3']);
+				angular.bootstrap(document.getElementById('myApp4'), ['myApp4']);
+			})
+		</script>
+	</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style type="text/css">
+			#app div{
+				background-color: black;
+			}
+		</style>
+		<script src="js/vue.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<div class="inner" @click="divHandler">
+				<!-- .stop阻止冒泡 -->
+				<div @click="linkClick">
+					<input type="button" value="stick" @click="btnHandler">
+				</div>
+			</div>
+			<!-- .once只触发一次 -->
+			<!-- .self只有点击当前元素才会触发,不会被冒泡,捕获执行 -->
+			<!-- .capture使用捕获模式 从外向里执行,负责如果子元素没有阻止冒泡会冒泡时执行点击事件-->
+			<div class="inner" @click.capture="divHandler">
+				<input type="button" value="stick2" @click.stop="btnHandler">
+			</div>
+			
+				<!-- .prevent阻止默认行为	 -->
+			<a href="http://www.baidu.com" @click.prevent='linkClick'>click</a>
+			<!-- .self .stop区别  两级以上会出现区别-->
+		</div>
+		<script type="text/javascript">
+			var vm = new Vue({
+				el: '#app',
+				data: {
+					
+				},
+				methods:{
+					divHandler(){
+						console.log('1');
+					},
+					btnHandler(){
+						console.log('2');
+					},
+					linkClick(){
+						console.log('3');
+					}
+				}
+			})
+		</script>
+	</body>
+</html>

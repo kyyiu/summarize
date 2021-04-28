@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="js/vue.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<div>
+				<div>
+					<h3>添加</h3>
+				</div>
+				<div>
+					<label>
+						id:
+						<input type="text" v-model="id" @click="clc">
+					</label>
+					<label>
+						name:
+						<!-- 全部按键修饰符.enter .tab .delete .esc .space .up .down .left .right -->
+						<input type="text" v-model="name" @keyup.enter="add">
+					</label>
+					<input type="button" value="add" @click="add">
+					<label>
+						search:
+						<input type="text" v-model="kw" v-focus v-color>
+					</label>
+				</div>
+			</div>
+		<table>
+			<thead>
+				<tr>
+				<th>Id</th>
+				<th>Name</th>
+				<th>Ctime</th>
+				<th>Operation</th>
+				</tr>
+			</thead>
+			<tbody>
+				<!-- 
+				Duplicate keys detected: 'v1'. This may cause an update error. found in……
+				翻译一下报错： 检测到重复的密钥：“ v1”。这可能会导致更新错误。
+					错误原因：
+					我们在使用v-for的时候，都要必须加上一个唯一的key值。
+					然后在循环中两个标签得到的key的值是一样的，所以就导致了警告。
+					解决办法：
+					将key值修改为 可确认是唯一值 即可。 -->
+				<!-- <tr v-for = "item in list" :key="item.id">
+					<td>{{item.id}}</td>
+					<td v-text="item.name"></td>
+					<td>{{item.ctime}}</td>
+					<td>
+						<a href="#" @click.prevent="del(item.id)">del</a>
+					</td>
+				</tr> -->
+				
+				<!-- 之前 v-for的数据都是从data直接渲染过来的
+				现在，定义一个search方法，同时把所有的关键字通过传参的形式传递给search方法
+				在search内部，执行for循环，把所有符合搜索关键字的数据保存到 --><!-- 一个新数组返回 -->
+				<tr v-for = "item in search(kw)" :key="item.id">
+					<td>{{item.id}}</td>
+					<td v-text="item.name"></td>
+					<td>{{item.ctime | dateFormat('yyyy-mm-dd')}}</td>
+					<td>
+						<a href="#" @click.prevent="del(item.id)">del</a>
+					</td>
+				</tr>
+			</tbody>
+			</table>
+		</div>
+		
+		<div id="app2"> 
+			<h3 v-fontweight = "100" v-fontsize = "30">{{dt | dateFormat('')}}</h3>
+		</div>
+		<script type="text/javascript">
+			//定义一个Vue全局过滤器
+			//所谓全局就是所有vm实例共享
+			//过滤器采取就近原则
+			Vue.filter('dateFormat',function(dateStr,precise=''){
+				var dt = new Date(dateStr)
+				var y = dt.getFullYear()
+				var m = dt.getMonth()+1
+				var d = dt.getDate()
+				
+				if(precise && precise.toLowerCase()==='yyyy-mm-dd'){
+					return `${y}-${m}-${d}`;//等同于y+'-'+m+'-'+d
+				}else{
+					var hh = dt.getHours();
+					var mm = dt.getMinutes();
+					var ss = dt.getSeconds();
+					return `${y}-${m}-${d} ${hh}:${mm}:${ss}`;
+				}
+				
+				
+				
+				
+				
+				
+				
+				
+			})
+			
+			//自定义全局按键修饰符
+			// Vue.config.keyCodes.f2 = 113
+			
+			// 使用Vue.directive()定义全局的指令 v-focus
+			// 其中：参数1;指令名称，，在定义时，名称前面不需要加v-前缀，在调用时必须加
+			//参数2，是一个对象，这个对象身上，有一些指令相关的函数
+			Vue.directive('focus',{
+				//在每个函数中，第一个参数永远是el
+				bind:function(el){
+					//在元素杠绑定指令时，还没有插入到DOM中，调用focus方法没用，一个元素要插入dom才会取得焦点
+				},//每当指令绑定到元素上时，会立即执行这个bind函数，只执行一次
+				inserted: function(el){
+					el.focus()
+				},//插入到Dom时会执行
+				updated: function(){}//当VNode更新时会执行，可能触发多次
+			})
+			Vue.directive('color',{
+				//和js行为相关的最好放在insert中去
+				//样式，只要通过指令绑定给了元素，不管这个元素有没有插入页面中，这个元素肯定有了内联样式
+				//将来元素肯定会显示到页面中，这时候浏览器渲染引擎必然解析样式，应用给这个元素
+				bind:function(el){
+					el.style.color = 'red'
+				}
+			})
+			var vm = new Vue({
+			  el: '#app',
+			  data: {
+				  id: '',
+				  name: '',
+				  kw: '',
+				  list: [
+					  {id: 1,name:'b',ctime:new Date()},
+					  {id: 2,name:'v',ctime:new Date()},
+					   {id: 3,name:'abv',ctime:new Date()}
+				  ]
+			  },
+			  methods:{
+				  clc(){
+					  this.id = this.name = ''
+				  },
+				  add(){
+					var f = this.list.some((item,i) => {
+						  if(item.id == this.id){
+							  alert('重复')
+							  return true;
+						  }})
+					console.log(f)
+					if(f){
+						console.log('1')
+											  return
+					}else{
+						console.log('2')
+											  var car = {id: this.id,name: this.name,ctime: new Date()}
+											  this.list.push(car);
+											  this.name = '';
+					}
+					 
+				  },
+				  del(id){
+					  //数组的some方法中，如果return true 就会立即终止这个数组的后续循环
+					  // this.list.some((item,i) => {
+						 //  if(item.id == id){
+							//   this.list.splice(i,1)
+							//   return true;
+						 //  }
+						  
+						  //法二,快速寻找索引,返回索引值
+						  var index = this.list.findIndex(item => {
+							  if (item.id == id){
+								  return true;
+							  }
+						  })
+						  this.list.splice(index,1);
+					  },
+					  search(kw){
+						 // var newList = [];
+						 //  this.list.forEach(item => {
+							//   //空字符串返回0，所以没输入时，显示所有
+							//   if(item.name.indexOf(kw) != -1){
+							// 	  newList.push(item)
+							//   }
+							  
+						 //  })
+						 //  return newList;
+						 //forEach some filter findIndex都是数组新方法，都会对数组进行遍历
+						 //法二
+						 var newList = this.list.filter(item => {
+							 //ES6中为字符串提供了一个新方法，叫做String.prototype.includes('要包含的字符串')
+							 //如果包含返回true
+							 if(item.name.includes(kw)){
+								 return item
+							 }
+						 })
+						 return newList
+					  }
+				  }
+
+			})
+			
+			//自定义一个私有过滤器
+			var vm2 = new Vue({
+				el: '#app2',
+				data: {
+					dt: new Date()
+				},
+				methods: {},
+				filters:{
+					//定义私有过滤器，有两个条件 [过滤器名称，处理函数]
+					dateFormat: function(dateStr,precise=''){
+						//使用ES6中的字符串新方法String.protoype.padStart(maxLength,fillString='')或
+						//String.prototype.padEnd(maxLength,fillString='')来填充字符串
+						var dt = new Date(dateStr)
+						var y = dt.getFullYear()
+						var m = (dt.getMonth()+1).toString().padStart(2,0)
+						var d = dt.getDate().toString().padStart(2,0)
+						
+						if(precise && precise.toLowerCase()==='yyyy-mm-dd'){
+							return `${y}-${m}-${d}`;//等同于y+'-'+m+'-'+d
+						}else{
+							var hh = dt.getHours().toString().padStart(2,0)
+							var mm = dt.getMinutes().toString().padStart(2,0)
+							var ss = dt.getSeconds().toString().padStart(2,0)
+							return `${y}-${m}-${d} ${hh}:${mm}:${ss} _____-`;
+						}
+					}
+				},
+				directives: {//自定义私有指令
+					'fontweight':{
+						bind: function (el,binding){
+							el.style.fontWeight = binding.value; 
+						}
+					},
+					'fontsize': function (el,binding){
+						//这个function相当于把代码写到bind 和update中去
+						el.style.fontSize = parseInt(binding.value) + 'px';
+					}
+				}
+			})
+			
+		</script>
+	</body>
+</html>

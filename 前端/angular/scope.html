@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script crossorigin="anonymous" integrity="sha512-7oYXeK0OxTFxndh0erL8FsjGvrl2VMDor6fVqzlLGfwOQQqTbYsGPv4ZZ15QHfSk80doyaM0ZJdvkyDcVO7KFA==" src="https://lib.baomitu.com/angular.js/1.8.2/angular.min.js"></script>
+		
+	</head>
+	<body>
+		<div ng-app = "myApp" ng-controller = "myCtrl">
+			<h1>{{carname}}</h1>
+		</div>
+		
+		<div id="myApp2" ng-app = "myApp2" ng-controller = "myCtrl2">
+			<ul>
+				<li ng-repeat="x in names">{{x}}</li>
+				<!-- 每个li元素可以访问当前的重复对象，这里对应的是一个字符串，并使用变量x表示 -->
+			</ul>
+		</div>
+		
+		<!-- 根作用域 -->
+		<!-- 所有的应用都有一个$rootScope,它可以作用再ng-app指令包含的所有html元素中 -->
+		<!-- $rootScope可作用于整个应用中，是各个controller中scope的桥梁，用rootscope定义的值可以再各个contorller中使用 -->
+		
+		<div id="myApp3" ng-app="myApp3" ng-controller="myCtrl3">
+			<h1>{{lastname}}家族成员:</h1>
+			<ul>
+				<li ng-repeat="x in names">{{x}}  {{lastname}}</li>
+			</ul>
+		</div>
+		
+		<!-- $rootScope设置的变量再所有controller里面都可以直接用{{$root.变量名}}来显示，也可以赋值给$scope -->
+		<div ng-app="myApp4" id = "myApp4">
+			<div ng-controller="myCtrl_1">
+				<h1>姓氏为:{{lastname}} 家族成员:</h1>
+				<ul>
+					<li ng-repeat="x in names track by $index">{{x}} {{lastname}} {{'序号是--'+$index}}</li>
+				</ul>
+			</div>
+			<div ng-controller="myCtrl_2">
+				<div>scope中的值是{{lastname_2}}</div>
+				<div>rootscope中的值是{{$root.lastname}}</div>
+			</div>
+		</div>
+		
+		<!-- $rootScope全局对象的属性可在所有子作用域中访问，子作用域互相无法访问对方的私有变量，与js函数作用域完全一致 -->
+		<form id="myApp5" ng-app="myApp5">
+			<div ng-controller="myCtrl_1">
+				{{myf + allf + mys + alls}}
+			</div>
+			<div ng-controller="myCtrl_2">
+				{{myf + allf + mys + alls}}
+			</div>
+		</form>
+		
+		
+		<script type="text/javascript">
+			var app = angular.module('myApp', []);
+			app.controller('myCtrl', function($scope){
+				$scope.carname = 'Volo';
+			});
+			
+			var app2 = angular.module('myApp2', []);
+			app2.controller('myCtrl2', function($scope){
+				$scope.names = ['Emil', 'Tobias', 'Linus'];
+			});
+			
+			var app3 = angular.module('myApp3', []);
+			app3.controller('myCtrl3', function($scope, $rootScope){
+				$scope.names = ['A', 'B', 'C'];
+				$rootScope.lastname = 'RRR';
+			});
+			
+			var app4 = angular.module('myApp4', []);
+			app4.controller('myCtrl_1', function($scope, $rootScope){
+				$rootScope.lastname = 'XXX';
+				$scope.names  = ['X', 'Y', 'Z'];
+			});
+			app4.controller('myCtrl_2', function($scope, $rootScope){
+				$scope.lastname_2 = $rootScope.lastname
+			});
+			
+			var app5 = angular.module('myApp5', []);
+			app5.controller('myCtrl_1', ['$scope', '$rootScope', myCtrl_1]);
+			app5.controller('myCtrl_2', ['$scope', '$rootScope', myCtrl_2]);
+			function myCtrl_1($scope, $rootScope){
+				$scope.myf = 1;
+				$rootScope.allf = '全局一';
+			}
+			function myCtrl_2($scope, $rootScope){
+				$scope.mys = 2;
+				$rootScope.alls = '全局二';
+			}
+			
+			angular.element(document).ready(function(){
+				angular.bootstrap(document.getElementById('myApp2'), ['myApp2']);
+				angular.bootstrap(document.getElementById('myApp3'), ['myApp3']);
+				angular.bootstrap(document.getElementById('myApp4'), ['myApp4']);
+				angular.bootstrap(document.getElementById('myApp5'), ['myApp5']);
+			});
+		</script>
+	</body>
+</html>

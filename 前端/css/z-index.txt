@@ -1,0 +1,36 @@
+1）、谁大谁上：当具有明显的层叠水平标识的时候，如生效的z-index属性值，在同一个层叠上下文领域，层叠水平值大的那一个覆盖小的那一个
+
+2）】后来居上：当元素的层叠水平一致、层叠顺序相同的时候，在DOM流中处于后面的元素会覆盖前面的元素
+
+定位元素与传统层叠上下文
+
+对于position值为relative/absolute以及firfox/IE浏览器（不包括Chrome浏览器）下含有position:fixed声明的定位元素，当其z-index值不是auto的时候，会创建层叠上下文
+
+
+<div style="position:relative; z-index:auto;">
+        <div style="position:absolute; z-index:2;">1</div>
+</div>
+<div style="position:relative; z-index:auto;">
+    <div style="position:absolute; z-index:1;">2</div>
+</div>
+
+这个1会在上面
+
+
+<div style="position:relative; z-index:0;">
+        <div style="position:absolute; z-index:2;">1</div>
+</div>
+<div style="position:relative; z-index:0;">
+    <div style="position:absolute; z-index:1;">2</div>
+</div>
+
+这个2会在上面
+
+
+其实单纯从层叠水平上看，实际上z-index:auto和z-index:0是可以看成一样的，注意我说的是单纯从层叠水平上看，实际上两者在层叠上下文领域有着根本性的差异。
+
+z-index:auto所在的div元素是一个普通定位元素，于是他们的子级层叠比较就不受父级影响，两者直接遵循我们上面提到的层叠准则：“谁大谁上”，所以第一个元素的子级z-index:2比第二个元素的子级z-index:1大，所以第一个div就在上面显示
+
+注意：当我们为元素设置了定位（除值为static外），但没有为其设置z-index时，就默认z-index值为auto
+
+而z-index一旦变成数值，哪怕是0，就会创建一个层叠上下文，此时层叠规则就发生了变化，层叠上下文是自成体系的，当元素发生层叠的时候，整个元素被认为是在父层叠上下文的层叠顺序中。所以两个子级的div层叠顺序比较变成了优先比较其父级层叠上下文元素的层叠顺序。这里由于外面两个div元素都是z-index:0;两者的层叠顺序一样大，此时遵循层叠原则中的“后来居上”，根据在DOM文档流中的位置决定谁在上面，于是2就在上面了，所以此时子元素的z-index没有起作用哈

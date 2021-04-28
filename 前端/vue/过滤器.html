@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="js/vue.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<p>{{msg | msgFormat('7')}}</p>
+		</div>
+		
+		
+		<script type="text/javascript">
+			//过滤器调用格式{{name | 过滤器名字}}
+			//过滤器定义语法
+			// Vue.filter('过滤器名字',function(){})
+			// function里面第一个参数定死，是管道符前面的name
+			
+			
+			
+			//定义一个Vue全局过滤器，名字叫msgFormat
+			Vue.filter('msgFormat',function (mg,num){
+				
+				// return msg.replace('6','7')//只会替换第一个6
+				//字符串的replace 方法，第一个传输，还可以定义一个正则
+				return mg.replace(/6/g,num);
+;			})
+			var vm =new Vue({
+				el: '#app',
+				data:{
+					msg:'1234566'
+				},
+				methods:{}
+			})
+		</script>
+	</body>
+</html>

@@ -1,0 +1,144 @@
+redis数据类型
+支持五种数据类型: string,hash, list,set,zset(有序集合)
+通过redis-server
+redis-cli后
+有时候会有中文乱码。
+要在 redis-cli 后面加上 --raw
+redis-cli --raw
+
+查找所有key: keys *
+
+string:
+set key val 进行创建数据
+get key 获取数据
+注意： 一个键最多能存储512MB
+例子 
+set runoob '菜'
+get runoob
+> "菜"
+设置并加过期时间: set key value EX 30 表示30秒后过期
+删除全部数据: flushall
+查看类型： type key
+设置过期时间: expire key 20 表示指定的key5秒后过期
+
+
+HASH
+redis hash 是一个键值对集合
+redis hash 是一个string类型的field和value的映射表， hash特别适合用于存储对象。
+例子
+DEL runoob 用于删除前面的key 'runoob', 不然会报错
+HMSET runoob field1 "hello" field2 'world'
+>ok
+HGET runoob field1
+> 'hello'
+HGET runoob field2
+> 'world'
+实例中，使用HMSET设置了两个field=>value对HGET获取对应field对应的value。
+每个hash可以存储 2^32-1键值对 (40多亿)
+
+
+list
+redis列表是简单的字符串列表，按照插入顺序排序，可以添加一个元素到列表的头部(左边) 或者尾部(右边)
+ del runoob
+(integer) 1
+127.0.0.1:6379> lpush runoob redis
+(integer) 1
+127.0.0.1:6379> lpush runoob mongodb
+(integer) 2
+127.0.0.1:6379> lpush runoob rabbitmq
+(integer) 3
+127.0.0.1:6379> lrange runoob 0 10
+1) "rabbitmq"
+2) "mongodb"
+3) "redis"
+列表最多可以存储 2^32-1键值对 (40多亿)
+
+set
+redis的set是string类型的无序集合
+集合是通过哈希表实现的，所以添加，删除，查找的复杂度都是O(1)
+sadd命令
+添加一个string元素到key对应的set集合中，成功返回1，如果元素已经在集合中返回0
+sadd key member
+127.0.0.1:6379> del runoob
+(integer) 1
+127.0.0.1:6379> sadd runoob redis
+(integer) 1
+127.0.0.1:6379> sadd runoob mongodb
+(integer) 1
+127.0.0.1:6379> sadd runoob rabbitmq
+(integer) 1
+127.0.0.1:6379> sadd runoob rabbitmq
+(integer) 0
+127.0.0.1:6379> smembers runoob
+1) "redis"
+2) "rabbitmq"
+3) "mongodb"
+也可以同时多次插入
+redis> sadd nosql 'redis' 'mongodb' 'neo4j'
+(integer) 3
+redis> smembers nosql
+1) neo4j
+2) redis
+3) mongodb
+注意：以上实例中 rabbitmq 添加了两次，但根据集合内元素的唯一性，第二次插入的元素将被忽略。
+
+集合中最大的成员数为 232 - 1(4294967295, 每个集合可存储40多亿个成员)。
+
+zset(sorted set: 有序集合)
+reids zset 和set一样也是string类型元素的集合，且不允许重复的成员，
+不同的是每个元素都会关联一个double类型的分数，redis正是通过分数来为集合中的成员进行从小到大的排序。
+zset的成员是唯一的，但分数（score）却可以重复
+zadd命令
+添加元素到集合，元素在集合中存在则更新对应score
+zadd key score member
+
+127.0.0.1:6379> del runoob
+(integer) 1
+127.0.0.1:6379> zadd runoob 0 redis
+(integer) 1
+127.0.0.1:6379> zadd runoob 0 mongodb
+(integer) 1
+127.0.0.1:6379> zadd runoob 0 rabbitmq
+(integer) 1
+127.0.0.1:6379> zadd runoob 0 rabbitmq
+(integer) 0
+127.0.0.1:6379> zrangebyscore runoob 0 1000
+1) "mongodb"
+2) "rabbitmq"
+3) "redis"
+
+
+我们连接到本地的 redis 服务并执行 PING 命令，该命令用于检测 redis 服务是否启动
+127.0.0.1:6379> ping
+PONG
+
+在远程服务上执行命令
+redis-cli -h host -p port -a password
+
+以下实例演示了如何连接到主机为 127.0.0.1，端口为 6379 ，密码为 mypass 的 redis 服务上。
+redis-cli -h 127.0.0.1 -p 6379 -a 'mypass'
+ping
+
+
+
+sds
+simple dynamic string 简单动态字符串
+在redis中sds主要作用：
+1.实现字符串对象（stringObject
+2.在redis程序内部用作char*类型的替代品
+
+redis是键值对数据库，数据库的键总是字符串对象
+包含字符串值的字符串对象，每个字符串对象都包含一个sds值
+
+用一下命令创建一个新的数据库键值对，这个键值对的键和值都是字符串对象，都包含一个sds值
+redis> set book 'mm'
+OK
+redis> get book
+'mm'
+
+flushdb可以清空键空间里的所有键值对数据
+redis>flushdb
+OK
+dbsize可以返回键空间里现有的键值对
+redis>dbsize
+(integer) 0

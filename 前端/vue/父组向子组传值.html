@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="js/vue.js"></script>
+		<script src="js/vue-resource.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<!-- 父组件可以引用子组件的时候，通过属性绑定v-bind的形式
+			 把子组件需要的数据，以属性绑定的形式，传递到子组件内部使用-->
+			<com1 v-bind:parentmsg="msg"></com1>
+			<!-- 父组件向子组件传递方法，使用的事件绑定机制 v-on  
+			之后，子组件就可以通过某些方法，调用传递进去的方法-->
+			<com2 @func="show"></com2>
+			
+		</div>
+		
+		
+		<template id="tmpl">
+			<div>
+				<h1>只是子组件</h1>
+				<input type="button"  @click="myclick">
+			</div>
+		</template>
+		
+		<script type="text/javascript">
+		
+			
+			
+			
+			var com2 = {
+				template: '#tmpl',
+				methods:{
+					myclick(){
+						console.log('ok')
+						
+						this.$emit('func','good')
+					}
+				}
+			}
+			
+			
+			var vm = new Vue({
+				el: '#app',
+				data: {
+					msg: '123',
+				},
+				methods:{
+					show(data){
+						console.log('hello',data)
+					}
+				},
+				filters:{},
+				directives:{},
+				components:{
+					//子组件默认无法访问父组件中data上的数据和methods中的方法
+					com1:{
+						template:'<h1>---{{parentmsg}}</h1>',
+						props:['parentmsg'],
+					},
+					com2
+				},
+				
+				beforeCreate(){},
+				created(){},
+				beforeMount(){},
+				mounted(){},
+				beforeUpdate(){},
+				updated(){},
+				beforeDestroy(){},
+				destroyed(){}
+			})
+		</script>
+	</body>
+</html>

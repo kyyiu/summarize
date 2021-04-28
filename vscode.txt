@@ -1,0 +1,10 @@
+中文插件
+Chinese(Simplified) Language Pack for Visu
+
+vscode里div等html标签代码补全
+安装html snippets插件
+配置files.associations对象
+file中preferences的settigns（右上角有个图标直接可以打开）
+添加
+"emmet.triggerExpansionOnTab": true
+即可

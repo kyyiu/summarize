@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script crossorigin="anonymous" integrity="sha512-7oYXeK0OxTFxndh0erL8FsjGvrl2VMDor6fVqzlLGfwOQQqTbYsGPv4ZZ15QHfSk80doyaM0ZJdvkyDcVO7KFA==" src="https://lib.baomitu.com/angular.js/1.8.2/angular.min.js"></script>
+		<script crossorigin="anonymous" integrity="sha384-fW6rd6cmshWjNCCQAlBGk+WRaq347vdLcmbxRB3zAxEHFlrssIJBhjjTXK8d7VhJ" src="https://lib.baomitu.com/angular.js/1.7.8/angular-animate.min.js"></script>
+		<style type="text/css">
+			div {
+			  transition: all linear 0.5s;
+			  background-color: lightblue;
+			  height: 100px;
+			  width: 100%;
+			  position: relative;
+			  top: 0;
+			  left: 0;
+			}
+			
+			.ng-hide {
+			  height: 0;
+			  width: 0;
+			  background-color: transparent;
+			  top:-200px;
+			  left: 200px;
+			}
+		</style>
+	</head>
+	<!-- <body ng-app="ngAnimate">
+		<input type="checkbox" ng-model="myCheck" />
+		<div ng-hide="myCheck"></div>
+	</body> -->
+	<body ng-app="ngAnimate">
+	
+	<h1>隐藏 DIV: <input type="checkbox" ng-model="myCheck"></h1>
+	
+	<div ng-hide="myCheck"></div>
+	
+	</body>
+</html>

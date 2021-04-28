@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="js/vue.js"></script>
+		<script src="js/vue-resource.js"></script>
+		<script src="js/vue-router.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<router-view></router-view>
+			<div class="container">
+				<!-- 属性里带冒号再考虑是否是变量,否则基本是字符串 -->
+				<router-view name="lef"></router-view>
+				<router-view name="rig"></router-view>
+			</div>
+			
+		</div>
+		
+		
+		<script type="text/javascript">
+			var header = {
+				template: '<h1 class="header">head</h1>'
+			}
+			var leftBox = {
+				template: '<h1  class="lef">lBo</h1>'
+			}
+			
+			var rightBox ={
+				template: '<h1 class="rig">RB</h1>'
+			}
+			
+			var router = new VueRouter({
+				routes:[
+					{path:'/',components:{
+						'default': header,
+						'lef': leftBox,
+						'rig': rightBox
+					}}
+				]
+			})
+			
+			var vm = new Vue({
+				el: '#app',
+				data: {
+					
+				},
+				methods:{},
+				filters:{},
+				directives:{},
+				components:{},
+				router: router,
+				
+				beforeCreate(){},
+				created(){},
+				beforeMount(){},
+				mounted(){},
+				beforeUpdate(){},
+				updated(){},
+				beforeDestroy(){},
+				destroyed(){}
+			})
+		</script>
+	</body>
+</html>

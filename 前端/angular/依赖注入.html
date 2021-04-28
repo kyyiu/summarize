@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script crossorigin="anonymous" integrity="sha512-7oYXeK0OxTFxndh0erL8FsjGvrl2VMDor6fVqzlLGfwOQQqTbYsGPv4ZZ15QHfSk80doyaM0ZJdvkyDcVO7KFA==" src="https://lib.baomitu.com/angular.js/1.8.2/angular.min.js"></script>
+		
+	</head>
+	<body>
+		<!-- factory依赖注入实例 -->
+		<div ng-app="factory" id = "factory" ng-controller="factory">
+			<p>输入一个数字 <input type="number" ng-model="number" /></p>
+			<button ng-click="square()">
+				X <sup>2</sup>
+			</button>
+			<p>结果是{{res}}</p>
+		</div>
+		
+		<!-- provider依赖注入 -->
+		<div ng-app="provider" id = "provider" ng-controller="provider">
+			<p>输入一个数字 <input type="number" ng-model="number" /></p>
+			<button ng-click="square()">
+				X <sup>2</sup>
+			</button>
+			<p>结果是{{res}}</p>
+		</div>
+		
+		<!-- <div id="provider" ng-app = "mainApp" ng-controller = "CalcController">
+		         <p>输入一个数字: <input type = "number" ng-model = "number" /></p>
+		         <button ng-click = "square()">X<sup>2</sup></button>
+		         <p>结果: {{result}}</p>
+		      </div> -->
+		
+		
+		<script type="text/javascript">
+			var factory = angular.module('factory', []);
+			factory.value('defaultInput', 5);
+			factory.factory('MathService', function(){
+				var factory = {};
+				factory.multiply = function(a, b){
+					return a*b;
+				}
+				return factory
+			});
+			factory.service('CalcService', function(MathService){
+				this.square = function(a){
+					return MathService.multiply(a, a);
+				}
+			});
+			
+			factory.controller('factory', ['$scope', 'CalcService', 'defaultInput', function($scope, CalcService, defaultInput){
+				$scope.number = defaultInput;
+				$scope.res = CalcService.square($scope.number);
+				$scope.square = function() {
+					$scope.res = CalcService.square($scope.number);
+				}
+			}]);
+			
+			var provider = angular.module('provider', []);
+			provider.config(function($provide){
+				$provide.provider('MathService', function(){
+					this.$get = function(){
+						var factory = {};
+						factory.multiply = function(a, b){
+							return a * b;
+						}
+						return factory;
+					}
+				});
+			});
+			provider.value('defaultInput', 8);
+			provider.service('CalcService', function(MathService){
+				this.square = function(a){
+					return MathService.multiply(a, a);
+				}
+			});
+			provider.controller('provider', ['$scope', 'CalcService', 'defaultInput', function($scope, CalcService, defaultInput){
+				$scope.number = defaultInput;
+				$scope.res = CalcService.square($scope.number);
+				$scope.square = function() {
+					$scope.res = CalcService.square($scope.number)
+				}
+			}]);
+			
+			angular.element(document).ready(function(){
+				angular.bootstrap(document.getElementById('provider'), ['provider']);
+			});
+		</script>
+		<script type="text/javascript">
+			// var mainApp = angular.module("mainApp", []);
+			         
+			//          mainApp.config(function($provide) {
+			//             $provide.provider('MathService', function() {
+			//                this.$get = function() {
+			//                   var factory = {};
+			                  
+			//                   factory.multiply = function(a, b) {
+			//                      return a * b;
+			//                   }
+			//                   return factory;
+			//                };
+			//             });
+			//          });
+						
+			//          mainApp.value("defaultInput", 5);
+			         
+			//          mainApp.service('CalcService', function(MathService){
+			//             this.square = function(a) {
+			//                return MathService.multiply(a,a);
+			//             }
+			//          });
+			         
+			//          mainApp.controller('CalcController', function($scope, CalcService, defaultInput) {
+			//             $scope.number = defaultInput;
+			//             $scope.result = CalcService.square($scope.number);
+			
+			//             $scope.square = function() {
+			//                $scope.result = CalcService.square($scope.number);
+			//             }
+			//          });
+			// 		 angular.element(document).ready(function(){
+			// 		 	angular.bootstrap(document.getElementById('provider'), ['mainApp']);
+			// 		 });
+		</script>
+	</body>
+</html>

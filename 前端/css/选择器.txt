@@ -1,0 +1,411 @@
+css选择器可以分为四类
+1. 选择器
+2. 选择符
+3. 伪类
+4. 伪元素
+
+选择器
+指的是平常使用的css声明块前面的标签，类名等
+例如 body{}  body就是一种选择器，是类型选择器，也称为标签选择器
+.container{} 类选择器
+
+选择符
+主要5个
+1.表示后代关系的空格
+	.container img{}
+2. 表示父子关系的尖括号>
+	ol > li{}
+3. 表示相邻兄弟关系的加号+
+	button + button{}
+4. 表示兄弟关系的弯弯~
+	button ~ button{}
+5. 表示列关系的双管道||
+	.col || td{}
+	
+伪类
+通常与浏览器行为和用户行为相关联，可以当作css世界的js
+
+选择器优先级
+0级
+  通配符*
+  选择符 + > ~ 空格 ||
+  逻辑组合伪类 :not() , :is(), :where 等本身并不影响css优先级，影响的是括号里面的选择器
+  注意：只有逻辑组合伪类的优先级是0，其他伪类的优先级并不是这样的
+1级
+  标签选择器
+2级
+  类选择器，属性选择器和伪类
+  .foo     [foo]  :hover
+3级
+  id选择器
+  #foo
+4级
+  style属性内联
+5级
+  !important
+  .foo{color: red !important;}
+  可以重置js设置的样式，唯一推荐使用场景就是使js设置无效
+  例如
+  .foo[style="color: #ccc;"]{
+	  color: #fff !important;
+  }
+  
+  
+ 增加css选择器优先级的小技巧
+	很多都是增加嵌套，如 .father .foo{}
+	或者增加一个标签选择器，例如 div.foo{}
+	这些都不是最好的方法，因为这些方法增加了耦合，降低了可维护性，如果哪天父元素类名变化或者标签换了，样式就会失效
+	小技巧就是重复选择器本身，可以像下面这样做，既提高优先级，又不会增加耦合
+	.foo.foo{}
+	也可以使用必然会存在的属性选择器，比如
+	.foo[class]{}
+	#foo[id]{}
+	
+	
+不要使用id选择器
+1. 优先级太高，如果想要重置某些样式，必然需要id选择器进行覆盖，如果非要用，使用属性选择器，必然[id='csid']
+2. 和js耦合，如果id和样式关联，一旦id变化，必须同时修改css和js
+
+不要嵌套选择器
+css选择器是从右往左进行匹配渲染的 比如.box>div 先匹配页面所有的div再匹配.box
+比如 
+.nav a{}   .box > div{}  .avatar img{}  .box .pic .ico{}  .upbox .inp .upbtn{}
+渲染性能差，
+	有两个方面，一是标签选择器，二是过深的嵌套
+	性能排序id>类>标签>通配>属性>部分伪类
+	
+优先级混乱，
+	尽可能保持较低的优先级，这样方便以较低的成本重置一些样式
+样式布局脆弱
+
+
+最佳实践
+1.命名书写，
+建议使用小写，使用英文单词或者缩写，对与专有名词可以使用拼音，如weibo
+例子 .cs-logo-youku{}
+对于组合命名，可以使用短横线或者下划线连接，可以组合使用短横线和下划线，只要项目中保持一直
+.cs-logo-youku{}
+.cs_logo_youku{}
+.cs-logo--youku{}
+.cs-logo__youku{}
+组合个数没必要超过5个
+设置统一前缀，强化品牌，同时避免样式冲突
+.cs-header{}
+.cs-logo{}
+
+2.选择器类型
+网站css大概分为3个部分，css重置样式，css基础样式，css交互变化样式
+css重置样式可以使用标签选择器或者属性选择器等
+body, p{margin: 0;}
+[type="radio"],
+[type="checkbox"]{
+	position: absolute; clip: rect(0 0 0 0)
+}
+所有的css基础样式全部使用类选择器，没有层级，没有标签
+所有html都需要重新命名的问题可以通过面向属性命名的css样式库得到解决
+所有选择器嵌套或者级联，所有的伪类全部都在css交互样式发送变化的时候使用，例如：
+.cs-content.active{
+	height: auto;
+}
+.active > .cs-content-more{
+	display: none;
+}
+.cs-button:active{
+	filter: hue-rotate(5deg);
+}
+.cs-input:focus{
+	border-color: var(--blue);
+}
+状态类名本身不包含任何css样式，本身就是一个标识符
+
+
+
+css选择器是独立于整个页面的
+例如在页面一个很深的dom元素里面写
+style
+  div div{}
+/style
+整个网页，包括父级，只要是满足div div这种后代关系的元素，全部都会被选中
+
+queryselectorAll里面的选择器同样也是全局特性。
+document.querySelector('#myId').querySelectorAll('div div')翻译过来的意思就是：查询#myId 元素的子元素，
+选择所有同时满足整个页面下div div 选择器条件的dom元素
+
+
+子选择符箭头>
+子选择符只会匹配第一代子元素，而后代选择符会匹配所有子元素
+
+相邻兄弟选择符加号+
+用于选择相邻的兄弟元素，但只能选择后面一个兄弟
+.cs-li +li{} 选择.cs-li 的后面一个同级的li标签，如果没有或者不是li则不生效
+相邻兄弟选择符会忽略文本节点和注释节点，只认元素节点
+
+随后兄弟选择符~
+相邻兄弟匹配之后第一个兄弟元素，而随后兄弟选择符会匹配后面的所有兄弟元素
+
+元素选择器的级联语法
+不同类型的css选择器的级联使用是非常常见的，例如
+svg.icon{}
+元素选择器的级联语法和其他选择器的级联语法有两个明显的不同之处
+1. 元素选择器是唯一不能重复自身的选择器
+	类选择器，id选择器，属性值匹配选择器都可以重复自身，例如
+	.foo.foo{}
+	#foo#foo{}
+	[foo][foo]{}
+	但是元素选择器不能重复自身
+	例如 foo*foo
+	因此元素选择器无法像其他选择器那样通过重复自身提高优先级，不过好在由于其自身的一些特性，
+	还有其他办法可以提高优先级
+	1.由于所有标准的html页面都有html和body元素，可以借助这些标签提高优先级  body foo{}
+	2. 借助:not()伪类，括号里面是任意其他不一样的标签名称即可
+	foo:not(not-foo){}
+	foo:not(a){}
+	foo:not(_)
+2. 级联使用的时候元素选择器必须写在最前面
+	[type="radio"]input{} 不合法，无效的
+	只能这样写input[type="radio"]{}
+	可见标签选择器只能写在前面，这个特性和其他选择器明显不同，例如类选择器放在属性值匹配选择器后面完全合法
+	[type="radio"].input{}
+	并且推荐把类选择器放在属性值匹配选择器的后面，因为css选择器解析是从右往左进行的，类名放在后面性能更好
+	类选择器甚至可以放在伪类后面:hover.foo{}
+	
+标签选择器又叫类型选择器
+
+
+[attr]
+表示只要包含指定的属性就匹配，尤其适用一些html布尔属性，这些属性只要右属性值，无论值的内容是什么，都会认为这些
+属性的值是true. 例如下面所有的输入框的写法都是禁用的
+input disabled
+input disabled=""
+input disabled="disabled"
+input disabled="true"
+input disabled="false"
+如果像用属性选择器判断输入框是否禁用，直接用下面的选择器就可以了，无须关心具体的属性值是什么
+[disabled]{}
+
+
+ie7能正常识别[disabled]属性选择器，但是无法识别[checked]，这是因为由于某些未知的原因，ie7用[defaultChecked]
+代替了[checked]，因此判断元素是否为选中状态需要像下面这样写
+ie7
+[defaultChecked]{}
+其他浏览器
+[checked]{}
+
+就算浏览器支持[checked]选择器，也不建议在实际项目中适用，因为在浏览器下有一个很奇怪的行为表现
+就是表单控件元素在checked状态变化的时候并不会同步修改checked属性的值，而disabled状态就不会这样
+已知html如下
+input id = checkbox type=checkbox checked disabled
+此时用js代码修改复选框的状态
+checkebox.checked= false;
+checkbox.disabled=false;
+浏览器中html会变成如下
+input id = checkbox type=checkbox checked
+因此不能使用[checked]进行状态控制，才有了:checked些伪类。如果一定要用(如兼容ie8)，记得每次选中状态变化的时候
+使用js更新checked属性
+不仅原生属性支持属性选择器，自定义属性也是支持的
+例如
+a href class data-title='xx' role='button'> 删除 < /a
+[data-title]
+
+
+[attr='val']是属性值完全匹配选择器，例如，匹配单复选框
+[type="radio"]{}
+[type="checkbox"]{}
+
+
+[attr~=‘val']
+是属性值单词完全匹配选择器，专门用来匹配属性中的单词，其中，~=用来连接属性和属性值
+有些属性值(如class属性，rel属性或者一些自定义属性)包含多个关键词，这时候可以使用空格分割这些关键词
+如 a href rel="nofollow noopener"
+此时就可以借助该选择器实现匹配
+[rel~='noopener']{}
+[rel~="nofollow"]{}
+匹配的属性值不能是空字符串，例如，下面这种选择器用法一定不会匹配任何元素，因为它的属性值是空字符串
+[rel~='']{} //无任何匹配
+如果匹配的属性值只是部分字符串，那么也是无效的。
+例如，假设选择器[attr~='val'],则下面两段html都不匹配
+div attr='value'
+div attr="val-ue"
+
+
+[attr|='val']是属性值起始判断完全匹配选择器，表示具有attr属性的元素，其值要么正好是val，要么是val外加短横线-开头
+|=用于连接需要匹配的属性和属性内容
+可以匹配的有
+div attr='val'
+div attr='val-ue'
+div attr="val-ue bar"
+
+
+
+
+手型经过伪类:hover
+最早只能用在a元素上，目前可用在所有html元素上，包括自定义元素
+
+激活状态伪类：active
+可以用于设置元素激活状态的样式，可以通过点击鼠标主键，也可以通过手指或者触控笔点击触摸屏激活状态。
+具体表现如下，点击按下触发：active伪类样式，点击抬起取消：active伪类样式的应用，目前可用在所有html元素上，包括自定义元素
+
+焦点伪类:focus
+从ie8开始支持的伪类，可以匹配当前聚焦状态的元素，例如高亮显示处于聚焦状态的textarea输入框的边框
+
+
+:focus-within
+focus只有当前元素处于聚焦状态的时候才会匹配。而这个在当前元素或者当前元素任意子元素处于聚焦状态的时候都会匹配。
+
+:focus-visible
+键盘焦点伪类，匹配场景是元素聚焦，同时浏览器认为聚焦轮廓应该显示
+鼠标点击连接元素a的时候不会有焦点轮廓，但是键盘访问会出现，这是符合预期的体验
+但是谷歌浏览器下，有一些特殊场景不是这样表现的
+设置了背景的button按钮
+h5中的summary元素
+设置了html tabindex属性的元素
+在谷歌浏览器下点击鼠标的时候以上都会出现明显的焦点轮廓
+浏览器认为使用键盘访问时触发的元素聚焦才是:focus-visible 所表示的聚焦。
+这个伪类可以让我们知道元素的聚焦行为到底是鼠标触发还是键盘触发。
+因此，如果希望去除鼠标点击时候的outline，而保留键盘访问时候的outline，只要一条css规则就可以了
+//不是键盘触发的聚焦，如鼠标，则不显示轮廓
+:focus:not(:focus-visible){
+	outline: 0;
+}
+
+
+URL定位伪类
+连接历史伪类:link 和:visited
+:link伪类用来匹配页面上href连接没有访问过的a元素
+因此，可以用它来定义连接的默认颜色为天蓝色 a:link{color: skyblue;}
+使用:link必须指定已经访问过的连接的颜色，通常使用:visited伪类进行设置 a:visited{ color: lightskyblue;}
+加上连接通常会设置:hover 伪类，使得鼠标经过的时候变色，这就出现了优先级的问题
+:link->:visited->:hover->:active LVHA love-hate
+
+html中有3中连接元素，可以原生支持href属性，分别是a lin area，但是link伪类只能匹配a，
+所以实际开发可以直接写作:link{color: skyblue;}
+
+超链接伪类:any-link
+匹配所有设置了href属性的连接元素，包括a link area这三种元素
+匹配所有匹配:link伪类或者:visited伪类的元素
+
+目标伪类:target
+是ie9及以上版本的浏览器全部支持的且已经支持了很多年的一个css伪类，他是一个与url地址中的锚点定位强关联的伪类，
+可以用来实现很多原来需要js才能实现的交互效果
+
+:target与锚点
+https://www.cssworld.cn/#cs-anchor
+#cs-anchor就是锚点，术语名称是哈希即js中location.hash的返回值
+
+URL锚点可以和页面中id匹配的元素进行锚定，浏览器的默认行为是触发滚动定位，同时进行:target伪类匹配
+目标容器伪类:target-within
+可以匹配:target伪类匹配的元素，或者匹配存在后代元素（包括文本节点）匹配：tartget伪类的元素
+
+
+输入伪类
+与表单控件元素如input select textarea 相关的伪类
+可用状态与禁用状态伪类 ：enabled和：disabled
+：disabled基本用法，最简单的用法是实现禁用状态的输入框
+input disabled
+此时我们就可用：disabled伪类设置输入框的样式。例如背景变灰
+：disabled{
+	background: gray;
+}
+直接使用属性选择器也能设置禁用状态的输入框的样式例如
+【disabled】{
+	background: gray;
+}
+
+
+占位符显示伪类:placeholder-shown
+表示输入框的placeholder内容显示的时候匹配该输入框
+例如
+input placeholder="输入任意内容"
+input{
+	border: 2px solid gray;
+}
+// 输入框为空时匹配
+input:placeholder-shown{
+	border:2px soilid black;
+}
+
+默认选项伪类:default
+只能作用与表单元素上，表示处于默认状态的表单元素
+
+
+选中选项伪类:checked
+为什么不直接使用[checked]属性选择器
+1.：checked只能匹配标准表单控件元素，不能匹配其他普通元素，即使这个普通元素设置了checked属性。
+但是[checked]属性选择器却可以与任意元素匹配。
+2.【checked】属性的变化并非实时的。不建议使用【checked【属性选择器控制单复选框选中状态样式最重要的原因
+例如
+已知 input type="checkbox"
+此时使用js设置该复选框checked为true
+document.queryselector('[type="chekbox"]').checked=true;
+虽然视觉上复选框表现为选中状态，但是实际上html代码中并没有checked属性值
+3.伪类可以正确匹配从祖先元素继承过来的状态，但是属性选择器不可以
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+踩坑记录
+Vue Style 深度作用选择器>>>与/deep/(sass/less)
+/deep/改为 ::v-deep
+vue组件编译后，会将template中的每个元素加入[data-v-xxxx]属性来确保style scoped仅本组件的元素而不会污染全局，但如果你
+引用了第三方组件
+<group class = 'fuck'>
+	<popup-radio title="性别" :options="options" v-model="data.sex"></popup-radio>
+</group>
+
+默认只会对组件的最外层div加入这个[data-v-xxxx]属性，但第二层开始就没有效果了。第一层还有data-v-xxxx,但是
+第二层的.weui-cells就没有了
+div data-v-xxxx calss = 'fuck'
+	div class = weui-cells vux-no-group-title
+所以，如果想使用.fuck .weui-cells 的方式修改weui-cells的样式是没有任何效果的。
+因为所有的scoped中 的css最终编译出来都会变成这样
+.fuck[data-v-xxxx] .weui-cells[data-v-xxxx]
+
+解决方法一
+除非将scoped移除，或者新建一个没有scoped的style(一个.vue文件允许多个style)
+<style scoped>
+	.fuck{
+		....
+	}
+</style>
+
+<style>
+	.fuck .weui-cells{
+		...
+	}
+</style>
+
+方法二，深度作用选择器 >>>
+只作用于css
+.fuck >>> .weui-cells{
+	...
+}
+
+但是如果是sass/less 的话可能无法识别，这时候需要使用/deep/选择器
+<style lang='scss' scoped>
+.select{
+	width: 100px;
+	/deep/ .el-input_inner{
+		border: 0;
+		color: #000;
+	}
+}
+</style>
+
+深度作用选择器
+如果你希望scoped样式中的一个选择器能够作用得更深，例如影响子组件，那么可以使用>>>操作符
+style scoped
+	.a>>>.b{}
+上面代码将会被编译成
+.a[data-v-f3f3eg9] .b
+有些像sass之类的预处理器无法准确解析>>>.这种情况下可以使用/deep/操作符而取而代之，这是>>>的别名，同样可以正常工作

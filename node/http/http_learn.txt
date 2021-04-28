@@ -1,0 +1,140 @@
+http是tcp/ip协议簇的一员
+tcp/ip协议簇是众多协议的总称，包括但不限于tcp，ip协议
+一般情况下互联网是在tcp/ip协议簇的基础上运作的
+
+计算机与网络设备要互相通信，就要使用相同的方法
+
+应用层
+决定向用户提供应用服务时通信的活动
+传输层
+对应用层提供网络连接中两台计算机之间的数据传输，并提供可靠的字节流服务
+网络层
+处理网络上流动的数据包（数据包是网络传输的最小数据单位），这层规定了提供什么样的路径到达对方计算机，并把数据包传送给对方。
+物理层
+连接互联网的物理部分（网卡，网线等）
+
+
+注意： tcp/ip中的ip是internet protocol 网络协议，不是ip地址的意思，而ip协议中有两个重要的条件是ip地址和mac地址
+ip地址是节点被分配的地址，mac地址是网卡的地址
+
+
+在浏览器中输入一个url发生了什么
+比如输入https://www.bilibili.com/
+（dns Domain Name System 域名系统 提供域名到ip地址之间的解析服务，为了使人类记忆地址方便而生)
+1.通过dns协议 ，解析www.bilibili.com得到对应的ip地址xxx.xxx.xxx.xxx
+2.通过http协议生成目标服务器的http请求报文
+3.通过tcp协议将http请求报文分割成多个数据包，保证每个数据包都能可靠地传递到目标
+4.通过ip协议在网络中寻找目标地址，通过路由器不断中转直到目标
+5.目标接收到数据包，通过tcp协议复原数据包
+6.目标得到完整数据包，通过http协议对请求内容处理
+7.将处理结果同样的方式进行回传
+
+
+URI（统一资源标识符）和URL（统一资源定位符），后者是前者的子集
+
+URI格式，要使用涵盖全部必要信息的绝对URI，绝对URL以及相对URL。
+相对URL，是指从浏览器中基本URI处指定的URL，例如 /image/logo.png
+
+绝对URI格式
+http://user:pass@www.example.jp:80/dir/index.htm?uid=1#ch1
+http:// 协议方案名
+user:pass 登录信息（认证
+www.expample.jp 服务器地址
+80 服务器端口号
+dir/index.htm带层次的文件路径
+uid=1 查询字符串
+ch1 片段标识符
+
+三次握手，四次挥手
+建立tcp连接：
+1.客户端告诉服务器准备 （客户端发送功能正常）1次
+2.服务器返回知道了 （服务器接收，发送功能正常，但是不知道客户端接收功能正不正常）2次
+3.客户端返回收到 （服务器知道客户端接收，发送功能正常）3次
+4.客户端开始发送http请求
+5.服务器返回http相应
+6.服务器告诉客户端要断开连接了 （但是不能保证数据是否传送完毕） 1次
+7.客户端发送知道了 （等待数据完全传送完毕）2次
+8.客户端发送可以关闭连接 3次
+9.服务器返回断开连接通知，客户端不再发送请求 4次
+断开tcp连接
+
+
+可以看出多次请求都会造成无谓的tcp连接建立和断开，增加通信量的开销
+为了解决上述tcp连接的问题 想出了持久连接也称为http keep-alive或者http connection reuse。
+特点是只要任意一端没有明确提出断开连接，则保持tcp连接状态
+
+上述过程变为
+建立tcp连接：
+1.客户端告诉服务器准备 （客户端发送功能正常）1次
+2.服务器返回知道了 （服务器接收，发送功能正常，但是不知道客户端接收功能正不正常）2次
+3.客户端返回收到 （服务器知道客户端接收，发送功能正常）3次
+4.客户端开始发送http请求
+5.服务器返回http相应
+6.客户端开始发送http请求
+7.服务器返回http相应
+......
+n-3.服务器告诉客户端要断开连接了 （但是不能保证数据是否传送完毕） 1次
+n-2.客户端发送知道了 （等待数据完全传送完毕）2次
+n-1.客户端发送可以关闭连接 3次
+n.服务器返回断开连接通知，客户端不再发送请求 4次
+断开tcp连接
+
+
+4中http首部字段类型
+http首部字段根据实际用途被分为以下四种类型
+1 通用首部字段（General Header Fields）
+请求报文和响应报文两方都会使用的首部
+	Cache-Control 控制缓存的行为
+	Connection 逐跳首部，连接的管理
+	Date 创建报文的日期时间
+	Pragma 报文指令
+	Trailer 报文末端的首部一览
+	Transfer-Encoding 指定报文主体的传输编码方式
+	Upgrade 升级为其他协议
+	Via 代理服务器的相关信息
+	Warning 错误通知
+2 请求首部字段（）Request Header Fields
+从客户端向服务器端发送请求报文时使用的首部，补充了请求的附加内容，客户端信息，响应内容相关优先级等信息
+	Accept 用户代理可处理的媒体类型
+	Accept-Charset 优先的字符集
+	Accept-Encoding 优先的内容编码
+	Accept-Language 优先的语言（自然语言 如中文）
+	Authorization web认证信息
+	Expect 期待服务器的特定行为
+	From 用户的电子邮箱地址
+	Host 请求资源所在服务器
+	if-Match 比较实体标记（ETag)
+	if-Modified-Since 比较资源的更新时间
+	if-None-Match 比较实体标记(与if-Match相反)
+	if-Range 资源未更新时发送实体Byte的范围请求
+	if-Unmodified-Since 比较资源的更新时间(与if-Modified-Since相反)
+	Max-Forwards 最大传输逐跳数
+	Proxy-Authorization 代理服务器要求客户端的认证信息
+	Range 实体的字节范围请求
+	Referer 对请求中URI的原始获取方
+	TE 传输编码的优先级
+	User-Agent HTTP客户端程序的信息
+	
+3 响应首部字段 （Response Header Fields)
+从服务器端向客户端返回响应报文时使用的首部，补充了响应的附加内容，也会要求客户端附加额外的内容信息
+	Accept-Ranges 是否接收字节范围请求
+	Age 推算资源创建经过时间
+	ETag 资源的匹配信息
+	Location 零客户端重定向至指定URI
+	Proxy-Authenticate 代理服务器对客户端的认证信息
+	Retry-After 对再次发起请求的时机要求
+	Server HTTP 服务器的安装信息
+	Vary 代理服务器缓存的管理信息
+	WWW-Authenticate 服务器对客户端的认证信息
+4 实体首部字段（Entity Header Fields)
+针对请求报文和响应报文的实体部分使用的首部。补充了资源内容更新时间等实体有关的信息
+	Allow 资源可支持的HTTP方法
+	Content-Encoding 实体主体适用的编码方式
+	Content-Language 实体的自然语言
+	Content-Length 实体的主体大小（单位：字节
+	Content-Location 代替对应资源的URI
+	Content-MD5 实体主体的报文摘要
+	Content-Range 实体主体的位置范围
+	Cotnent-Type 实体主体的媒体类型
+	Expires 实体主体过期的日期时间
+	Last-Modified 资源的最后修改日期时间

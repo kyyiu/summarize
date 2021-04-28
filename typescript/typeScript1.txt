@@ -1,0 +1,50 @@
+ts是js的超集 编程语言 静态类型和面向对象
+大型应用或多人协作
+ts vs js
+1. 应用程序
+2. 超集
+3. 跨平台且开源
+4. 开始与js 终止与js
+5. 重用js，甚至可以引入js流行的库 如echarts
+6. ts类，接口 模块
+
+npm i typescript -g
+npm init -y 所有配置选用默认的
+tsc --init 生成tsconfig.json配置如何编译成js 
+npm i @types/node --dev-save 主要解决模块生成文件问题
+tsc xx.ts => xx.js => node xx.js => 输出 这种输出是不会使用到tsconfig.json的
+
+
+如果要使用配置文件进行编译的话,直接在文件位置tsc(默认编译全部ts文件为js)
+tsconfig.json中
+removeComments是编译是否保留注释
+{
+	"include":['demo.ts'] //把要编译的文件名字放在数组中
+	"exclude":['demo2.ts'] //除了什么文件,都编译
+	"compilerOptions":{...}
+}
+
+"rootDir": "./xxx" 入口文件
+"outDir": "./yyy" 生成的文件放在哪里
+
+"sourceMap": true 生成ts与js的映射关系文件
+"noUnusedLocals": true 没有使用到的变量会提示
+
+"outFile": './xxx/x.js' 生成一个文件
+同时 要修改"module": "amd",因为此时就不支持commonjs了
+
+以下需要注释掉 "strict":true,不然以下为true,true情况下
+noImplicitAny 允许注解类型any不用特意标明
+strictNullChecks 不允许null出现
+
+
+打包工具parcel
+npm i yarn -g
+yarn add parcel@next -D
+或者直接
+npm i parcel@next -g
+
+在index.html中直接引入ts文件
+在pakkage.json的scripts中 设置脚本"test":"parcel ./src/index.html"
+
+yarn test开始打包

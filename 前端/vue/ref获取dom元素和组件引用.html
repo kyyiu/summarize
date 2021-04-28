@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script src="js/vue.js"></script>
+		<script src="js/vue-resource.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			
+			<input type="button" value="daw" @click="getElement">
+			<h3 id="myh"  ref="myh3">hhh</h3>
+		</div>
+		
+		
+		<script type="text/javascript">
+			var vm = new Vue({
+				el: '#app',
+				data: {
+					
+				},
+				methods:{
+					getElement(){
+						console.log(this.$refs.myh3.innerText)
+					}
+				},
+				filters:{},
+				directives:{},
+				components:{},
+				
+				beforeCreate(){},
+				created(){},
+				beforeMount(){},
+				mounted(){},
+				beforeUpdate(){},
+				updated(){},
+				beforeDestroy(){},
+				destroyed(){}
+			})
+		</script>
+	</body>
+</html>

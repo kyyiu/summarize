@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script crossorigin="anonymous" integrity="sha512-7oYXeK0OxTFxndh0erL8FsjGvrl2VMDor6fVqzlLGfwOQQqTbYsGPv4ZZ15QHfSk80doyaM0ZJdvkyDcVO7KFA==" src="https://lib.baomitu.com/angular.js/1.8.2/angular.min.js"></script>
+		
+	</head>
+	<body>
+		<!-- $location服务，返回当前页面的URL地址 -->
+		<div ng-app = "app1" ng-controller="ctrl_1">
+			<p>当前的url: {{myUrl}}</p>
+		</div>
+		
+		<!-- $http服务 ，请求处理 -->
+		<div id="app2" ng-app="app2" ng-controller = "ctrl_2">
+			 <p>请求的结果</p>{{res}}
+		</div>
+		
+		<!-- $timeout服务对应window.setTimeout函数, $interval服务对应setInterval函数 -->
+		<div id = "app3" ng-app="app3" ng-controller="ctrl_3">
+			<p>两秒后显示信息: {{ myHeader }}</p>
+			<p>每秒变化信息: {{ interval_msg }}</p>
+		</div>
+		
+		<!-- 创建自定义服务 -->
+		<div id="app4" ng-app="app4" ng-controller="ctrl_4">
+			<p> {{ hex }} </p>
+			<!-- 过滤器中使用自定义服务 -->
+			<p> {{'66的16进制是:'}}{{ 66 | myFormat }}</p>
+		</div>
+		
+		<script type="text/javascript">
+			var app1 = angular.module('app1', []);
+			app1.controller('ctrl_1', ['$scope', '$location', function(a,b){
+				a.myUrl = b.absUrl(); 
+			}]);
+			
+			var app2 = angular.module('app2', []);
+			app2.controller('ctrl_2', ['$scope', '$http', function(a,b){
+				b.get('https://lib.baomitu.com/angular.js/1.8.2/angular.min.js').then(function(res){
+					// a.res = res.data;
+				});
+			}]);
+			
+			var app3 = angular.module('app3', []);
+			app3.controller('ctrl_3', ['$scope', '$timeout', '$interval', function($scope, $timeout, $interval){
+				$scope.myHeader = 'Hello World';
+				$scope.interval_msg = '.'
+				$timeout(function(){
+					$scope.myHeader = 'Hello World 222';
+				}, 2000);
+				// $interval(function(){
+				// 	$scope.interval_msg+=$scope.interval_msg;
+				// }, 2000);
+			}]);
+			
+			
+			var app4 = angular.module('app4', []);
+			app4.service('hexafy', function(){
+				this.myFunc = function(x){
+					return x.toString(16);
+				}
+			});
+			app4.controller('ctrl_4', ['$scope', 'hexafy', function($scope, hexafy){
+				$scope.hex = hexafy.myFunc(255);
+			}]);
+			app4.filter('myFormat', ['hexafy', function(hexafy){
+				return function(x){
+					return hexafy.myFunc(x);
+				}
+			}]);
+			
+			angular.element(document).ready(function(){
+				angular.bootstrap(document.getElementById('app2'), ['app2']);
+				angular.bootstrap(document.getElementById('app3'), ['app3']);
+				angular.bootstrap(document.getElementById('app4'), ['app4']);
+			});
+		</script>
+	</body>
+</html>
