@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="ie-edge">
+		<title></title>
+		<style>
+			canvas{
+				display: block;
+				margin: 50px auto;
+				border: 1px solid black;
+				cursor: move;
+				background: url(22.jpg) no-repeat ;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas id="ca" width="800" height="600"></canvas>
+		<script type="text/javascript">
+			let ca = document.querySelector('#ca');
+			let ctx = ca.getContext('2d');
+			// 加载上面的图片
+			let img = new Image();
+			img.src = './111.jpg';
+			img.onload = function(){
+				ctx.drawImage(img,0,0)
+			}
+			let isMouseDown = false
+			ca.onmousedown = function(){
+				isMouseDown = true
+			}
+			ca.onmouseup = function(){
+				isMouseDown = false
+			}
+			// 刮的效果
+			ca.onmousemove = function(e){
+				if(!isMouseDown){
+					return
+				}
+				let x = e.offsetX;
+				let y = e.offsetY;
+				ctx.beginPath();
+				ctx.fillStyle = '#fff';
+				ctx.arc(x,y,20,0,Math.PI*2);
+				ctx.fill();
+				/**
+				 * 
+				 * 	globalCompositeOperation 属性设置或返回如何将一个源（新的）图像绘制到目标（已有）的图像上。
+
+					源图像 = 您打算放置到画布上的绘图。
+
+					目标图像 = 您已经放置在画布上的绘图。
+				 *// 
+				// 图像源和目标图像的叠加方式 globalCompositeOperation
+				// 只有源图像外的目标图像部分会显示,源图像是透明的 destination-out
+				ctx.globalCompositeOperation = 'destination-out';
+			}
+		</script>
+	</body>
+</html>

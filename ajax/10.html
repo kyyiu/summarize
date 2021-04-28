@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+	</head>
+	<body>
+		<span>heloo</span>
+		<script type="text/javascript">
+			var qspan = document.querySelector('span')
+			function ajax(options){
+				//存储默认值
+				var defaults = {
+					//请求方式
+					type: 'get',
+					url:'',
+					data:{},
+					header:{
+						'Content-Type': 'application/x-www-form-urlencoded'
+					},
+					//请求成功时调用
+					success: function(data,xhr){
+						console.log(data,'good');
+					},
+					error: function(data,xhr){
+						console.log(xhr);
+					}
+				}
+				//对象覆盖,使用defaults对象中的属性覆盖defaults对象中的属性
+				Object.assign(defaults,options);
+				
+				var xhr = new XMLHttpRequest();
+				var params = '';
+				for(var attr in defaults.data){
+					params+=attr+'='+defaults.data[attr]+'&';
+				}
+				//截取掉最后的&
+				params=params.substr(0,params.length-1)
+				//判断请求方式
+				if(defaults.type == 'get'){
+					defaults.url = defaults.url+ '?' + params;
+				}
+				
+				xhr.open(defaults.type,defaults.url);
+				if(defaults.type == 'post'){
+					var contentType = defaults.header['Content-Type'];
+					xhr.setRequestHeader('Content-Type',contentType);
+					if(contentType == 'application/json'){
+						xhr.send(JSON.stringify(defaults.data))
+					}else{
+						xhr.send(params);
+					}
+				}else{
+					xhr.send();
+				}
+				xhr.onload = function (){
+					
+					//获取响应头中的数据xhr.getResponseHeader()
+					var CT = xhr.getResponseHeader('Content-Type')
+					//服务器端返回的数据
+					var responseText = xhr.responseText;
+					//如果响应类型中包含application/json
+					if(CT.includes('application/json')){
+						//将json字符串转换为json对象
+						responseText = JSON.parse(responseText)
+					}
+					
+					if(xhr.status == 200){
+						//当http状态码200执行成功的函数
+						defaults.success(responseText,xhr);
+					}else{
+						defaults.error(xhr.responseText,xhr);
+					}
+					
+				}
+			}
+			
+			
+			ajax({
+				//请求地址
+				url:'http://localhost:3000/responseData',
+				success: function(data,xhr){
+					console.log(data,'BBB')
+					//将请求的结果渲染到页面
+					qspan.innerHTML=data.name
+				}
+				
+				
+			})
+		/*
+		请求参数要考虑的问题
+			1.请求参数位置的问题
+				将请求参数传递到ajax函数内部，在函数内部根据请求方式的不同将请求参数放置在不同的位置
+				get放在请求地址的后面
+				post封装send中
+			2.请求参数格式的问题
+				app/。。。urlencoded 参数名称=参数值&参数名称=参数值
+				app/json {name：'s',age:2}
+				1.传递对象数据类型对于函数的调用者更加友好
+				2.在函数内部对象数据类型转换为字符串数据类型更加方便
+		*/
+		</script>
+	</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style type="text/css">
+			.container{
+				position: relative;
+				width: fit-content;
+			}
+			.inp{
+				padding: 13px 16px 13px;
+				border: 1px solid #d0d0d5;
+				border-radius: 4px;
+				transition: border-color .25s;
+				margin: 0;
+				font-size: 16px;
+				line-height: 1.5;
+				outline: none;
+			}
+			.inp:focus{
+				border-color: #2486ff;
+			}
+			.inp:placeholder-shown::placeholder{
+				color: transparent;
+			}
+			.inp:not(:placeholder-shown) ~ .lab,
+			.inp:focus ~ .lab{
+				color: #2486ff;
+				transform: scale(.75) translate(-2px, -32px);
+			}
+			.inp ~ .lab{
+				background-color: #fff;
+			}
+			.lab{
+				position: absolute;
+				font-size: 16px;
+				line-height: 1.5;
+				left: 16px; top: 14px;
+				color: #a2a9b6;
+				transition: all .25s;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<input type="text" class="inp" placeholder="mail"/>
+			<label class="lab">邮箱</label>
+		</div>
+	</body>
+</html>

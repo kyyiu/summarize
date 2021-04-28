@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+	</head>
+	<body>
+		<button type="button" id="btn1">dw1</button>
+		<button type="button" id="btn2">dw2</button>
+		<!-- <script type="text/javascript">
+			function fn2(data){
+				
+			}
+		</script> -->
+		<script type="text/javascript">
+			var btn1 = document.querySelector('#btn1');
+			var btn2 = document.querySelector('#btn2');
+			btn1.onclick = function(){
+				jsonp({
+					url: 'http://localhost:3001/test',
+					data:{
+						name:'lisi',
+						age:30
+					},
+					success: function(data){
+						console.log('ok1');
+					}
+					
+				})
+			}
+			btn2.onclick = function(){
+				jsonp({
+					url: 'http://localhost:3001/test',
+					success: function(data){
+						console.log('ok2');
+					}
+					
+				})
+			}
+			function jsonp(options){
+				var script = document.createElement('script');
+				var params = '';
+				for(var attr in options.data){
+					params+='&' + attr + '=' + options.data[attr];
+				}
+				//fn2他已经不是一个全局函数了,我们想办法变成全局(不用再定义全局函数的方法)
+				//要让函数名字改变,不然请求有可能被覆盖
+				var fnName = 'MJ'+ Math.random().toString().replace('.','');
+				//fnName是变量不能跟点,.fn2换成[fnName]即window下面的某个属性
+				window[fnName] = options.success;
+				script.src = options.url+'?callback=' + fnName + params;
+				document.body.appendChild(script);
+				script.onload = function(){
+					document.body.removeChild(script);
+				}
+			}
+			
+		</script>
+	</body>
+</html>

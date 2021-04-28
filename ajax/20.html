@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+	</head>
+	<body>
+		<button id="btn">dw</button>
+		<script src="js/ajax.js"></script>
+		<script type="text/javascript">
+			var btn = document.querySelector('#btn');
+			btn.onclick = function(){
+				ajax({
+					url: 'http://localhost:3000/server',
+					success: function(data){
+						console.log(data);
+					}
+				})
+			}
+		</script>
+	</body>
+</html>

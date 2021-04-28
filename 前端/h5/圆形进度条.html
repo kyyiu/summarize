@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style>
+				.circle-left{
+					width:100px;
+					height:100px;
+					border-radius:50%;
+					position:absolute;
+					clip:rect(0 50px auto 0);
+			    box-shadow: inset 0 0 0 2px #ff2d36;
+			    left:0;
+			    top:0;
+			    transform:rotate(60deg);
+				}
+				.circle-right{
+					width:100px;
+					height:100px;
+					border-radius:50%;
+					position:absolute;
+					clip:rect(0 auto auto 50px);
+			    box-shadow: inset 0 0 0 2px #ff2d36;
+			    left:0;
+			    top:0;
+				}
+				.circle-box{
+					position:relative;
+					width:100px;
+					height:100px;
+					margin:100px auto;
+				}
+				.c{
+					border: 1px solid black;
+				}
+				.c::before,.c::after{
+					content: '';
+					display: block;
+				}
+				.c::after{
+					clear: both;
+				}
+				.c .c1{
+					width: 100px;
+					height: 100px;
+					float: left;
+					background-color: skyblue;
+				}
+				.cir{
+					width: 50px;
+					height: 100px;
+					overflow: hidden;
+				}
+				.cir .cc{
+					width: 100px;
+					height: 100px;
+					border-radius: 50%;
+					border: 2px solid black;
+					border-bottom: 2px solid transparent;
+					border-right: 2px solid transparent;
+					transition: 1s;
+				}
+				.cir .cc:hover{
+					transition: 1s;
+					transform: rotate(45deg);
+				}
+			</style>
+	</head>
+	<body>
+		<div class="circle-box">
+				<div class="circle-left"></div>
+				<div class="circle-right"></div>
+			</div>
+		<div class="c">
+			<div class="c1">123</div>
+		</div>
+		<div class="cir">
+			<div class="cc"></div>
+		</div>
+	</body>
+</html>

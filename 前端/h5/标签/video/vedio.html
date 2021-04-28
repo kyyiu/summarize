@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style type="text/css">
+			video{
+				z-index: -1;
+			}
+			li{
+				position: absolute;
+				top: 50px;
+				left: 300px;
+			}
+		</style>
+	</head>
+	<body>
+		
+		<div class="t">
+			<li>hhh</li>
+			<video width="800" height="300" >
+				<source src="../../111.mp4" type="video/mp4" ></source>
+				<source src="myvideo.ogv" type="video/ogg"></source>
+				<source src="myvideo.webm" type="video/webm"></source>
+				<object width="" height="" type="application/x-shockwave-flash" data="myvideo.swf">
+					<param name="movie" value="myvideo.swf" />
+					<param name="flashvars" value="autostart=true&amp;file=myvideo.swf" />
+				</object>
+				当前浏览器不支持 video直接播放，点击这里下载视频： <a href="myvideo.webm">下载视频</a>
+			</video>
+			<!-- <object> 标签 里的 param name="" 
+			这是在网页中加入flash的javascript代码，网页中的object其实就是一个COM组件，
+			classid就是这个COM组件在系统中注册的一个ID值，有了这个ID值系统才能找到这个COM组件对应的DLL文件，
+			就像普通的软件用其他DLL时需要一个路径一样。 <param name=“”、>是定义flash的播放参数，
+			比如<param name="quality" value="high" />，定义画面质量, 默认为"high"。 -->
+		</div>
+		
+		<button type="button"></button>
+		<script type="text/javascript">
+			var btn = document.querySelector('button')
+			var video = document.querySelector('video')
+			btn.onclick = function(){
+				video.currentTime = 20
+				console.log(video.duration)
+				console.log(video.currentTime)
+			}
+		</script>
+	</body>
+</html>

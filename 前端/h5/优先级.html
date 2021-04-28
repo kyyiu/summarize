@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style type="text/css">
+			.cs-button{
+				background-color: darkblue;
+				color: #fff;
+			}
+			.cs-button:hover{
+				background-color: red;
+			}
+			.c{
+				height: 100px;
+				background-color: red;
+			}
+			/* .c.c{
+				background-color: green;
+			} */
+			.v span{
+				position: absolute;
+				visibility: hidden;
+			}
+			:focus + span{
+				visibility: visible;
+			}
+			/* 首先让浏览器默认的placeholder效果不可见，将color设置为transparent即可 */
+			.input-fill:placeholder-shown::placeholder{
+				color: transparent;
+			}
+			/* 然后用.input-label元素代替浏览器原生的占位符成为我们肉眼控件的占位符 */
+			.input-fill-x{
+				position: relative;
+			}
+			.input-label{
+				position: absolute;
+				left: 16px;top: 14px;
+				/* pointer-events: none; */
+				transition: 1s;
+			}
+			/* 最后，在输入框聚焦以及占位符不显示的时候对label元素进行重定位 缩小并位移到上方 */
+			.input-fill:not(:placeholder-shown) ~ .input-label,
+			.input-fill:focus ~ .input-label{
+				transform: scale(0.75) translate(0,-32px);
+				transition: 1s;
+			}
+		</style>
+	</head>
+	<body>
+		<a href="javascript;" class="cs-button" role="button">bbb</a>
+		<div class="c"></div>
+		<div class="v">
+			<input type="text" name="" id=""><span>hhh</span>
+			<input type="text" name="" id="">
+		</div>
+		<div class="input-fill-x">
+			<input type="text" name="" id="" class="input-fill" placeholder="mail"/>
+			<label class="input-label">mail</label>
+		</div>
+	</body>
+</html>

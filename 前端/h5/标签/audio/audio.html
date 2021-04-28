@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style type="text/css">
+			div{
+				background-image: url(../../111.jpg);
+			}
+		</style>
+	</head>
+	<body>
+		<div>
+			<audio src="../../111.mp3" controls preload="auto">
+				当前浏览器不支持audio
+			</audio>
+		</div>
+		<input type="button" >
+		<script type="text/javascript">
+			var audio = document.querySelector('audio')
+			var btn = document.querySelector('input')
+			btn.onclick = function(){
+				audio.currentTime = 10
+				console.log(audio.duration)//audio.duration播放总时间。
+				console.log(audio.currentTime)//audio.currentTime播放进度(单位s)
+				// volume	设置或返回音频的音量。
+				// addTextTrack()	向音频添加新的文本轨道。
+				// canPlayType()	检查浏览器是否能够播放指定的音频类型。
+				// fastSeek()	在音频播放器中指定播放时间。
+				// getStartDate()	返回新的 Date 对象，表示当前时间线偏移量。
+				// load()	重新加载音频元素。
+				// play()	开始播放音频。
+				// pause()	暂停当前播放的音频。
+			}
+			
+		</script>
+	</body>
+</html>

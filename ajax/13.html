@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+	</head>
+	<body>
+		<div class="container">
+			<div class="form-group">
+				<input type="text" class="form-control" placeholder="请输入" id="search">
+				<ul class="list-group" id = "list-box">
+					
+				</ul>
+			</div>
+		</div>
+		<script src="js/ajax.js"></script>
+		<script src="js/template-web.js"></script>
+		<script type="text/html" id='tpl'>
+			{{each result}}
+			<li class="list-group-item">{{$value}}</li>
+			{{/each}}
+		</script>
+		<script type="text/javascript">
+			var searchInp = document.querySelector('#search');
+			var listBox = document.querySelector('#list-box');
+			var timer = null;
+			//当用户在文本框中输入时触发
+			searchInp.oninput=function(){
+				clearTimeout(timer);
+				var key=this.value;
+				//如果没有内容
+				if(key.trim().length == 0){
+					listBox.style.display = 'none';
+					return
+				}
+				timer = setTimeout (function(){
+				ajax({
+					url:'http://localhost:3000/search',
+					data:{
+						key: key
+					},
+					success: function(result){
+						result = JSON.parse(result)
+						var html = template('tpl',{result:result});
+						listBox.innerHTML = html;
+					}
+				})	
+				},200);
+			
+			}
+		</script>
+	</body>
+</html>

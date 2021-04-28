@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<!-- 1将模板引擎库文件引入 -->
+		<script src = "/js/template-web.js"></script>
+	</head>
+	<body>
+		<div id="container"></div>
+		<!-- 2准备art-templat模板 -->
+		<script type = "text/html" id = "tpl">
+			<h1>{{username}}{{age}}</h1>
+		</script>
+		<!-- <script type="text/html"></script>
+		1.首先这种写，在页面渲染的时候，浏览器不会读取script标签中的html代码
+		
+		2.外面不能获取到里面的div节点 -->
+		<script type="text/javascript">
+			// 3告诉模板引擎将哪个数据和哪个模板进行拼接
+			// 1)模板id 2)数据 对象类型
+			// 方法返回的值就算拼接好的html字符串
+			// 用template(id,data)方法的时候，该方法会根据id渲染模板，
+			// 引擎内部会根据document.getElementById(id)查找模板。
+			// 如果使用class作为参数，artTemplate引擎会报错。
+			// 如果没有 data 参数，将返回一渲染函数。
+			var html = template('tpl',{username:'z',age:2})
+			console.log(html)
+			document.querySelector('#container').innerHTML = html
+		</script>
+	</body>
+</html>

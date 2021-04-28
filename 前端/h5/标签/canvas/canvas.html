@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style type="text/css">
+			#va{
+				border: 1px solid black;
+			}
+		</style>
+		
+	</head>
+	<body>
+		<!-- 注意: 如果你绘制出来的图像是扭曲的, 尝试用width和height属性为<canvas>明确规定宽高， -->
+		<!-- 而不是使用CSS。 -->
+		<!-- 替换内容 -->
+		<!-- <canvas>元素与<img>标签的不同之处在于，就像<video>，<audio>，或者 <picture>元素一样，很容易定义一些替代内容。由于某些较老的浏览器 -->
+		<!-- （尤其是IE9之前的IE浏览器）或者文本浏览器不支持HTML元素"canvas"，在这些浏览器上你应该总是能展示替代内容。 -->
+		<!-- 这非常简单：我们只是在<canvas>标签中提供了替换内容。不支持<canvas>的浏览器将会忽略容器并在其中渲染后备内容。
+		而支持<canvas>的浏览器将会忽略在容器中包含的内容，并且只是正常渲染canvas。 -->
+		<canvas id="va" width="1000" height="500">
+			<img src="../../111.jpg" >
+		</canvas>
+		<!-- <script src="js/矩形绘图.js"></script> -->
+		<!-- <script src="js/路径绘图.js"></script> -->
+		<script src="js/色彩.js"></script>
+	</body>
+</html>

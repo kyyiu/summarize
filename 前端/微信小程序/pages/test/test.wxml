@@ -1,0 +1,159 @@
+<!-- <!--pages/test/test.wxml-->
+<!-- app.json里要用的page放在还没定义的page后面就会报错，要用的page必须接在已经定义的page后面，（暂时）把还没定义的Page放在已经定义的page后面。 -->
+<!-- text 相当于span，view相当于div -->
+<!-- <text>pages/test/test.wxml</text>
+<view>{{msg}},{{num}}</view> -->
+<!-- 标签中的属性使用 -->
+<!-- <view data-num="{{num}}">自定义属性</view> -->
+<!-- checkbox 就是web的复选框 ,字符串和花括号之间一定不要存在空格，否则识别失败-->
+<!-- <view>
+     <checkbox checked="{{true}}"></checkbox>
+</view> -->
+<!-- 运算 -->
+<!-- <view>{{1+1}},{{'1' + '1'}},{{11%2==0 ? 't':'f'}}</view> -->
+
+<!-- 列表循环，wx:for="{{数组或对象}}",wx:for-item='循环项的名称',wx:for-index="循环项的索引" wx:key="唯一值"用来提高列表渲染性能 wx:key="*this"就表示是循环项
+当出现数组嵌套循环时，注意，以下绑定的名称不要重名。wx:for-item="item" wx:for-index="index" 默认情况下我们不写这两个，小程序也会把循环项的名称和索引名称item和index，只有一层循环的话可以省略-->
+<!-- 数组循环 -->
+<!-- <view wx:for="{{list}}" wx:key="id">
+    {{index}},{{item.name}}
+</view> -->
+<!-- 对象循环 wx:for="{{对象}}",wx:for-item='对象值',wx:for-index="对象属性",
+循环对象的时候最好把item和index 的名称修改一下wx:for-item='value',wx:for-index="key"-->
+<!-- <view wx:for="{{person}}" wx:for-item="value" wx:for-index="key" wx:key="age">
+  {{key}}:{{value}}
+</view> -->
+
+<!-- block 占位符标签，写代码时可以看到，页面渲染会移除 -->
+<!-- <view>
+   <block wx:for="{{person}}" wx:for-item="value" wx:for-index="key" wx:key="age">
+  {{key}}:{{value}}
+</block>
+</view> -->
+
+<!-- 条件渲染 wx:if="{{true/false}}" if,else,if else ,hidden属性直接隐藏标签
+前者要渲染，后者用样式，频繁切换用hidden-->
+<!-- <view>
+   <view>条件渲染</view>
+   <view wx:if="{{true}}">显示</view>
+   <view wx:if="{{false}}">隐藏</view>
+   <view wx:if="{{true}}">1</view>
+   <view wx:elif="{{true}}">2</view>
+   <view wx:else>3</view>
+</view> -->
+
+<!-- 事件绑定 
+input标签绑定input事件，关键字bindinput
+通过事件源对象e.detail.value获取输入框的值
+把输入框的值赋值到data中-->
+<!-- <input type="text" bindinput="bb" ></input> -->
+
+<!-- 点击事件bindtap
+无法在小程序中直接传参
+通过自定义属性传参 
+事件源中获取自定义属性-->
+<!-- <button bindtap="b1" data-operation="{{1}}">+</button>
+<button bindtap="b1" data-operation="{{-1}}">-</button>
+methods中通过b1(i,e) e.detail.operation
+<view>{{num}}</view> -->
+
+
+<!-- text标签 
+selectable 属性长按复制 -->
+<!-- <text selectable> 123 </text> -->
+
+<!-- <image> 默认320*240
+mode属性决定图片内容如何和图片标签宽高适配
+  1 scaleToFill 默认值 图片铺满标签
+  2 aspectFit 保证图片长边能显示
+  3 aspectFill  保证图片短边能显示
+  4 widthFix
+lazy-load 懒加载-->
+<!-- <image src="https://ae01.alicdn.com/kf/H8d847e1020a9429486526e9eadf21407k.jpg" mode="aspectFit"></image> -->
+
+<!-- 轮播图外层容器 swiper 默认样式 w100%，h150px
+每一个轮播项 swiper-item 
+先找出原图宽高等比例给swiper定宽高
+swiper 宽/高 = 原图 宽/高
+autoplay属性
+interval属性自动切换时间间隔，默认5000
+circular属性是否循环轮播
+indicator-dots 是否显示面板指使点-->
+
+<!-- navigator 组件相当于web的a但是变成块级元素了
+1 url 要跳转的页面路径 绝对或相对
+2 target 要跳转到当前的小程序 还是其他的小程序页面
+   self 默认值 自己小程序的页面
+   miniProgram 其他的
+3 open-type 跳转方式
+   navigate 保留当前页面，但是不能跳转到tabbar页面 默认
+   redirect 关闭当前页面
+   switchTab 跳转tabbar 关闭所有非tabbar页面
+   relaunch 关闭所有，打开应用内某页面-->
+
+<!-- <rich-text> 
+类似vue的v-html 
+nodes 属性实现 1 接收标签字符串，2接收对象数组-->
+<!-- <rich-text nodes="{{htm}}"></rich-text> -->
+
+<!-- <button></button>
+外馆属性 
+  size 控制按钮大小，mini小尺寸
+  type 颜色 primary 绿 warn红
+  plain是否镂空 背景透明
+  loading文字显示正在等待图标
+  开放能力
+  open-type
+  contact 直接打开客服对话功能，需要小程序后台配置
+  share转发当前小程序到朋友中，不能分享到朋友圈
+  getPhoneNumber 获取用户手机号码，不是企业的账号没权限
+    绑定一个事件 bindgetphonenumber
+    在事件的回调函数中，通过参数来获取信息
+    获取的信息已经加密
+    需要后台解析
+  getUserInfo 
+    类似获取手机号码 
+    可以直接获取
+  launchApp 小程序中直接打开app
+    需要app中通过app的某个链接打开小程序
+    在小程序中再通过这个功能重新打开app
+    找到京东的app和京东的小程序
+  openSetting 打开小程序内置的授权页面
+    授权界面中只会出现用户曾经点击过的权限
+  feedback 小程序内置的意见反馈页面
+    只能真机调试-->
+
+
+
+<icon></icon>
+type 图标类型 success|success_no_circle|info|warn|waiting|cancel|download|search|clear
+size 如：10
+color
+
+<!-- <radio></radio>单选框
+必须和父元素radio-group使用
+value选中单选框的值
+需要给radio-group绑定change事件
+ -->
+<radio-group bindchange="cc">
+  <radio value="male">1</radio>
+  <radio value="female">2</radio>
+</radio-group>
+<view>{{gen}}</view>
+
+
+<checkbox></checkbox> 复选框类似radio
+
+<!-- 父组件项子组件传递数据
+通过标签方式传递
+就把这个数据当成data中的直接用
+bind+子组件中triggerEvent的方法=父组件中处理方法
+ -->
+<Tab tabs="{{tabs}}" binditemChange="handCC">
+
+  <block wx:if="{{tabs[0].isActive}}">0</block>
+  <block wx:if="{{tabs[1].isActive}}">10</block>
+  <block wx:if="{{tabs[2].isActive}}">20</block>
+  <block wx:if="{{tabs[3].isActive}}">30</block>
+
+</Tab>

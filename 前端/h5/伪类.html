@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style>
+			/* hover 延时 */
+			/* 关键CSS  */
+			.icon-delete {
+				display: block;
+				width: 20px;
+				height: 20px;
+				background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFW…ak3AZLuv8JYFjynoOcG8ugpoMykSABV7+HWlgL4gAEGAB4CiT14uCL4QAAAABJRU5ErkJggg==) no-repeat center;
+				font-size: 0;
+				margin: auto;
+				position: relative;
+			}
+			.icon-delete::before {
+			    content: attr(data-title);
+				position: absolute;
+				visibility: hidden;
+				transition: visibility 0s .2s;
+				background-color: #333;
+				color: white;
+				bottom: 100%;
+				left: 50%;
+				padding: 1px 5px;
+				transform: translateX(-50%);
+				font-size: 12px;
+				white-space: nowrap;
+				border-radius: 3px;
+				margin-bottom: 4px;
+			}
+			.icon-delete::after {
+			    content: "";
+				position: absolute;
+				bottom: 100%;
+				left: 50%;
+				margin-bottom: -4px;
+				transform: translateX(-50%);
+				border: 4px solid transparent;
+				border-top-color: #333;
+				transition: visibility 0s .2s;
+				visibility: hidden;
+			}
+			.icon-delete::before,
+			.icon-delete::after {
+			    transition: visibility 0s .2s;
+			    visibility: hidden;
+			}
+			.icon-delete:hover::before,
+			.icon-delete:hover::after {
+			    visibility: visible;
+			}
+			
+			
+			/* 图片预览效果 */
+			img{
+				visibility: hidden;
+				position: absolute;
+				margin-left: 100px;
+				transition: visibility .2s; 
+			}
+			a:hover + img,
+			img:hover{
+				visibility: visible;
+			}
+			.demo1 p:active{
+				background-color: skyblue;
+			}
+			/* 利用内阴影，进行点击反馈 
+			   可以兼容到ie9，缺点是对非对称闭合元素无能为力，如input按钮
+			   以下内阴影无效
+			   input type=reset value='reset'
+			   input type=button value='button'
+			   input type=submit value=submit
+			   另一种方法是使用linear-gradient线性渐变，对非对称闭合元素也有效，但是是从ie10才开始支持的
+			*/
+			.demo2 [href]:active,
+			button:active{
+				box-shadow: inset 0 0 0 999px rgba(0,0,0, .05);
+			}
+			.demo3 [href]:active,
+			button:active,
+			[type=reset]:active,
+			[type=button]:active,
+			[type=submit]:active{
+				background-image: linear-gradient(rgba(0,0,0,.05),rgba(0,0,0,.05));
+			}
+			.demo4.demo4 img{
+				visibility: visible;
+				
+			}
+			.demo4.demo4 img:active{
+				outline: 999px solid rgba(0,0,0,.05);
+				outline-offset: -999px;
+				-webkit-clip-path: polygon(0 0,100% 0, 100% 100%,0 100%);
+				clip-path: polygon(0 0,100% 0, 100% 100%,0 100%);;
+			}
+			.demo5 .button-1:active::after{
+				content: url(./pixel.gif?action=click&id=button1);
+				display: none;
+			}
+			.demo5 .button-2:active::after{
+				content: url(./pixel.gif?action=click&id=button2);
+				display: none;
+			}
+			.cs-normal:focus-within .cs-label{
+				color: darkblue;
+				text-shadow: 0 0 1px;
+			}
+			.cs-bar {
+			    background-color: #e3e4e5;
+			    color: #888;
+			    padding-left: 40px;
+			}
+			.cs-details {
+			    display: inline-block;
+			    text-align: left;
+			}
+			.cs-summary {
+			    display: inline-block;
+			    padding: 5px 28px;
+			    text-indent: -15px;
+			    user-select: none;
+			    position: relative;
+			    z-index: 1;
+			}
+			.cs-summary::after {
+			    content: "";
+			    position: absolute;
+			    width: 12px; height: 12px;
+			    margin: 4px 0 0 .5ch;
+			    background: url(./icon-arrow.svg) no-repeat;
+			    background-size: 100% 100%;
+			    transition: transform .2s;
+			}
+			.cs-details:focus-within .cs-summary,
+			.cs-summary:hover {
+			    background-color: #fff;
+			    box-shadow: inset 1px 0 #ddd, inset -1px 0 #ddd;
+			}
+			.cs-details:focus-within .cs-summary::after {
+			    transform: rotate(180deg);
+			}
+			.cs-datalist {
+			    display: none;
+			    position: absolute;
+			    min-width: 100px;
+			    border: 1px solid #ddd;
+			    background-color: #fff;
+			    margin-top: -1px;
+			}
+			.cs-details:focus-within .cs-datalist {
+			    display: block;
+			}
+			.cs-datalist-a {
+			    display: block;
+			    padding: 5px 10px;
+			    transition: background-color .2s, color .2s;
+			    color: inherit;
+			}
+			.cs-datalist-a:hover {
+			    background-color: #f5f5f5;
+			}
+			.cs-datalist-a:active {
+			    background-color: #f0f0f0;
+			    color: #555;
+			}
+			.cs-datalist-sup {
+			    position: absolute;
+			    color: #cd0000;
+			    font-size: 12px;
+			    margin-top: -.25em;
+			    margin-left: 2px;
+			}
+			/* 访问聚焦选择 */
+			.cs-button {
+			    background-color: teal;
+			    color: #fff;
+			    border: 0;
+			    padding: .75em 2em;
+			}
+			/* 实际开发这里的.focus-better选择器可以省略 */
+			.focus-better :focus:not(:focus-visible) {
+			    outline: 0;
+			}
+			li:target{
+				font-weight: bold;
+				color: skyblue;
+			}
+			/* :placeholder-shown与占位符交互实例页面 */
+			.input-fill-x, .input-outline-x, .textarea-outline-x {
+			  width: -webkit-fit-content;
+			  width: -moz-fit-content;
+			  width: fit-content;
+			  position: relative;
+			}
+			.input-fill-x {
+			  border-bottom: 1px solid #d0d0d5; 
+			}
+			.input-fill-x::after {
+			  content: "";
+			  position: absolute;
+			  border-bottom: 2px solid #2486ff;
+			  left: 0; right: 0; bottom: -1px;
+			  transform: scaleX(0);
+			  transition: transform .25s;
+			}
+			.input-fill-x:focus-within::after {
+			  transform: scaleX(1);
+			}
+			.input-control {
+			  margin: 0;
+			  font-size: 16px;
+			  line-height: 1.5;
+			  outline: none;
+			}
+			.input-fill {
+			  padding: 20px 16px 6px;
+			  border: 1px solid transparent;
+			  background: #f5f5f5;
+			}
+			.input-outline,
+			.textarea-outline {
+			  padding: 13px 16px 13px;
+			  border: 1px solid #d0d0d5;
+			  border-radius: 4px;
+			  transition: border-color .25s;
+			}
+			.input-outline:focus,
+			.textarea-outline:focus {
+			  border-color: #2486ff;
+			}
+			/* 默认placeholder颜色透明不可见 */
+			.input-control:placeholder-shown::placeholder {
+			    color: transparent;
+			}
+			.input-label {
+			  position: absolute;
+			  font-size: 16px;
+			  line-height: 1.5;
+			  left: 16px; top: 14px;
+			  color: #a2a9b6; 
+			  padding: 0 2px;
+			  transform-origin: 0 0;
+			  pointer-events: none;
+			  transition: all .25s;
+			}
+			/* 线框样式label定位 */
+			.input-control:not(:placeholder-shown) ~ .input-label,
+			.input-control:focus ~ .input-label {
+			  color: #2486ff;
+			  transform: scale(0.75) translate(-2px, -32px);
+			}
+			/* 填充样式下label定位 */
+			.input-fill:not(:placeholder-shown) ~ .input-label,
+			.input-fill:focus ~ .input-label {
+			  transform: scale(0.75) translateY(-14px);
+			}
+			/* 线框交互下有个白色背景 */
+			.input-outline ~ .input-label,
+			.textarea-outline ~ .input-label {
+			  background-color: #fff;
+			}
+			
+			
+			input:default + label::after{
+				content: "(推荐)";
+			}
+		</style>
+	</head>
+	<body>
+		<div class="hover">
+			<!-- 体验优化与：hover延时 -->
+			<div>
+				<table>
+				    <tr>
+				      <th scope="col">标题1</th>
+				      <th scope="col">标题2</th>
+				      <th scope="col" width="40">操作</th>
+				    </tr>
+				    <tr>
+				      <td>内容1</td>
+				      <td>内容2</td>
+				      <td><a href class="icon-delete" data-title="删除">删除</a></td>
+				    </tr>
+				    <tr>
+				      <td>内容3</td>
+				      <td>内容4</td>
+				      <td><a href class="icon-delete" data-title="删除">删除</a></td>
+				    </tr>
+				</table>
+			</div>
+			<!-- 图片预览 -->
+			<!-- 注意带交互的不要只用hover，要和其他伪类配合，比如focus -->
+			<div>
+				<a href="">经过预览</a>
+				<img src="./canvas游戏/component/flappybird/land.png" >
+			</div>
+		</div>
+	
+		<div class="active">
+			<!-- 基本用法 -->
+			<div class="demo1">
+				<p>点击我改变颜色</p>
+			</div>
+			<!-- 点击反馈,通用技巧1 -->
+			<div class="demo2">
+				<a href="#">xxx</a>
+				<button type="button">点我button</button>
+			</div>
+			<!-- 点击反馈,通用技巧2 -->
+			<div class="demo3">
+				<a href="#">xxx</a>
+				<button type="button">点我button</button>
+				<input type="button" value="点我inputb_button"/>
+			</div>
+			<div class="demo4">
+				<!-- <a href="#"><img src="./111.jpg" ></a> -->
+			</div>
+			<!-- 数据上报 -->
+			<div class="demo5">
+				<button class="button-1" #id="button1">b1</button>
+				<button class="button-2" #id="button2">b2</button>
+			</div>
+		</div>
+		
+		<div class="focus">
+			<!-- 子元素影响父元素，基本使用 -->
+			<div class="cs-normal">
+				<label for="cs-inp" class="cs-label">用户名:</label> <input type="text" id="cs-inp" class="cs-input">
+			</div>
+			<!-- 无障碍访问的下拉列表 -->
+			<div class="cs-bar">
+				<div class="cs-details">
+					<a href="javascript:" class="cs-summary">我的消息</a>
+					<div class="cs-datalist">
+						<a href="javascript:" class="cs-datalist-a">我的回答<sup class="cs-datalist-sup">12</sup></a>
+						<a href="javascript:" class="cs-datalist-a">我的私信</a>
+						<a href="javascript:" class="cs-datalist-a">未评价订单<sup class="cs-datalist-sup">2</sup></a>
+					</div>
+				</div>
+			</div>
+			<!-- 焦点轮廓 -->
+			<div>
+				<h4>原始状态（点击访问）</h4>
+				<ol class="demical">
+				    <li><button class="cs-button">按钮</button></li>
+				    <li>
+				        <details>
+				            <summary>summary元素</summary>
+				            <p>Chrome浏览器下点击会出现焦点轮廓。</p>
+				        </details>
+				    </li>
+				    <li>
+				        <div tabindex="0">我是设置了<code>tabindex="0"</code>的普通div元素。</div>
+				    </li>
+				</ol>
+				
+				<h4>:focus-visible优化后（Tab键访问）</h4>
+				<ol class="demical focus-better">
+				    <li><button class="cs-button">按钮</button></li>
+				    <li>
+				        <details>
+				            <summary>summary元素</summary>
+				            <p>Chrome浏览器下点击不会出现焦点轮廓。</p>
+				        </details>
+				    </li>
+				    <li>
+				        <div tabindex="0">我是设置了<code>tabindex="0"</code>的普通div元素。</div>
+				    </li>
+				</ol>
+			</div>
+			
+			
+		</div>
+		
+		<div class="a">
+			<ul>
+				<!-- 通过url的#xxx可以显示蓝色 -->
+				<li id="cs-first">cs-first</li>
+				<li id="cs-anchor">cs-anchor</li>
+				<li id="cs-last">cs-last</li>
+			</ul>
+		</div>
+		
+		
+		<div>
+			<h4>填充风格</h4>
+			<div class="input-fill-x">
+			<input class="input-control input-fill" placeholder="邮箱">
+			  <label class="input-label">邮箱</label>
+			</div>
+			<h4>轮廓风格</h4>
+			<div class="input-outline-x">
+			<input class="input-control input-outline" placeholder="邮箱">
+			  <label class="input-label">邮箱</label>
+			</div>
+			<h4>文本域</h4>
+			<div class="textarea-outline-x">
+			<textarea class="input-control textarea-outline" cols="25" rows="3" placeholder="评论"></textarea>
+			  <label class="input-label">评论</label>
+			</div>
+		</div>
+		
+		<div class="default">
+			<p><input type="radio" name="pay" id="pay1" checked><label for="pay1">支付宝</label></p>
+			<p><input type="radio" name="pay" id="pay2" ><label for="pay2">微信</label></p>
+		</div>
+	</body>
+</html>

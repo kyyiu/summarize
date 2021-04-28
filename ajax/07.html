@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+	</head>
+	<body>
+		<button type="button" id = 'btn'>23</button>
+		<script type="text/javascript">
+			var btn = document.querySelector("#btn");
+			btn.onclick = function (){
+				var xhr = new XMLHttpRequest();
+				xhr.open('get','http://localhost:3000/error')
+				xhr.send();
+				xhr.onload = function(){
+					console.log(xhr.responseText)
+				}
+				//当网络中断时会触发onerror事件
+				xhr.onerror = function(){
+					alert('offline')
+				}
+			}
+		</script>
+	</body>
+</html>

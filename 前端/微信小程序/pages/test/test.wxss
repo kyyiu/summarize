@@ -1,0 +1,24 @@
+/* pages/test/test.wxss */
+/* dpr
+像素倍率dpr=物理分辨率/逻辑分辨率，比如iphone6的像素倍率为(750*1334)/(375*667)=2； 
+rpx
+微信小程序对于rem的一种应用规定，官方规定屏幕宽度为20rem，规定屏幕宽为750rpx，因此微信中1rem=750/20rpx，iphone6下，1px=1rpx=0.5pt，使用rpx作为单位，微信小程序会自动在不同的分辨率下进行转换，而使用px为单位不会转换，iphone6p下1px=0.6rpx；*/
+/* 尺寸单位 rpx(responsive pixel) 
+  可以工具屏幕宽度进行自适应，规定屏幕宽度为750rpx如在iphone6上屏幕宽度为375px
+  共有750个物理像素，则750rpx=375px=750物理像素，1rpx=0.5px=1物理像素
+  存在一个设计稿未知page存在元素宽度可以套用一下公式
+  page px = 750rpx
+  1px = 750rpx/page
+  100 px = 750rpx*100/page
+  假设page=375px
+  利用一个属性calc属性css和wxss都支持
+  750和rpx之间不要流空格
+  运算符两边不要留空格
+*/
+/* 引入通过@import
+路径只能相对路径 */
+@import "../../style/sss.wxss";
+input{
+  width: calc(750rpx*100/375);
+  border: calc(750rpx/375) solid black;
+}

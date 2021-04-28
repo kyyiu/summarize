@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+	</head>
+	<body>
+		<!-- <form id="form">
+			<input type="text" name="username" id="un">
+			<input type="password" name="password" id="pw">
+			<input type="submit" name="" id="btn" value="sub">
+		</form> -->
+		<!-- <button type="button" id="btn">dw</button> -->
+		<button type="button" id = "btn">dw</button>
+		<script src="js/jquery.min.js"></script>
+		<script type="text/javascript">
+			function fn(response){
+				console.log(response);
+			}
+			
+			$('#btn').on('click',function(){
+				$.ajax({
+					url: '/jp',
+					//向服务器端传递函数名字的参数名称
+					jsonp:'cb',
+					jsonpCallback: 'fn',
+					//代表现在要发送的是jsonp请求
+					dataType: 'jsonp',
+					success: function(response){
+						console.log(response)
+					}
+				})
+				})
+			
+			//$.get('/base','naem=zhang&age=3',function(){
+				// console.log(resonpose)
+			// })
+			//$.post('/base',function(response){})
+			
+			// $('#form').on('submit',function(){
+			// 	var params = $('#form').serialize();
+			// 	serializeObject($(this));
+			// 	return false;
+			// })
+			// //将表单中用户输入的内容转换为对象类型
+			// function serializeObject(obj){
+			// 	var result = {};
+			// 	var params = obj.serializeArray();
+			// 	//循环数组 将数组转换为对象类型
+			// 	$.each(params,function(index,value){
+			// 		result[value.name] = value.value;
+			// 	})
+			// 	return result;
+			// }
+			
+			
+			
+			
+			// $('#btn').on('click',function(){
+			// 	$.ajax({
+			// 		type:'get',
+			// 		url: '/base',
+			// 		success: function(response){
+			// 			//response为服务器端返回的数据
+			// 			//方法内部会自动将json字符串转换为json对象
+			// 			console.log(response);
+			// 		},
+			// 		error: function(xhr){
+			// 			console.log(xhr)
+			// 		}
+			// 	})
+			// })
+		</script>
+	</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title></title>
+		
+		<style>
+			
+			.father{
+				width: 500px;
+				height: 200px;
+				margin: 0 auto;
+				border: 1px solid #000;
+				/* 给计数器起个名字 默认是0开始 */
+				counter-reset: step;
+			}
+			.father ul{
+				display: flex;
+				justify-content: space-around;
+			}
+			.father li{
+				display: inline-block;
+				position: relative;
+				list-style-type: none;
+				border: 2px solid red;
+			}
+			.father li::before{
+				
+				/* 计数器映射counter里面的变量 */
+				content: counter(step);
+				/* 递增规则 递增变量step 默认为1 */
+				counter-increment: step 1;
+				
+			}
+			.father li::after{
+				content: '';
+				position: absolute;
+				top: 5px;
+				left: -142px;
+				width: 142px;
+				height: 2px;
+				background-color: #ccc;
+			}
+			.father li:first-child::after{
+				content: '';
+				width: 0;
+			}
+			.father .active::after{
+				background-color: green;
+			}
+			
+			.reset{
+				padding-left: 20px;
+				counter-reset: wxe;
+			}
+			.counter::before{
+				content: counters(wxe,'-') '.';
+				counter-increment: wxe;
+			}
+			
+			
+			/*  显示content
+				计数值的那个DOM元素在文档流中的位置一定要在counter-increment
+				元素的后面，否则是没有计数效果的。 */
+			.ff{
+				counter-reset: n;
+			}
+			.ff::after{
+				content: counter(n);
+			}
+			.ss::before{
+				content: counter(n);
+			}
+			.ss{
+				counter-increment: n;
+			}
+		</style>
+	</head>
+	<body>
+
+		<div class="father">
+			<ul>
+				<li class="active"></li>
+				<li class="active cc"></li>
+				<li></li>
+			</ul>
+			<button type="button">next</button>
+		</div>
+		
+		
+		<div class="ff">
+			<li class="ss"></li>
+			<li class="ss"></li>
+		</div>
+		
+		<!-- 级联嵌套序号 -->
+		<div class="reset">
+		    <div class="counter">我是王小二
+		        <div class="reset">
+		            <div class="counter">我是王小二的大儿子</div>
+		            <div class="counter">我是王小二的二儿子
+		                <div class="reset">
+		                    <div class="counter">我是王小二的二儿子的大孙子</div>
+		                    <div class="counter">我是王小二的二儿子的二孙子</div>
+		                    <div class="counter">我是王小二的二儿子的小孙子</div>
+		                </div>
+		            </div>
+		            <div class="counter">我是王小二的三儿子</div>
+		        </div>
+		    </div>
+		    <div class="counter">我是王小三</div>
+		    <div class="counter">我是王小四
+		        <div class="reset">
+		            <div class="counter">我是王小四的大儿子</div>
+		        </div>
+		    </div>
+		</div>
+		
+		<script type="text/javascript">
+			let btn = document.querySelector('button')
+			let lis = document.querySelectorAll('li')
+			btn.addEventListener('click',function(){
+				console.log(lis)
+			})
+		</script>
+	</body>
+</html>

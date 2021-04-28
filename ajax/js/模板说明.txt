@@ -1,0 +1,49 @@
+artTemplate基础语法（浏览器版）
+
+1. 变量输出
+
+{{value}}                 -- 输出单个变量
+
+{{data.key}}            -- 输出对象中的某个属性
+
+{{data['key']}}          -- 输出数组中的某个属性
+
+{{a ? b : c}}             -- 三目运算
+
+{{a || b}}                  -- 为某个变量设置默认值b
+
+{{a + b}}                  -- 表达式运算
+
+{{@ value }}            -- 原样输出（变量前加@符号）
+
+2. 条件判断
+
+{{if value}} ... {{/if}}
+
+{{if v1}} ... {{else if v2}} ... {{/if}}
+
+3. 循环遍历
+
+形式一（默认key和value）
+
+{{each target}}
+
+{{$index}} {{$value}}
+
+{{/each}}
+
+形式二（自定义key和value）
+
+{{each target val key}}...{{/each}}
+
+4. 引入子模板
+
+-- 子模板的默认变量为data
+
+{{include './header.art'}}
+
+-- 向子模板传递自定义变量
+
+{{include './header.art' data}}
+
+注意：默认情况下，子模板中的数据变量名为data。标准语法不支持对象和数组的声明，只支持引用变量。但是，原始语法没有此限制

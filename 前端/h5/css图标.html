@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style type="text/css">
+			.flex {
+				display: flex;
+			}
+			/* 三道杠方法1 */
+			/* .icon-menu{
+				display: inline-block;
+				width: 140px; height: 10px;
+				padding: 35px 0;
+				border-top: 10px solid;
+				border-bottom: 10px solid;
+				background-color: currentcolor;
+				background-clip: content-box;
+			} */
+			/* 三道杠方法2 */
+			.icon-menu{
+				width: 120px;
+				height: 20px;
+				border-top: 60px double;
+				border-bottom: 20px solid;
+			}
+			.icon-dot{
+				display: inline-block;
+				width: 100px; height: 100px;
+				padding: 10px;
+				border-radius: 50%;
+				border: 10px solid;
+				background-color: currentcolor;
+				background-clip: content-box;
+			}
+			
+			.f{
+				width: 300px;
+			}
+			.s{
+				margin: 0 -20px;
+			}
+			ul{
+				overflow: hidden;
+				padding: 0;
+				width: 360px;
+				margin-right: -20px;
+				background-color: yellow;
+			}
+			ul > li{
+				list-style-type: none;
+				float: left;
+				width: 100px;
+				height: 100px;
+				margin-right: 20px;
+				background-color: green;
+			}
+			.add {
+			    display: inline-block;
+			    width: 76px; height: 76px;
+			    color: #ccc;
+			    border: 2px dashed;
+			    text-indent: -12em;
+			    transition: color .25s;
+			    position: relative;
+			    overflow: hidden;
+			}
+			.add:hover {
+			    color: #34538b;
+			}
+			.add::before, .add::after {
+			    content: '';
+			    position: absolute;
+			    top: 50%;
+			    left: 50%;
+			}
+			.add::before {
+			    width: 20px;
+			    border-top: 4px solid;
+			    margin: -2px 0 0 -10px;
+			}
+			.add::after {
+			    height: 20px;
+			    border-left: 4px solid;
+			    margin: -10px 0 0 -2px;
+			}
+			.triangle{
+				width: 0; height: 0;
+				border-style: solid;
+				border-width: 0 25px 40px 25px;
+				border-color: transparent transparent rgb(245,129,127) transparent;
+			}
+			.triangle-r{
+				width: 0; height: 0;
+				border-style: solid;
+				border-width: 40px 25px 0 25px;
+				border-color: rgb(245,129,127) transparent transparent transparent;
+			}
+			/* 虚线效果
+			   css自带的border-style属性 dotted/ dashed . 效果展示出来太密了，并不符合UI设计
+			   具体的虚线的颜色和间距都可以通过repeating-linear-gradient生成的条纹背景去调整。
+			 */
+			.dot_line{
+				border: 1px dashed transparent;
+				background: linear-gradient(white,white) padding-box, repeating-linear-gradient(-45deg,#ccc 0, #ccc .25em,white 0,white .75em);
+			}
+			/*  background: linear-gradient(white,white) padding-box, repeating-linear-gradient(-45deg,#ccc 0,#ccc .25em,white 0,white .75em); */
+		
+			/* 文本超出省略号 */
+			/* 单行 */
+			.single-ellipsis{
+				width: 200px;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+			/* 多行 */
+			.multiline-ellipsis{
+				display: -webkit-box;
+				-ms-word-break: break-all;
+				word-break: break-all;
+				-webkit-box-orient: vertical;
+				/* 可以显示的行数 ,这个是应该不规范的属性，为了实现该效果，需要组合其他外来的webkit属性*/
+				/*display: -webkit-box;必须结合的属性，把对象作为弹性伸缩盒子模型显示  */
+				/*-webkit-box-orient必须结合的属性，设置或检索伸缩值对象的子元素的排列方式  */
+				/* text-overflow，可以用来多行文本的情况下，用省略号“...”隐藏超出范围的文本 。 */
+				-webkit-line-clamp: 4; 
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+			/* 滚动条 */
+			/* .scroll-container {
+			 height: 250px;
+			 border: 1px solid #ddd;
+			 padding: 15px;
+			 overflow: auto;
+			 .row {
+			   margin: 0;
+			   line-height: 1.5;
+			 }
+			
+			 &::-webkit-scrollbar {
+			   width: 8px;
+			   background: white;
+			 }
+			 &::-webkit-scrollbar-corner, /* 滚动条角落 */
+			 &::-webkit-scrollbar-thumb,
+			 &::-webkit-scrollbar-track {
+			   border-radius: 4px;
+			 }
+			 &::-webkit-scrollbar-corner,
+			 &::-webkit-scrollbar-track {
+			   /* 滚动条轨道 */
+			   background-color: rgba(180, 160, 120, 0.1);
+			   box-shadow: inset 0 0 1px rgba(180, 160, 120, 0.5);
+			 }
+			 &::-webkit-scrollbar-thumb {
+			   /* 滚动条手柄 */
+			   background-color: #00adb5;
+			 }
+			} */
+			/* 卡券 */
+			.coupon{
+			  width: 300px;
+			  height: 100px;
+			  position: relative;
+			  background: radial-gradient(circle at right bottom, transparent 10px, #ffffff 0) top right /50% 51px no-repeat,
+			    radial-gradient(circle at left bottom, transparent 10px, #ffffff 0) top left / 50% 51px no-repeat,
+			    radial-gradient(circle at right top, transparent 10px, #ffffff 0) bottom right / 50% 51px no-repeat,
+			    radial-gradient(circle at left top, transparent 10px, #ffffff 0) bottom left / 50% 51px no-repeat;
+			  filter: drop-shadow(2px 2px 2px rgba(0,0,0,.2));
+			}
+			// 三角形阴影
+			.shadow-triangle{
+			    width: 0;
+			    height: 0;
+			    border-style: solid;
+			    border-width: 0 50px 50px 50px;
+			    border-color: transparent transparent rgb(245, 129, 127) transparent;
+			    filter:drop-shadow(10px 0px 10px  rgba(238, 125, 55,0.5));
+			}
+			
+			// 缺圆投影
+			.circle-square{
+			    width:100px;
+			    height:50px;
+			    line-height: 50px;
+			    background: radial-gradient(circle at bottom right, transparent 20px, rgb(245, 129, 127) 15px);
+			    filter: drop-shadow(2px 2px 2px rgba(238, 132, 66, 0.9));
+			}
+			
+			// 气泡阴影
+			.tip {
+			    width: 100px;
+			    height: 30px;
+			    line-height: 30px;
+			    border: 1px solid rgb(245, 129, 127);
+			    border-radius: 4px;
+			    position: relative;
+			    background-color: #fff;
+			    filter: drop-shadow(0px 2px 4px rgba(245, 129, 127, 0.9));
+			    &::before {
+			      content: "";
+			      width: 0;
+			      height: 0;
+			      border-style: solid;
+			      border-width: 0 10px 10px 10px;
+			      border-color: transparent transparent #fff transparent;
+			      position: absolute;
+			      top: -10px;
+			      left: 0;
+			      right: 0;
+			      margin: auto;
+			      z-index: 2;
+			    }
+			    &::after {
+			      content: "";
+			      width: 0;
+			      height: 0;
+			      border-style: solid;
+			      border-width: 0 10px 10px 10px;
+			      border-color: transparent transparent rgb(245, 129, 127) transparent;
+			      position: absolute;
+			      top: -11px;
+			      left: 0;
+			      right: 0;
+			      margin: auto;
+			      z-index: 1;
+			    }
+			}
+		</style>
+	</head>
+	<body>
+		<div>
+			<div class="icon-menu"></div>
+			<div class="icon-dot"></div>
+			<div class="f">
+				<div class="s"></div>
+			</div>
+			<ul>
+				<li></li>
+				<li></li>
+				<li></li>
+			</ul>
+			
+			<a href class="add" title="继续上传">添加</a>
+			<div style="line-height: 30px; background-color: #000088;">居中</div>
+		</div>
+		<div class="flex">
+			<div class="triangle"></div>
+			<div class="triangle-r"></div>
+		</div>
+		<div>
+			<div class="dot_line">
+				<div>1111111111111111111111111111</div>
+				<div>2222222222222222222222222222</div>
+			</div>
+		</div>
+		<div class="coupon">123</div>
+	</body>
+</html>

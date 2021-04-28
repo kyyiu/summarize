@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style type="text/css">
+			.f{
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				position: fixed;
+				top: 0;
+				bottom: 0;
+				right: 0;
+				left: 0;
+				margin: auto;
+				background-color: rgba(0,0,0, .3);
+			}
+			.s{
+				width: 100px;
+				height: 100px;
+				background-color: #fff;
+			}
+			.c{
+				height: 2000px;
+				background-color: red;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="c"></div>
+		<div class="f">
+			<div class="s">123</div>
+		</div>
+		<script>
+			let c = document.querySelector('.c')
+			let s = document.querySelector('.s')
+			// 使用透明border填充消失的滚动条，提高蒙层体验
+			c.addEventListener('click',function(){
+				var widthBar = 17, root = document.documentElement
+				if(typeof window.innerWidth==='number'){
+					widthBar = window.innerWidth-root.clientWidth
+				}
+				root.style.overflow='hidden'
+				root.style.borderRight = widthBar+'px solid transparent'
+			})
+			s.addEventListener('click',function(){
+				var root = document.documentElement
+				root.style.overflow = ''
+				root.style.borderRight = ''
+			})
+		</script>
+	</body>
+</html>

@@ -1,0 +1,199 @@
+2. Electron的安装
+因为前面已经启用了node/npm，所以可以采用npm的方法安装Electron。
+为了测试的方便，我是在命令行窗口中采用下面的命令:
+
+npm install -g electron 
+把Electron安装到系统全局中的。你也可以在你开发项目下采用不加'-g'的命令进行安装。
+
+3. 编程环境安装
+当前微软提供了一个强大的免费开发工具VISUAL STUDIO CODE ,直接下载安装即可，它支持nodejs等的代码提示，很是方便。
+
+4. 打包输出工具
+为了方便最终成果输出，建议安装electron-packager工具，安装也很简单，建议以下面的命令全局安装。
+
+npm install -g electron-packager
+5. 如果需要采用git进行版本控制，建议安装git工具
+直接在git 下载最新版本的安装即可。
+
+至此实际上开发环境已经搭建好了。下面说一下开发流程。
+
+到空白的项目目录中，打开命令行窗口（也可以打开git bash）
+0. 如果需要git，先做
+
+git init
+1.构建项目package.json文件
+
+npm init
+根据需要输入内容（下面的内容根据Electron Quick start编写）。即在package.json中有如下内容：
+
+ { 
+      "name" : "electron-quick-start", 
+      "version" : "1.0.0", 
+      "main" : "main.js" 
+}
+
+2.重新写入依赖
+
+npm install electron --save
+npm install electron-packager --save-dev
+“   
+
+	npm install moduleName # 安装模块到项目目录下
+	 
+	npm install -g moduleName # -g 的意思是将模块安装到全局，具体安装到磁盘哪个位置，要看 npm config prefix 的位置。
+	 
+	npm install -save moduleName # -save 的意思是将模块安装到项目目录下，并在package文件的dependencies节点写入依赖。
+	 
+	npm install -save-dev moduleName # -save-dev 的意思是将模块安装到项目目录下，并在package文件的devDependencies节点写入依赖。
+
+
+	npm install moduleName 命令
+	1. 安装模块到项目node_modules目录下。
+	2. 不会将模块依赖写入devDependencies或dependencies 节点。
+	3. 运行 npm install 初始化项目时不会下载模块。
+	
+	npm install -g moduleName 命令
+	1. 安装模块到全局，不会在项目node_modules目录中保存模块包。
+	2. 不会将模块依赖写入devDependencies或dependencies 节点。
+	3. 运行 npm install 初始化项目时不会下载模块。
+	
+	npm install -save moduleName 命令
+	1. 安装模块到项目node_modules目录下。
+	2. 会将模块依赖写入dependencies 节点。
+	3. 运行 npm install 初始化项目时，会将模块下载到项目目录下。
+	4. 运行npm install --production或者注明NODE_ENV变量值为production时，会自动下载模块到node_modules目录中。
+	
+	npm install -save-dev moduleName 命令
+	1. 安装模块到项目node_modules目录下。
+	2. 会将模块依赖写入devDependencies 节点。
+	3. 运行 npm install 初始化项目时，会将模块下载到项目目录下。
+	4. 运行npm install --production或者注明NODE_ENV变量值为production时，不会自动下载模块到node_modules目录中。
+	
+	总结
+	devDependencies 节点下的模块是我们在开发时需要用的，
+	比如项目中使用的 gulp ，压缩css、js的模块。这些模块在我们的项目部署后是不需要的，
+	所以我们可以使用 -save-dev 的形式安装。像 express 这些模块是项目运行必备的，
+	应该安装在 dependencies 节点下，所以我们应该使用 -save 的形式安装。
+
+	npm install module_name -S    即    npm install module_name --save    写入dependencies
+	
+	npm install module_name -D    即    npm install module_name --save-dev 写入devDependencies
+	
+	
+”
+
+
+
+3.在main.js中输入
+
+const {app, BrowserWindow} = require('electron')
+
+let win
+
+function createWindow () {
+ 
+  win = new BrowserWindow({width: 800, height: 600})
+
+  win.loadURL(`file://${__dirname}/index.html`)
+
+  win.webContents.openDevTools()
+
+  // 处理窗口关闭
+  win.on('closed', () => {
+    win = null
+  })
+}
+
+// Electron初始化完成
+app.on('ready', createWindow)
+
+// 处理退出
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
+})
+
+app.on('activate', () => {
+  if (win === null) {
+    createWindow()
+  }
+})
+4. 在index.html中输入
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Hello World!</title>
+  </head>
+  <body>
+    <h1>Hello World!</h1>
+    node 当前使用的node为<script>document.write(process.versions.node)</script>,
+    Chrome 为<script>document.write(process.versions.chrome)</script>,
+    和 Electron 为<script>document.write(process.versions.electron)</script>.
+  </body>
+</html>
+5. 测试执行
+
+electron .
+这将打开一个新的窗口，如图
+也可以统一纳入npm管理，即在package.json中添加字段定义
+
+"scripts": {
+"start":"electron ."
+}
+这样就可以在命令行中用 npm start 来启动程序。
+6. 打包输出
+
+electron-packager . --platform=win32
+将在项目目录下建立一个输出文件夹“electron-quick-start-win32-x64”(注意这里的目录名称win32-x64前的部分是package.json中name字段值)，里面就是放置的整个项目的打包，可以复制这个文件夹到任何win32环境中运行（其中electron-quick-start.exe其启动文件），这个工作也可以纳入npm统一管理，在package.json 的“scripts”字段下增加子字段定义即可。如：
+"scripts": {
+"start":"electron .",
+"win32pack":"electron-packager . --platform=win32 --overwrite"
+}
+这样就可以在命令行中用 npm run win32pack 来输出win32环境下的打包程序("--overwrite"选项用于覆盖输出)。
+
+
+
+app常用事件
+ready: 当electron完成初始化时触发
+window-all-closed： 所有窗口被关闭
+before-quit： 在应用程序开始关闭窗口之前触发
+will-quit： 当所有窗口都已关闭并且应用程序将退出时发出
+quit： 应用程序退出时发出
+
+
+打包
+
+打包前为当前app制作icon：icon.ico，256*256。制作好放入app根目录。
+
+8.electron-packager打包：electron-packager打包有两种方式，一是直接在命令行编辑命令，直接进行打包。另一种是在package.json里编辑package，执行npm run-script package。
+
+(1)在app根目录执行命令行：
+
+electron-packager . 'HelloWorld' --platform=win32 --arch=x64 --icon=icon.ico --out=./out --asar --app-version=0.0.1
+
+
+法二
+首先编辑package.json，
+"script":{
+	"package":"electron-packager . HelloWorld --platform=win32 --arch=x64 --icon=icon.ico --out=./out --asar --app-version=0.0.1"
+}
+npm run package 后
+在当前目录 生成一个 ./out/HelloWorld-win32-x64的文件
+在app(electron-helloworld)根目录创建app文件夹，
+并把main.js， index.html 和 package.json拷贝进去（拷贝并非剪切），
+然后在electron-helloworld根目录打开命令行：
+
+命令行打包参数：
+
+electron-packager <location of project> <name of project> <platform> <architecture> <electron version> <optional options>
+
+参数说明： 
+* location of project：项目所在路径 
+* name of project：打包的项目名字 
+* platform：确定了你要构建哪个平台的应用（Windows、Mac 还是 Linux） 
+* architecture：决定了使用 x86 还是 x64 还是两个架构都用 
+* electron version：electron 的版本 
+* optional options：可选选项

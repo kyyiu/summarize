@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style>
+			.cs-box {
+			  float: left;
+			  width: 120px; height: 120px;
+			  margin: 10px 15px;
+			  background-color: #e0e0e0;
+			}
+			.cs-li {
+			  background: url(../visual/dist/favicon.ico) center;
+			  background-size: cover;
+			  outline: 1px solid #fff;
+			}
+			/* 1个 */
+			.cs-li:only-child {
+			  height: 100%;
+			}
+			/* 2个 */
+			.cs-li:first-child:nth-last-child(2),
+			.cs-li:first-child:nth-last-child(2) + .cs-li {
+			  width: 50%; height: 50%;
+			}
+			.cs-li:first-child:nth-last-child(2) + .cs-li {
+			  margin-left: auto;
+			}
+			/* 3个 */
+			.cs-li:first-child:nth-last-child(3),
+			.cs-li:first-child:nth-last-child(3) ~ .cs-li {
+			  width: 50%; height: 50%;
+			}
+			.cs-li:first-child:nth-last-child(3) {
+			  margin: auto;
+			}
+			.cs-li:first-child:nth-last-child(3) ~ .cs-li {
+			  float: left;
+			  position: relative;
+			}
+			/* 4个 */
+			.cs-li:first-child:nth-last-child(4),
+			.cs-li:first-child:nth-last-child(4) ~ .cs-li {
+			  width: 50%; height: 50%;
+			  float: left;
+			}
+			/* 5个和6个 */
+			.cs-li:first-child:nth-last-child(5),
+			.cs-li:first-child:nth-last-child(6) {
+			  width: 80px;
+			  height: 80px;
+			  float: left;
+			}
+			.cs-li:first-child:nth-last-child(5) ~ .cs-li,
+			.cs-li:first-child:nth-last-child(6) ~ .cs-li {
+			  width: 40px;
+			  height: 40px;
+			  float: left;
+			}
+			/* 7个 8个 9个 */
+			.cs-li:first-child:nth-last-child(7),
+			.cs-li:first-child:nth-last-child(8),
+			.cs-li:first-child:nth-last-child(9),
+			.cs-li:first-child:nth-last-child(7) ~ .cs-li,
+			.cs-li:first-child:nth-last-child(8) ~ .cs-li,
+			.cs-li:first-child:nth-last-child(9) ~ .cs-li {
+			  width: 40px;
+			  height: 40px;
+			  float: left;
+			}
+			.cs-li:first-child:nth-last-child(7) {
+			  float: none;
+			  margin: auto;
+			}
+			.cs-li:first-child:nth-last-child(8) {
+			  margin-left: 16.666%;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="cs-box">
+		    <div class="cs-li"></div>
+		</div>
+		<div class="cs-box">
+		    <div class="cs-li"></div><div class="cs-li"></div>
+		</div>
+		<div class="cs-box">
+		    <div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div>
+		</div>
+		<div class="cs-box">
+		    <div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div>
+		</div>
+		<div class="cs-box">
+		    <div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div>
+		</div>
+		<div class="cs-box">
+		    <div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div>
+		</div>
+		<div class="cs-box">
+		    <div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div>
+		</div>
+		<div class="cs-box">
+		    <div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div>
+		</div>
+		<div class="cs-box">
+		    <div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div><div class="cs-li"></div>
+		</div>
+	</body>
+</html>
