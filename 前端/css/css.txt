@@ -1,0 +1,429 @@
+css样式规则:
+选择器{
+声明 属性 值
+}
+例子：
+h1{
+声明[color(属性):red(值);]
+}
+
+css字体样式属性:
+font:综合设置字体样式_基本语法 选择器（font: font-style font-weight font- size/line-height font-family;）
+例子：h1{font:italic bold 14px "微软雅黑";}
+font-size：字号大小 用px最好 
+font-weight:字体粗细
+font-style：字体风格
+font-family:字体
+技巧：
+现在网页中普遍使用14px+
+尽量使用偶数的数字字号，老式浏览器奇数会有bug
+各种字体之间必须用英文状态逗号隔开
+中文字体需要加英文引号，设置英文字体时，英文字体必须位于中文字体名之前
+如果字体名包含空格#$等符号，则该字体必须加英文引号
+尽量使用默认字体，保证任何用户的浏览器都能正确显示
+css unicode字体：
+宋体	SimSun	\5B8B\4F53
+新宋体	NSimSun	\65B0\5B8B\4F53
+黑体	SimHei	\9ED1\4F53
+微软雅黑	Microsoft YaHei	\5FAE\8F6F\96C5\9ED1
+楷体_GB2312	KaiTi_GB2312	\6977\4F53_GB2312
+隶书	LiSu	\96B6\4E66
+幼园	YouYuan	\5E7C\5706
+华文细黑	STXihei	\534E\6587\7EC6\9ED1
+细明体	MingLiU	\7EC6\660E\4F53
+新细明体	PMingLiU	\65B0\7EC6\660E\4F53
+例子：font-family："\5B8B\4F53"
+
+css注释:/**/
+
+选择器：
+标签选择器：
+标签名或元素名（属性：属性值;）
+类选择器(class)：
+.类名(属性：属性值)
+多类名选择器(class = "xx zz"):
+id选择器：
+#id（属性：属性值）
+id选择器和类名选择器区别：
+类可以重复使用
+id只允许使用一次
+通配符选择器：
+*（）
+伪类选择器：
+链接伪类：
+用于向某些选择器添加特殊效果，用冒号开头，比如给链接添加特殊效果
+a: link{}未访问的链接
+a：visited已访问链接
+a：hover鼠标移到链接上
+a：active选定链接
+结构伪类：
+li：first-child{}
+li：last-child{}
+li：nth-child（n）{}（n可以是数字 odd奇数 even偶数 也可以是n的倍数）
+li:nth-last-child(n){}从最后一个子元素开始计算(最后一个当1)
+目标伪类：
+：target{}和索引搭配
+
+css外观属性：
+color：文本颜色 写法 color:rgb(0~255或百分比) #xxyyzz
+
+line-height：行间距
+text-align:水平对齐方式
+text-indent:首行缩进 em是一个字的宽度，如果是汉字段落就是两个汉字宽度
+letter-spacing:字间距 px
+word-spacing：单词间距 px
+
+颜色半透明（css3）：
+color：rgba（0，0，0，0.5）最后一个在1~0之间
+
+文字阴影（css3）：
+text-shadow：h-shadow v-shadow blur color
+水平位置 垂直位置 模糊距离 阴影颜色
+px       px       px       rgba（x，x，x，n）
+前两个必须写，后两个可以省略
+
+快捷键（sublime为例）：
+生成标签 div+tab = <div></div>
+生成多个标签：div*n
+生成父子关系标签用>:ul>li
+兄弟级：div+p
+带类名或id：.x+tab  #x + tab
+
+css样式表：
+内部：写在head中并用style定义
+行内样式表：内嵌式 <div style = " color:red">
+外部式：css文件 head中<link rel = "stylesheet" href = "xx.css" type = "text/css">
+块级元素：可以容纳内联元素和其他块元素，并且大小可调控，典型div
+行内元素：只能容纳文本或其他行内元素（a元素特殊），和相邻行内元素在一行上，只能设置水平方向的padding和margin，默认宽度就是本身内容宽度，典型span
+行内块元素：和相邻行内元素（行内块）在一行上，但是之间会有空白缝隙，默认宽度是本身内容宽度，大小可控<img/><input/><<td>
+模式互换：display：inline；转行内 block 转块 inline-block 行内转块内
+
+交集选择器：
+标签.属性
+例子：<div class = "e">  div.e{}
+并集选择器：
+标签，标签，标签{}
+后代选择器：
+父标签 （空格）子标签{} 
+子元素选择器：
+例子：
+<ul class = "nav">
+	<li>
+		<ul></ul>
+	</li>
+</ul>
+.nav>li{}大于号 子元素选择器 只选择亲儿子 第二个ul就不会涉及
+属性选择器：
+标签[属性(^,$,*)(=)(x)]  ^表示属性后面以x开头的(class = "x1")，$x结尾的(class ="1x")，*表示x在属性后边的任何位置(class = "1x2")
+伪元素选择器（css3）：
+有：：的
+例子：
+p：：first-letter{}第一个字
+p::first-lineP{}第一行
+p::selection{}鼠标选中的
+在盒子的内部前面或后面插入
+E::before{content="x"(必须有)}
+E::after{content="x"(必须有)}
+
+css背景(属性):
+background-color:背景颜色
+-image:背景图片地址
+-repeat：是否平铺
+-attachment：背景固定还是滚动（fixed可以让背景固定在初始状态）
+-position：背景位置 ：left top；类似这样如果只写一个则另一个默认为center。另一种写法是：npx npx
+简写：background:transparent url(image.jpg) reapeat-y scroll 0 0；
+背景颜色 背景图片地址 背景平铺 滚动 位置
+背景半透明：
+background：rgba（0，0，0，0）
+背景缩放：
+background-size： n% or npx；
+：cover 能保证图片始终铺满盒子，如果有溢出则隐藏
+：contain 保证图片完整显示在背景区域，但可能会有部分盒子裸露
+多背景：
+为避免背景色盖住，背景色通常定义在最后一组
+例子：
+background：url（）no-repeat scroll 10px 20px/40px 60px，
+url（）。。。 #aaa；
+
+凹凸文字效果：
+例子：
+div：first-child{
+text-shadow：1px 1px 1px #000，-1px -1px -1px #fff；
+}坐标轴y轴是相反的
+
+文本装饰：
+text-decoration 用于链接修饰效果
+值none 默认定义标准文本
+underline 定义下划线
+overline 定义上划线
+line-trhough 定义穿过文本下的一条线
+
+css 三大特性：
+1：层叠性：
+如果出现样式冲突，遵循就近原则。
+2：继承性：
+子标签会继承父标签的样式。
+3：优先级：
+特殊性公式：0，0，0，0
+标签选择器：0001
+类选择器：0010
+伪类选择器：0010
+id选择器：0100
+important：1000 用法 color：orange！important
+权重可以叠加（权重的进制是256）
+继承的权重为0000
+
+盒子模型：
+盒子边框border：
+border-width：边框宽度粗细
+bordr-color：边框颜色
+border-style：边框样式
+border-top(bottom)-width:上下边框宽度设置
+综合写法：border-top:宽度 样式 颜色(1px solid red)
+
+合并细线表格：
+border-collapse：collapse 表示边框合在一起
+
+圆角矩阵：
+border-radius：npx，npx，npx，npx（左上角，右下角，右上角，左下角）
+如果只取一个数值则表示四个角都是相同的弧度。
+（正方形）取宽度和高度一半则会变成一个圆形。
+
+内边距（padding）：
+padding:上下左右四个值（如果只给两个则上下取第一个值）（如果三个值上取第一个，左右取第二个）
+外边距（margin）：
+实现盒子居中 margin： npx auto；（条件：1必须是块级元素，2盒子必须指定了宽度（width））
+
+清除内外边距：
+*{margin: 0; padding: 0;}
+
+外边距合并:
+垂直盒子外边距取最大为准。直接避免，选择最大值设置。
+嵌套元素垂直合并：
+给大盒子设置外边框可以解决合并问。或者为大盒子（父元素）添加overflow： hidden
+
+css3盒模型：
+box-sizing：content-box盒子大小为width+padding+border ，content-box此值为其默认值
+box-sizing：border-box盒子大小为width （pading和border包含在width里面）
+
+盒子阴影：
+box-shadow：水平阴影(位置) 垂直阴影（位置） 模糊距离 阴影尺寸 阴影颜色 内外阴影；（前两个必须）
+例子：box-shadow：5px 5px rgba（）
+
+浮动（float）：
+css定位机制有三种：普通流（标准） 浮点 定位
+浮动是脱离标准流，不占位置，会影响标准流。浮动只有左右浮点。
+解决方法：把浮动元素放在标准流块中
+行内元素添加浮动后，具有行内块的特性。
+总结（浮漏特）：
+浮：加了浮动的元素盒子是浮起来的，飘浮在其他标准流盒子上面
+漏：加了浮动的盒子，不占位置，把原来的位置漏给标准流盒子。
+特：特别注意，浮动的盒子需要和标准流父级搭配，其次浮动可以使元素显示模式体现为行内块特性。
+
+布局流程：
+1：确定页面版心（可视区）
+2：分析页面中的行模块，以及每个行模块中的列模块
+3：制作html结构
+4：css初始化，然后开始运用盒子模型原理通过div——css布局控制网页的各个模块
+
+清除浮动本质：为了解决父级元素因为子级浮动引起内部高度为0的问题
+方法：
+1额外标签法：
+再写一个<div><div> div{clear: both;}
+2父级添加overflow方法
+父级{overflow：hidden（auto）}
+3after伪元素清除：
+父级：after{content：“。”；display：block；height：0；visibility：hidden；clear：both；}
+父级{*zoom：1}带*代表ie7和ie6才能识别的特殊符号zoom是他们清除浮动的方法
+4双伪元素清除浮动：
+父级：before，父级：after{content：“”； display：table；}
+父级：after{clear：both；}
+父级：after{*zoom：1；}
+
+定位：
+静态定位其实就是标准流。
+相对定位（position：relative；top：px；）： 通过偏移移动位置，但原来的位置继续占用，
+每次移动位置是以自己的左上角为基点
+绝对定位（absolute）：是完全脱标的，不占位置
+如果父级没定位，是以浏览器为准对齐。切不占用原来位置，会被后面的元素补上。
+加了绝对定位的值margin 左右auto就无效了居中要用{left：父级一半 ；margin-left：-自己一半；}
+固定定位(fixed)：是绝对定位的一种特殊形式,与父级没任何关系，位置只相对于浏览器，脱标，不占位置。
+
+叠放次序（z-index：n）：n越大，谁放上面（层叠的情况）
+
+定位模式转换：
+如果行内元素添加了绝对定位或者固定定位，浮动后，可以不用转换模式，直接给高度和宽度就可以了。
+
+元素的显示与隐藏：
+display：none；隐藏元素 不是删除，但元素一直存在页面中，但是不保留位置，block显示。
+visibility：hidden：区别是保留位置
+
+overflow:
+visible;默认的，超出显示
+auto；超出显示滚动条，不超出不显示
+scroll；一直显示滚动条
+hidden；溢出隐藏
+
+
+
+
+Css高级技巧：
+鼠标样式（cursor：）：
+默认default小白；
+pointer；小手
+move；移动
+text；文本
+
+轮廓（outline:):
+outline: 0;取消轮廓线
+
+防止拖拽文本域（resize：）：
+none；
+
+垂直对齐（vertical-align：）：
+baseline；默认基线对齐
+middle；中线对齐
+top；顶线对齐
+
+去除图片底侧缝隙：
+img vertical-align：middle|top等等。让图片不要和基线对齐
+给img添加display：block转换为块级元素就不会存在问题了
+
+溢出文字隐藏：
+word-break：normal；浏览器默认换行规则。break-all；允许在单词内换行。keep-all；只能在半角空格或连字符处换行。（主要处理英文单词）
+wihte-space：normal； nowrap；强制在同一行内显示所有文本，直到结束或者遇到br才换行
+
+超出部分省略号显示：
+text-overflow：clip；不显示省略号标记，而是简单裁切。ellipsis；文本溢出时显示省略标记。（注意一定要首先强制一行内显示，再次和overflow属性搭配使用）
+例子：white-space：nowrap； overflow：hidden； text-overflow:ellipsis;
+
+css精灵技术（sprite）:
+本质：将一个页面涉及到的所有零星背景图集中到一张大图中。
+
+字体图标：
+电脑中没有的字体，我们需要声明。
+@font-face{
+     font-family: '字体名称随便起'; 
+     src: url('../font/字体名称.eot');
+     src:url('../font/字体名称.woff') format('woff'),
+         url('../font/字体名称.ttf') format('truetype'),
+         url('../font/字体名称.svg') format('svg');
+}
+//html中的代码中加一个h1或者其他的，里面写你自己想要的特殊文字
+
+h1{font-size:36px; color:#ccc; font-family: "字体名称随便起";}
+
+Firefox、Chrome、Safari 以及 Opera 支持 .ttf (True Type Fonts) 和 .otf (OpenType Fonts) 类型的字体。
+而Internet Explorer 9+ 支持新的 @font-face 规则，但是仅支持 .eot 类型的字体 (Embedded OpenType)。
+
+伪元素本质：
+插入一个元素（标签 盒子）只不过是行内元素span a。
+
+过渡css3：
+transition：transition-property；要过渡的属性
+duration；花费时间
+timing-function；运动曲线默认ease
+delay何时开始
+例子：transition：width 1s ease 0s；
+
+
+2D变形（css3）transform：
+移动（translate（x，y）；）如果写百分号的话是移动自己的长度比
+缩放（scale（n，n）；）水平缩放，垂直缩放，如果只写一个参数，宽高都缩放
+旋转（rotate（ndeg）；）deg度数 n正值顺时针
+设置变形中心点（transform-origin：left top（改为左上角为中心点））
+倾斜（skew（deg，deg））：
+
+3D坐标（以一张正对着的纸为参考）：
+x左边为负，y上面为负，z后面为负.
+旋转(rotateX(or Y or Z):(ndeg))
+透视(perspective:npx):视距,越大越不明显
+移动(translateZ(:npx)):要加透视
+(透视是眼睛到屏幕的距离,tanslateZ是物体到屏幕的距离)
+
+动画(css3 animation:):
+动画名称 时间 曲线 何时开始 播放次数 是否反方向
+例子:go 2s ease 0s 2 reverse;
+定义动画:
+@keyframes 动画名称{
+from{transform:translateX(0px);}
+to{transform:translateX(4px);}
+}
+多组:
+百分比{}
+
+
+伸缩布局(css3):
+父级添加 display:flex;伸缩布局模式
+子级添加 flex:n;n为子盒占份数
+min-width最小值 宽度不能小于这个
+排列方式:flex-direction:row;row-reverse;column;column-reverse;
+
+justify--content调整主轴对齐(水平对齐):
+flex-start;让子元素从父容器开头排序盒子顺序不变.
+-end;后面开始...
+center;子元素在父容器中间显示.
+space-between;左右盒子贴近父盒子,中间平均分布空白间距
+-around;相当于给每个盒子添加左右margin外边距
+
+align-items调整侧轴对齐(垂直对齐)(单行):
+stretch;让子元素高度拉伸适用父容器
+center;垂直居中
+flex-start;垂直对齐开始位置
+-end;结束
+
+flex-wrap控制是否换行:
+当子盒子内容宽度多于父盒子的时候如何处理
+nowrap;默认值,收缩显示
+wrap;规定灵活的项目在必要时拆行或拆列
+
+align-content堆栈:针对flex容器多行情况排列,值和align-items一样
+
+flex-flow(flex-direction,flex-wrap的简写):排列方向 换不换行;
+
+order控制子项目的排列顺序,正序方式排序,从小到大
+用css控制盒子先后顺序用order就可以,用整数来定义排序,小的排前面可以为负默认0;
+order:n;
+
+
+
+
+尺寸计算规则
+从内而外：固有尺寸，html尺寸，css尺寸
+固有尺寸
+指的是替换内容原本的尺寸。例如，图片、视频作为一个独立文件存在的时候，都是有着自己的宽度和高度的。
+这个宽度和高度的大小就是这里的“固有尺寸”。对于表单类替换元素，“固有尺寸”可以理解为“不加修饰的默认尺寸”
+比方说，你在空白页面写上<input>，此时的尺寸就可以看成是<input>
+元素的“固有尺寸”。这就是输入框、下拉框这些表单元素默认的font-size/padding/margin
+等属性全部使用px作为单位的原因，因为这样可以保证这些元素的“固有尺寸”是固定大小，不会受外界CSS的影响。
+（2）HTML尺寸
+这个概念略微抽象，我们不妨将其想象成水煮蛋里面的那一层白色的膜，里面是“固有尺寸”这个蛋黄蛋白，外面是“CSS尺寸”这个蛋壳。
+“HTML尺寸”只能通过HTML原生属性改变，这些HTML原生属性包括<img>
+的width和height属性、<input>的size属性、<textarea>的cols和rows属性等。
+<img width="300" height="100">
+<input type="file" size="30">
+<textarea cols="20" rows="5></textarea>
+（3）CSS尺寸
+特指可以通过CSS的width
+和height或者max-width/min-width和max-height/min-height
+设置的尺寸，对应盒尺寸中的content box。
+可以影响替换元素尺寸的3层结构如图4-1所示。这3层结构的计算规则具体如下
+#
+如果没有CSS尺寸和HTML尺寸，则使用固有尺寸作为最终的宽高。例如，下面的HTML代码：
+<img src="1.jpg">
+假设1.jpg
+这张图片原尺寸是256×192，则在页面中此图所呈现的宽高就是256像素×192像素。
+如果没有CSS尺寸，则使用HTML尺寸作为最终的宽高。仍以图片举例：
+　　<img src="1.jpg" width="128" height="96">
+我们通过HTML属性width和height
+限定了图片的HTML尺寸，因此，最终图片所呈现的宽高就是128像素×96像素。
+如果有CSS尺寸，则最终尺寸由CSS属性决定。我们继续上面的例子：
+　　img { width: 200px; height: 150px; }
+　　<img src="1.jpg" width="128" height="96">
+此时固有尺寸、HTML尺寸和CSS尺寸同时存在，起作用的是CSS属性限定的尺寸，因此，最终图片所呈现的宽高就是200像素×150像素。
+如果“固有尺寸”含有固有的宽高比例，同时仅设置了宽度或仅设置了高度，则元素依然按照固有的宽高比例显示。我们还是拿图片举例，例如，下面的CSS和HTML代码：
+　　img { width: 200px; }
+　　<img src="1.jpg">
+虽然CSS中仅仅设置了width，但图片这种替换元素的资源本身具有特定的宽高比例，因此，height
+也会等比例计算。所以，最终图片所呈现的宽高就是200像素×150像素（150=200×192/256）。 图片具有特定宽高比设置单独的宽或者高会自动转换另一个的值
+如果本例子仅设置height:150px，最后的结果也是这样子。

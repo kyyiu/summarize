@@ -4,3 +4,51 @@ splice(index, count, newItem)
 不会改变原来的值:
 x.concat(y),返回一个新的拼接值
 x.slice(...[start, end]), 返回新的值
+
+
+
+Array.flat(deep)
+按deep深度展开数组，默认为1，如果为infinity，展开任意维度
+例子
+ [ [1, 2, 2], [3, 4, 5, 5], [6, 7, 8, 9, [11, 12, [12, 13, [14] ] ] ], 10].flat(infinity)
+ [1, 2, 2, 3, 4, 5, 5, 6, 7, 8, 9, 11, 12, 12, 13, 14, 10]
+ 
+
+Set
+本身是一种构造函数，用来生成 Set 数据结构。
+向 Set 加入值的时候，不会发生类型转换，
+所以5和"5"是两个不同的值。Set 内部判断两个值是否不同，
+使用的算法叫做“Same-value-zero equality”，它类似于精确相等运算符（===），
+主要的区别是**NaN等于自身，而精确相等运算符认为NaN不等于自身。**
+
+数组去重[... new Set(arr)]
+
+实例方法
+add(value)：新增，相当于 array里的push
+delete(value)：存在即删除集合中value
+has(value)：判断集合中是否存在 value
+clear()：清空集合
+
+实例属性
+size：元素数量
+Set 可默认遍历，默认迭代器生成函数是 values() 方法
+Set.prototype[Symbol.iterator] === Set.prototype.values	// true
+所以， Set可以使用 map、filter 方法
+因此，Set 很容易实现交集（Intersect）、并集（Union）、差集（Difference）
+
+let set1 = new Set([1, 2, 3])
+let set2 = new Set([4, 3, 2])
+
+let intersect = new Set([...set1].filter(value => set2.has(value)))
+let union = new Set([...set1, ...set2])
+let difference = new Set([...set1].filter(value => !set2.has(value)))
+
+console.log(intersect)	// Set {2, 3}
+console.log(union)		// Set {1, 2, 3, 4}
+console.log(difference)	// Set {1}
+
+
+WeakSet
+允许将弱引用对象存储在一个集合中
+和Set的区别
+WeakSet只能存储对象引用，不能存放值，而Set对象都可以
