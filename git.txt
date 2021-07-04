@@ -248,3 +248,7 @@ git push
 
 
 rebase 把两个分支最近的公共祖先开始提取两个分支的最新提交上的修改
+
+分支重命名
+git创建新分支时提示refname ambiguous
+git branch -m 旧名字  新名字

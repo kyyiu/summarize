@@ -2,3 +2,8 @@ node_modules
 .idea
 .vscode
 .git
+dist/
+deploy_versions/
+.temp/
+.rn_temp/
+.DS_Store
