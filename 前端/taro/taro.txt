@@ -1,0 +1,29 @@
+版本 v3.2.13
+搭建环境
+1.创建文件夹
+2.终端加入文件夹
+3.安装全局taro脚手架： npm install -g @tarojs/cli 或者 yarn global add @tarojs/cli
+使用yarn的如果不知道全局安装在哪里可以使用 yarn global dir 查看全局安装位置
+4.使用脚手架创建项目: taro init 项目名
+5.cd 项目名
+6.yarn dev:h5  使用 yarn dev:weapp 就可以生成一个dist目录微信小程序
+7.打开微信开发者工具，把dist目录引入就行了
+
+
+路由配置
+src/app.config.js下的pages数组进行设置
+谁在第一项打开的页面就在哪里
+window是设置小程序一些样式的
+使用 taro create xxx 可以快速在pages下创建页面
+
+
+api
+navigateTo 页面跳转，可以返回
+redirectTo 不记录上一页跳转
+switchTab Tab之间切换，配合Taro的导航栏一起使用
+navigateBack 返回上一页
+relaunch 关闭所有页面，打开一个页面
+getCurrentPages 获得当前页面的一些配置
+
+
+路由参数传递和接受

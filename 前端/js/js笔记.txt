@@ -1,3 +1,15 @@
+为什么设计成单线程
+  为了防止出现矛盾的命令
+  因为js最初是为浏览器设计的
+  如果是多线程同时对一个dom操作
+  一个命令是删除，另一个是其他的命令
+  那么浏览器该怎么执行
+为什么需要异步
+  因为js是单线程自上而下的
+  如果没有异步
+  当运行到某行如果需要很多时间解析执行
+  那么下面的代码就会被阻塞
+  则会让人觉得页面卡死，导致很差的用户体验
 动态加载脚本
   let script = document.createElement('script')
   script.src = 'xx.js'
@@ -1751,3 +1763,125 @@ scrollTop，内容区顶部隐藏的像素数，设置它可以改变元素的�
 currentTarget是事件绑定在的元素
 target是触发事件的元素
 此时this和currenTarget 一样
+
+
+
+await 比 promise 好的证明
+1. 简洁
+由示例可知，使用Async/Await明显节约了不少代码。我们不需要写.then，
+不需要写匿名函数处理Promise的resolve值，也不需要定义多余的data变量，还避免了嵌套代码。
+这些小的优点会迅速累计起来，这在之后的代码示例中会更加明显。
+
+2. 错误处理
+
+Async/Await让try/catch可以同时处理同步和异步错误。在下面的promise示例中，
+try/catch不能处理JSON.parse的错误，因为它在Promise中。我们需要使用.catch，
+这样错误处理代码非常冗余。并且，在我们的实际生产代码会更加复杂。
+
+const makeRequest = () => {
+  try {
+    getJSON()
+      .then(result => {
+        // JSON.parse可能会出错
+        const data = JSON.parse(result)
+        console.log(data)
+      })
+      // 取消注释，处理异步代码的错误
+      // .catch((err) => {
+      //   console.log(err)
+      // })
+  } catch (err) {
+    console.log(err)
+  }
+}
+使用aysnc/await的话，catch能处理JSON.parse错误:
+
+const makeRequest = async () => {
+  try {
+    // this parse may fail
+    const data = JSON.parse(await getJSON())
+    console.log(data)
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+3. 条件语句
+
+下面示例中，需要获取数据，然后根据返回数据决定是直接返回，还是继续获取更多的数据。
+
+const makeRequest = () => {
+  return getJSON()
+    .then(data => {
+      if (data.needsAnotherRequest) {
+        return makeAnotherRequest(data)
+          .then(moreData => {
+            console.log(moreData)
+            return moreData
+          })
+      } else {
+        console.log(data)
+        return data
+      }
+    })
+}
+这些代码看着就头痛。嵌套（6层），括号，return语句很容易让人感到迷茫，
+而它们只是需要将最终结果传递到最外层的Promise。
+
+上面的代码使用async/await编写可以大大地提高可读性:
+
+const makeRequest = async () => {
+  const data = await getJSON()
+  if (data.needsAnotherRequest) {
+    const moreData = await makeAnotherRequest(data);
+    console.log(moreData)
+    return moreData
+  } else {
+    console.log(data)
+    return data   
+  }
+}
+
+4. 中间值
+
+你很可能遇到过这样的场景，调用promise1，使用promise1返回的结果去调用promise2，然后使用两者的结果去调用promise3。你的代码很可能是这样的: 
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+const makeRequest = () => {
+  return promise1()
+    .then(value1 => {
+      return promise2(value1)
+        .then(value2 => {       
+          return promise3(value1, value2)
+        })
+    })
+}
+如果promise3不需要value1，可以很简单地将promise嵌套铺平。
+如果你忍受不了嵌套，你可以将value 1 & 2 放进Promise.all来避免深层嵌套：
+
+const makeRequest = () => {
+  return promise1()
+    .then(value1 => {
+      return Promise.all([value1, promise2(value1)])
+    })
+    .then(([value1, value2]) => {     
+      return promise3(value1, value2)
+    })
+}
+这种方法为了可读性牺牲了语义。除了避免嵌套，并没有其他理由将value1和value2放在一个数组中。
+
+使用async/await的话，代码会变得异常简单和直观。
+
+const makeRequest = async () => {
+  const value1 = await promise1()
+  const value2 = await promise2(value1)
+  return promise3(value1, value2)
+}

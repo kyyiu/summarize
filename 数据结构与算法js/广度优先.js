@@ -11,7 +11,7 @@ let n = new Node(0)
 
 /**
  * @param {Object} node
- * @param {Object} deep
+ * @param {Number} deep
  * 递归思想
  * 1.终结条件
  * 2.是否需要向上级返回数据

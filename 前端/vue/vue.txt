@@ -1,0 +1,279 @@
+基本使用，组件使用--常用
+高级特性--不常用，但体现深度
+vuex和vue-router使用
+
+computed有缓存，data不变不会重新计算
+watch如何深度监听
+watch监听引用类型，拿不到oldVal
+
+v-if 和v-for不能一起使用
+
+vue组件使用
+props和$emit
+组件间通讯，自定义事件
+组件生命周期: 
+单个组件:挂载阶段（beforeCreate,created,beforeMount,mounted)，更新阶段beforeupdate,updated，销毁阶段（beforeDestroy,destroyed）
+父子组件：除了销毁从内到外，都是从外到内,再从内到外
+
+vue高级特性
+自定义v-model
+$nextTick: 
+	vue是异步渲染，data改变后，dom不会立刻渲染,nextTick会在dom渲染触发后，以获取最新dom节点,
+	异步渲染$nextTick待dom渲染完后再回调,this.$nextTick(()=>{这里放内容})
+	页面渲染时会将data的修改整合，多次data修改只会渲染一次
+slot
+	作用域插槽
+动态组件
+	:is="component-name"用法
+	需要根据数据，动态渲染的场景，即组件类型不确定
+异步组件
+	import(文件地址) 函数
+	按需加载，异步加载大组件
+	<ForDemo v-if="show"/>
+	button @click="show=true"
+	export default{
+		components:{
+			ForDemo: ()=> import('ForDemo')
+		},
+		data(){
+			
+		}
+		
+	}
+	
+keep-alive
+	缓存组件
+	频繁切换，不需要重复渲染
+	vue 常见性能优化
+	把目标用keep-alive>包起来，可以避免销毁，和重新挂载
+mixin
+	多个组件有相同的逻辑，抽离出来
+	mixin不是完美的解决方案，还有问题
+	vue3提出的composition API旨在解决这些问题
+	
+	问题：
+	变量来源不明确，不利于阅读
+	多mixin可能会造成命名冲突
+	mixin和组件可能出现多对多的关系，复杂度较高
+	
+	
+	
+vuex 基本概念
+state
+
+getters
+
+action
+
+mutation
+
+用于vue组件
+dispatch
+
+commit
+
+mapState
+
+mapGetters
+
+mapActions
+
+mapMutations
+
+流程
+vue组件 ->dispatch->(Actions->commit->mutations->mutate->state)vuex部分->render->vue组件,可以用一些工具查看数据变化
+
+vue-router使用
+路由模式hash,h5 history
+	hash模式（默认）如http://abs.com/#/user/1
+	h5 history模式 如http//abs.com/user/2
+	h5需要server端支持，无特殊需求可以选择前者
+路由配置:动态路由，懒加载
+
+
+
+vue原理
+组件化
+	自定义的一个组件
+	很久以前的组件化
+		asp，jsp，php已经有组件化了
+	数据驱动视图（mvvm --vue，setState --react）
+		传统组件，只是静态渲染，更新还要依赖于操作dom
+		mvvm（Model，view，viewModel）
+			view-》viewModel（DOM listeners）-》Model
+			Model-》viewModel（directives）-》view
+			view是dom，视图
+			model是 jsobj，简单理解为数据
+			ViewModel是vue的功能，链接视图和数据，如@click之类的
+响应式
+	组件data的数据一旦变化，立刻触发视图的更新
+	实现数据驱动视图的第一步
+	核心API-Object.defineProperty,但是存在缺点vue3使用proxy，但是proxy兼容性不好，且无法polyfill
+	基本用法
+		const data = {}
+		const name = 'zhangsan'
+		//定义一个对象data，属性为name，把name的赋值和获取变成了一个函数
+		Object.defineProperty(data,"name",{
+			get: function(){
+				console.lot('get')
+				return name
+			},
+			set: function(newVal){
+				console.lot('set')
+				name = newVal
+			}
+		})
+		console.lot(data.name) // get zhangsan
+		data.name = 'lisi' //set
+		缺点，
+			需要一次性递归到底，计算量大
+			无法监听新增属性/删除属性，需要vue.set,vue.delete
+			无法监听原生数组，需要特殊处理
+			//重新定义数组原型
+			const oldArrayProperty  = Array.prototype
+			//创建新对象，原型指向oldArrayProperty，再扩展新方法时不会影响原型
+			const arrProto = Object.create(oldArrayProperty);
+			['push','pop'].forEach(me => {
+				arrProto[me] = function(){
+					oldArrayProperty[me].call(this,...arguments)
+				}
+			})
+			
+			//重新定义属性，监听起来
+			function defineReactive(target,key,value){
+				//深度监听
+				observer(value)
+				Object.defineProperty(target,key,{
+					get(){
+						return value
+					},
+					set(newValue){
+						if(newValue !== value){
+							//深度监听
+							observer(newValue)
+							//设置新值
+							//value一直在闭包中，此次设置完后，再get时也是
+							value = newValue
+						}
+					}
+				})
+			}
+			//监听对象属性
+			function observer(target){
+				if(typeof target !== 'object' || target === null){
+					return target
+				}
+				
+				if(Array.isArray(target)){
+					target.__proto__ = arrProto
+				}
+				
+				for(let key in target){
+					defineReactive(target,key,target[key])
+				}
+			}
+vdom和diff
+	vdom是实现vue和react的重要基石
+	diff算法是vdom中最核心最关键的部分
+	背景
+		dom操作非常耗费性能
+		以前用jquery，可以自行控制dom操作的时机
+		vue和react都是数据驱动视图
+	用js模拟dom结构，计算出最小的变更，操作dom
+	<div id='div1' class='container'>
+		<p>vdom</p>
+		<ul style='font-size: 20px'>
+			<li>a</li>
+		</ul>
+	</div>
+	
+	用js模拟dom结构
+	{
+		tag:'div',
+		props:{
+			className: 'container',
+			id: 'div1'
+		}
+		children:[
+			{
+				tag:'p',
+				children:'vdom'
+			},
+			{
+				tag:'ul',
+				props:{style:'font-size:20px'},
+				children:[
+					{
+						tag:'li',
+						children:'a'
+					}
+				]
+			}
+		]
+	}
+	
+	diff 算法
+		diff算法能在日常使用中体现出来，如key
+		如果不优化时间复杂度为o n^3
+			遍历1次树1，遍历1次树2，排序
+		优化后o n
+			只比较同一层级，不跨级比较
+			tag不相同，则直接删掉重建，不再深度比较
+			tag和key，两者都相同，则认为是相同节点，不再深度比较
+		patchVnode
+		addVnodes removeVnodes
+		updateChildren(key的重要性)
+		vdom核心：h函数，vnode，patch，diff，key
+		vdom存在价值： 数据驱动视图，控制dom操作
+模板编译
+	模板是vue开发中最常用部分，使用相关联的原理
+	它表示html有指令，插值，js表达式，能判断，循环
+	vue template compiler 将模板编译为render函数
+	执行render生成vnode
+	基于vnode再执行patch和diff
+		先patch（elem，vnode）,把一个vnode渲染到空的element上
+		再patch(vnode,newVnode)，新的vnode更新旧的vnode
+	使用webpack vue-loader，会在开发环境下编译模板
+	使用render代替template
+		Vue.component('heading',{
+			render: function(c){
+				return c(
+					'h'+this.level //h1,h2...
+					[
+						c('a',{
+							attrs:{
+								name:'headerId',
+								href:'#'+'headerId'
+							}
+						},'this is a tag')
+					]
+				)
+			}
+		})
+渲染过程
+	初次渲染过程
+		解析模板为render函数（或再开发环境已经完成，vue-loader）
+		触发响应式，监听data属性getter setter
+		执行render函数 生成vnode，patch（elem，vnode）
+	更新过程
+		修改data。触发setter（此前getter已经被监听
+		重新执行render，生成newVnode
+		patch（vnode，newVnode）
+	异步渲染
+		$nextTick
+		汇总data的修改，一次性更新视图
+		减少dom操作次数，提高性能
+前端路由
+	hash特点
+		hash变化会触发网页跳转，即浏览器前进后退
+		hash变化不会刷新页面，spa必需特点
+		hash永远不会提交到server端
+		window.onhashchange
+	h5 history
+		用url规范的路由，但跳转时不刷新页面
+		history.pushState 打开一个新路由，不刷新页面
+		window.onpopstate 监听浏览器的前进后退
+		
+	选择
+		to B 的系统推荐hash，简单易用，对url规范不敏感
+		to C 的系统可以考虑h5 history，但需要服务端支持

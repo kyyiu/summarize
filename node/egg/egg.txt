@@ -1224,3 +1224,159 @@ module.exports = app => {
 
 
 sequelize:
+
+csrf:
+生成ctx.csrf
+把生成的csrf在页面中通过get方式?_csrf=‘生成的csrf’传入
+或者隐藏表单传入input type=hidden value=‘生成的csrf’
+请求的时候自动中间件验证
+
+post请求数据的获取
+this.ctx.request.body
+
+cookies：
+this.ctx.cookies.set(key, val, obj_config)
+this.ctx.cookies.get(key)
+默认cookie没法设置中文
+设置加密后可以设置中文cookie
+
+推荐写法
+this.ctx.cookies.set(key, val, {
+	maxAge: 1000*3600*24， //cookie存储一天
+	httpOnly: true, //只能后台服务cookie，不能前端访问
+	signed: true, //对cookie签名，防止用户修改cookie
+	encrypt: true // 是否对cookie进行加密，获取时需要解密 this.ctx.cookies.get(key,{encrypt: true})
+})
+清除cookie
+ctx.cookies.set(key, null)
+或者ctx.cookies.set(key, {
+	maxAge: 0
+})
+
+session:
+也是记录用户状态的一种方式，是基于cookie的，存储于服务端
+工作流程是当浏览器访问服务器并发送第一次请求时，服务端会创建一个session对象，生成一个类似于
+key，val的键值对，然后将key(cookie)返回到浏览器，浏览器下次再访问时，携带key(cookie)找到对应的session（val)
+设置this.ctx.session.xx = 'yy'
+获取this.ctx.session.xx
+默认的设置
+exports.session = {
+	key: 'EGG_SESS',
+	maxAge: 24*3600*1000, //1 day
+	httpOnly: true,
+	encrypt: true
+}
+
+在config.default.js中配置session
+config.session = {
+	maxAge: number,
+	renew: true // 那么每次刷新session都会被延期
+}
+
+
+使用koa中间件，标准配置
+例如 koa-jsonp中间件
+middleware文件夹下的某个js文件
+var jsonp = reuqire('koa-jsonp')
+module.exports=jsonp;
+然后在config的default。js里面的middleware = 【jsonp】
+总结：
+1.安装中间件
+2.middleware文件夹下新建jsonp.js
+3.在这个js文件中引入然后module。exports
+4.config中配置jsonp， config。middleware = 【jsonp】
+
+压缩中间件 koa-compress
+module.exports = require('koa-compress')
+middleware=['compress']
+// 配置compress
+config.compress  = {
+	
+}
+
+非标准的中间件配置，koa中
+const Middleware = require('some-koa-middleware')
+app.use(Middleware(options.compiler, options.xxx))
+
+egg中非标准配置
+const Middleware = require('some-koa-middleware')
+module.exports=(option, app)=>{
+	return Middleware(otpions.compiler, options.xxx)
+}
+
+
+中间件通用配置
+enable： 控制中间件是否开启
+match： 匹配的路由使用这个中间件，可以是方法
+例子：
+config.auth = {
+	match: '/news'
+	或者
+	match(ctx) {
+		if(ctx.reequst.url==='/news'){
+			return true;
+		}
+		return false
+	}
+}
+ignore: 
+
+
+公共抽离
+在app下新建core文件夹base。js
+const BaseController extends Controller {
+	async getUserInfo() {
+		return {
+			name: 'zzz'
+		}
+	}
+	async success(){}
+	async error(){}
+}
+使用的时候
+const BaseController = require('base.js')
+class xxController extends BaseCloller {
+	async index(){
+		await this.success()
+	}
+}
+
+定时任务
+app/schedule目录下创建xx.js
+写法一：
+const Subscription = require('egg').Subscription;
+class xx extends Subscription{
+	// 通过schedule属性设置定时任务的执行间隔等配置
+	static get schedule(){
+		return {
+			interval: '5s',
+			type: 'all' //指定所有的worker（进程）都需要执行
+		}
+	}
+	
+	async subscribe(){
+		// 定时任务执行的操作
+	}
+}
+module。exports = xx
+
+写法二：
+module。exports = {
+	schedule: {
+		interval: '1m', // 
+		type: 'all'
+	},
+	async task(ctx){
+		
+	}
+}
+
+cheerio模块
+是nodjs抓取页面模块，为服务器特别定制的，是基于jquery核心实现，适合各种web爬虫程序
+可以让我们用jq语法解析爬取的网页数据
+1. npm i cheerio -S
+require('cheerio')
+2. const $ = cheerio.load('<h2 class="title">hh</h2>')
+3. $('title').html()
+如果获取的汉字是乱码
+const $ = cheerio.load('<h2 class="title">hh</h2>'，{decodeEntities: false})
