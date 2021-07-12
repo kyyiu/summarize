@@ -1,0 +1,39 @@
+判断浏览器版本
+{
+	(!!window.ActiveXObject || 'ActiveXObject' in window) ?
+	<p>Work in IE browser</p> : ''
+}
+0.14版本中可以用meta标签实现
+meta dangerouslySetInnerHTML = {
+	_html: `
+		<!-- [if IE]>
+			<script src="//example.org/app.js"></script>
+		<![endif]-->
+	`
+}/>
+15.0版本中已经不可用
+
+元素属性特殊
+class->className
+for->htmlFor
+
+html转义
+react会将所有要显示到dom的字符串转义，防止xss，所以jsx中含有转义后的实体字符
+比如 &copy; 最后dom中不会正确显示，因为react自动把它里面特殊字符转义了
+解决方法
+1直接使用utf-8
+2使用对应字符的unicode编码查询编码
+使用数组组装div{['cc', <span>&copy;</span>, '2015']}</div
+直接插入原始的html
+此外可以使用dangeroulySetinnerHTml属性，作用就是避免react转义字符
+div dangeroulySetinnerHTML={{__html: 'cc &copy; 2015'}}
+
+
+合适情况下应该都且必须使用无状态组件（函数组件，不像其他方法在调用时会创建新实例，
+它创建时始终保持一个实例，避免了不必要的检查和内存分配
+class组件和函数组件都可以构建React元素，比如<div>Foo</div>。
+这些React元素最终被渲染成DOM。class组件通过new关键，实例化之后，
+再调用实例的render函数获得React元素。而函数组件是函数直接返回了React元素(没有实例化)。
+再将这些元素通过ReactDOM.render(  React元素,  目标dom节点);函数渲染到指定节点。
+
+

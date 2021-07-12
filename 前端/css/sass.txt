@@ -1,0 +1,88 @@
+变量
+定义以$符号开头
+$x: 10px;
+$x-y: 2px; //不建议
+
+使用
+.z {
+	width: $x;
+}
+
+作用域
+body{
+	$colorll: red;
+	background-color: $colorll;
+}
+div{
+	bgc: $colorll; // 报错
+}
+
+数据类型
+字符串
+编译成css时不会改变其类型，除了使用#{} (interpolaction) 时，有引号字符串将被编译为无引号字符串，
+这样便于mixin中引用选择器名
+
+数字
+支持带单位，不带单位，可正可负可浮点可零
+
+空值 null
+$x: null;
+不能和然后类型运算
+
+布尔
+只有自身是false和null才会返回flase
+
+数组
+通过空格或者都好分割的一系列的值，索引从1开始
+$l1: 1px 2px 5px;
+$l2: (1px 2px) (3px 4px);
+
+映射maps
+必须被圆括号包围，可以映射任何类型键值对，
+$map: (
+	k1: v1,
+	k2: v2
+)
+
+颜色
+$co: red;
+$co2: #fff;
+#co3: rgba(0,0,0,.2)；或者(rgba($co2, .2))
+
+运算
+数字运算
+1+2//3 
+1+2px //3px
+1px+2 //3px
+1px+2px //3px
+
+'a'+'b' //'ab'
+...
+
+关系运算符
+1>2 // false
+
+相等运算符
+1==1px true
+‘a’ == a true
+
+布尔
+1>0 and 0>=5 //false
+
+
+mixin
+无参
+@mixin x {
+	
+}
+.a {
+	@include x;
+}
+有参
+@mixin x($a, $b){
+	fd: $a;
+	fc: $b;
+}
+.a {
+	@include x('aa', 'bb');
+}

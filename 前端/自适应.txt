@@ -1,0 +1,26 @@
+在网页头部加上这样一条meta标签：<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5, maximum-scale=2.0, user-scalable=yes" /> 
+
+解释：
+width=device-width ：宽度等于设备屏幕的宽度
+initial-scale=1.0：表示：初始的缩放比例
+minimum-scale=0.5：表示：最小的缩放比例
+maximum-scale=2.0：表示：最大的缩放比例
+user-scalable=yes：表示：用户是否可以调整缩放比例
+另外：如果想控制字体的大小的话，应该使用相对大小，可以用下面这段代码，一般不用也可，这里只是说明一种方法。
+相对大小的字体
+字体也不能使用绝对大小px，而只能使用相对大小em。
+body {font: normal 100% Helvetica, Arial, sans-serif;}
+上面的代码指定，字体大小是页面默认大小的100%，即16像素。
+h1 {font-size: 1.5em; }
+然后，h1的大小是默认大小的1.5倍，即24像素（24/16=1.5）。
+small {font-size: 0.875em;}
+small元素的大小是默认大小的0.875倍，即14像素（14/16=0.875）。
+
+2、让网页适应不同的浏览器
+浏览器的格局现在是两分天下，一分是IE，另一分是NetScape，在国内Ie有绝对的占有率，在这种情况下我们设计的网页只要兼容它就行了，但NetScape在国外还是有很多人使用，毕竟它是浏览器的元老。
+虽然没有办法做出让所有浏览器都兼容的网站，但只要注意以下几点，做出来的网页在各个浏览器都中能达到比较好的显示效果：
+a、不要混合使用层和表格排版，如果是父子关系，如层中表格，不在此原则范围内。
+b、内联式的 CSS 在 Netscape Navigator 中经常会出现问题，使用链式或内嵌式。
+c、有时需要在空层插入表格或者透明图片，以保证在 Netscape Navigator 里的效果。
+d、对于只有几个像素宽度或高度的层，改用图片来实现。
+e、避免使用 W3C 组织不推荐的排版属性，用 CSS 代替。

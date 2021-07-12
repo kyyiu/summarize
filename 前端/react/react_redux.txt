@@ -1,0 +1,115 @@
+// 下面的内容是Count的容器组件，用于链接count的ui和redux
+
+引入Count的UI组件
+import COuntUI from 'Count'
+
+引入connect 用于链接ui和redux生成容器组件
+import {coonect} from 'react-redux'
+
+链接ui和redux生成容器组件
+const CountCa = connect()(CountUI)
+
+export default CountCa
+
+react-redux模型
+1.所有的UI组件都应该包裹一个容器组件，他们是父子关系
+2.容器组件是真正和redux打交道的，里面可以随意的使用redux的api
+3.UI组件中不能使用任何redux的api
+4.容器组件会传给UI组件（1.redux中所保存的状态，2.用于操作状态的方法
+5.容器给UI传递状态，操作状态的方法都通过props传递
+
+COunt(容器组件)
+---------------------
+|                	|
+|					|
+|  Count(UI组件)	<----props	| ----->store.getState()       |-------
+|				---->props	| ----->store.dispatch(action) |redux |
+|					|										-------
+
+
+connect方法
+connect(a, b)(c)
+a,b是函数
+a的返回值必须是一个对象，返回的这个对象的ke就作为传递给UI组件的props的key
+a主要给UI组件传递状态
+
+b的返回值必须是一个对象
+b主要传递UI组件操作状态的方法
+
+c是要把a，b传入的UI
+
+function a(state) {
+	return { sum: state }
+}
+// store自动调用a，调用store。getState并传入a中作为state的形参
+// b同理,假设引入action方法re
+function b(dispatch) {
+	return { sum: v => dispatch(re()) }
+}
+
+react-redux基本使用总结
+1.两个概念
+	1.1：ui组件：不能使用任何redux的api，州负责页面的呈现和交互
+	1.2：容器组件：负责和redux通信，将结果给ui组件
+	
+2.任何创建一个容器组件，靠react-redux 的cononnect哈四年
+写法 connect(mapStateToProps, mapDispatchToProps)(UI组件)
+容器组件的store是靠props传入的，而不是容器组件里面直接引入
+
+
+connect里面有一个判断
+第二个参数b
+如果不写dispatch而是一个对象
+会帮你进行调用的store.dispach进行action分发，
+如果自己写成函数需要自己调用dispatch
+
+provider
+在src/index中
+import { Provicer } from 'react-redux'
+
+ReactDOM.render(
+<Provider store={store}>
+	<App/>
+</Provider>,
+document....)
+使用Provider，redux里面的数据变化自动重新render
+自动分发store给App里面的组件，且只要store的变化自动更新
+
+
+合并容器组件和ui组件
+思维转变
+不需要分别写两个。jsx文件
+把两或者多个个组件写在一个文件里面，但是只export default一个组件即可
+如果有需要复用的组件，可以使用 export，再使用花括号引入
+export default A extends Com...{
+	render() {
+		return (
+			<div>
+				<B/>
+		)
+	}
+}
+class B extends COmp..{}
+
+多组共享数据组件
+当有多个reducer工作的时候，redux所保存的总状态就要写成一个对象
+combineReducers传入的对象，就是redux中保存的总状态
+const allreducer = combineReducers({
+	aa: aaReducer,
+	bb: bbReducer
+})
+此时容器connect中使用时需要通过state.aa这种方式获取对应的
+function a(state) {
+	return {
+		x: state.aa
+	}
+}
+
+b函数的话需要引入对应的action方法,假设为ac
+func b() {
+	return {
+		func: ac
+	}
+}
+connect(a,b)(c)
+如果只有一个reducer则store中只有一个状态,则返回的值就是state
