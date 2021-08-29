@@ -37,3 +37,162 @@ class组件和函数组件都可以构建React元素，比如<div>Foo</div>。
 再将这些元素通过ReactDOM.render(  React元素,  目标dom节点);函数渲染到指定节点。
 
 
+事件委派
+是把所有事件绑定在结构的最外层。使用一个统一的事件监听器
+它上面维持了一个映射来保存所有组件内部的事件监听和处理函数。
+当组件挂载或者卸载的时候，只是载这个统一的事件监听器上面插入或者删除一些对象
+事件发生时，先被这个统一的事件监听器处理，然后在映射里找到真正的事件处理函数并调用
+
+自动绑定
+react组件中，每个方法的上下文都会指向该组件的实例，自动绑定this为当前组件。
+在使用class或者纯函数时，这种绑定就不复存在了，需要手动实现this绑定
+1.bind
+class A ex...{
+	render(){
+		return < onClick={this.xx.bind(this, 'xx')}>
+	}
+}
+如果只绑定，不传参，有便捷方案，双冒号语法和this.handlexx.bind(this)一致
+形式 onClick={::this.handlexx}
+2.构造器内部声明
+constructor(){
+	..
+	this.func = this.func.bind(this)
+}
+onClick={this.func}
+
+3.箭头函数
+class 。。。
+{
+	const func = () => {}
+	onClick={this.func}
+}
+或者
+fhunc() {}
+onCLick={()=>this.func()}
+
+
+事件传播与阻止事件传播
+react合成事件中，只需要使用e.preventDefault即可
+事件类型
+react合成事件的事件类型是js原生事件类型的一个子集
+事件绑定方式
+受到dom标准的影响，绑定浏览器原生事件的方式也有很多
+1.直接dom元素中绑定 div onclick="alert(1)"
+2.js中通过为元素的事件属性赋值的方式实现 el.onclick = e => {console.log(e)}
+3.通过事件监听函数来实现绑定
+el.addEventlListener('click', ()=>{},clase)
+el.attachEvent('onclick', ()=>{});
+
+事件对象
+原生dom事件对象在w3c标准和ie标准有差异
+ie下要用window。event获取事件对象
+react不存在兼容性问题，数事件处理函数中可以得到一个合成事件对象
+
+组件间抽象
+mixin和高阶组件
+mixin的坏处
+1.破坏原有组件的封装
+2.命名冲突
+3.增加了复杂性
+以上就足以导致代码难以维护，于是高阶增加诞生
+实现高阶组件的方法有
+属性代理: 高阶组件通过被包裹的raect组件来操作props
+例子
+import React {COmponet} from 'react'
+const MyContainer = (MCompoent) => clss extends Component {
+	render () {
+		return <MConpoent {...this.props}/
+	}
+}
+
+使用 MyContainer就变得非常容易
+class MComp ex.. {
+	
+}
+export default MyContainer(Mcomp)
+也可用decorator转换，上面相当于
+@MyContainer
+class MyCompoent extends COmponrt {
+	render() {}
+}
+exp... MyCOmpont
+
+控制props
+尽可能为高阶组件的props作新的命名以防混淆
+const MC = (Wc) => class ex Compoent { render() { const newProps = {t: 'a'} return <Wc {...this.prosp} {...newProps}}}
+调用高阶组件时，可用txet这个新的prosp，对于原组件，只要套用了这个高阶组件，新组件就会多一个text的prop
+反向继承: 高阶组件继承于被包裹的react组件
+例子
+const MC = (C)=>
+class extends C {
+	render () {
+		return (
+			<div
+				{super.render()}
+		)
+	}
+}
+
+immutable (不可变的)
+immutable data是一旦被创建，就不能在更改的数据
+对immutable对象进行修改添加或者删除都会返回一个新的immutable对象
+实现原理是持久化的数据结构
+也就是使用旧数据创建新数据时，要保证旧数据同时可用且不变
+同时避免了深拷贝包所有节点都复制一遍带来的性能损耗，
+immutable使用结构共享，即如果对象书中一个节点发生变化，只修改这个节点和受他影响的父节点
+其他节点进行共享
+优点：
+降低了可变带来的复杂度， 可变数据耦合了time和value的概念，造成了数据很难被回溯
+节省内存，没有被引用的对象会被垃圾回收
+撤销/重做等功能容易实现
+并发安全
+函数式编程
+
+缺点
+容易与原生对象混淆
+
+为了直接比较对象的值，Immutable提供了Immutable.is做值比较
+Immutable.is(map1,map2)
+immutable.is比较的是两个对象的hashCode或者Valueof
+
+import Immutable from ‘immutable
+
+react中做性能优化最常用的就是shouldCOmponetUpdate
+但是默认返回true，始终执行render方法，然后在VDom比较，并得到是否需要做真实dom的更新
+但是会带来没必要的渲染
+也可以在shoudl。。update中使用深拷贝和深比较来避免无必要的render
+但是深拷贝这些是非常昂贵的选择
+Immutable.js提供了简洁高效的判断数据是否变化的方法只需要===和is比较就能知道是否需要执行render
+使用后:
+improt React, {Componet} from 'react'
+improt {is} from 'immutable'
+class App ex.. {
+	shouldCOmponetUpdate(nextPros, nextState) {
+		const thisProps = this.pros || {};
+		const thisState = this.state || {};
+		if(object.keys(thisProps).length !== object.Keys(nextProps).lenth ||
+		Object.keys(thisState).length !== Object.keys(nextState).length) {
+			return true
+		}
+		
+		for(const key in nextProps) {
+			if(nextProps.hasOwnProperty(key) && 
+			!is(thisProps[key], nextProps[key])) {
+				return true
+			}
+		}
+		
+		for(const key in nextState) {
+			if(nextState.hasOwnProperty(key)&&
+			!is(thisState[key], nextState[key])) {
+				return true
+			}
+		}
+		
+		return false
+	}
+}
+
+
+react-smooth库写动画
