@@ -19,3 +19,78 @@ css像素
 又称屏幕密度无关像素
 在屏幕尺寸不变的前提下，把更多的物理像素点压缩到一块屏幕
 把css转换成对应应该点亮的物理像素点
+
+视口相关
+pc端视口
+默认宽度和浏览器窗口的宽度一致，在css标准文档中，视口也被称为：初始包含块
+是所有css百分比宽度推算的根源
+最干净的显示区域 document.documentElement.clientWidth 常用
+最干净的显示区域 + 滚动条 window.innerWidth
+最干净的显示区域 + 滚动条 + 浏览器边框 window.outerWidth
+与浏览器无关，当前设备显示分辨率横向的值 screen.width
+
+移动端视口
+1.布局视口
+	可以理解成一个盒子容器
+	浏览器厂商针对移动端设备设计了一个容器，先用这个容器去承装pc网页，这个容器一般是980px
+	移动端获取布局视口方式： document.documentElement.clientWidth
+	布局视口经过压缩后，横向的宽度用css像素表达就不再是375px而是980px
+	因为布局视口是被压缩而不是截取
+2.视觉视口
+	用户可见的区域，绝对宽度永远和设备屏幕一样宽
+	document.innerWidth
+3.理想视口
+	设置方法meta name=viewPort content=width=device-width
+	不写meta
+	描述屏幕： 物理像素750px，设备独立像素： 375px，css像素：980px
+	优点：不同设备呈现效果几乎一样，因为是通过布局容器等比缩放的
+	缺点：元素太小，页面文字不清楚，用户体验不好
+	不写meta（符合理想视口标准
+	描述屏幕：物理像素： 750px 设备独立像素： 375px， css像素：375px
+	优点：页面清晰展现，内容不再小到难以观察，用户体验较好
+	缺点：同一个元素不同屏幕（设备）呈现效果不一样
+	解决：做适配
+	
+缩放
+pc端缩放
+放大时
+	视口变小
+	元素css像素值不变，但一个css像素所占面积变大了
+缩小时
+	视口变大
+	。。。
+移动端
+放大时
+	布局视口不变
+	视觉视口变小
+缩小时
+	布局视口不变
+	视觉视口变大
+移动端缩放不影响页面布局，因为缩放的时候，布局视口大小没有变化
+
+适配
+中心原则等比
+1.viewPort
+	步骤meta name = viewport content=width=设计稿宽度
+	例如meta name = viewport content=width=375，然后按照设计稿做就行了
+	这样布局视口就一直是375
+	优点：不需要复杂计算，按照设计稿标注
+	缺点：
+		不能使用完整的meta标签，会导致安卓手机出现严重兼容问题
+		导致强制适配。比如不需要边框加入适配
+2.em和rem适配
+	两者都是css的长度单位，都是相对长度单位
+	em是相对父级字体大小
+	rem是相对根元素的字体大小
+	rem适配原理，编写时统一使用rem为单位，在不同设备上动态调整根字体大小
+	一般设置根字体为100px
+	其他屏幕的根字体大小 = 100/设计稿宽度 * 其他屏幕横向的设备独立像素(即宽度 document.documentElemeent.clientWidth, 因为开启了viewport形成理想视口，所以布局视口等于它)
+	设置根字体大小document.documentElement.style.fontSize = v + 'px'
+	封装函数例子
+	function foo() {
+		const dip = document.documentElement.clientWidth
+		const rootFontSize = (dip*100)/375
+		document.documentElement.style.fontSize = rootFontSize + 'px'
+	}
+	foo()
+	window.onresize = foo
