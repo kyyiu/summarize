@@ -1,0 +1,61 @@
+flutter环境搭建——windows
+flutter中文网
+https://flutterchina.club/
+
+
+使用镜像
+由于在国内访问Flutter有时可能会受到限制，
+Flutter官方为中国开发者搭建了临时镜像，大家可以将如下环境变量加入到用户环境变量中：
+export PUB_HOSTED_URL=https://pub.flutter-io.cn
+export FLUTTER_STORAGE_BASE_URL=https://storage.flutter-io.cn
+
+
+下载flutter
+https://flutter.dev/docs/development/tools/sdk/releases#windows
+
+
+[X] Android toolchain - develop for Android devices
+    X Unable to locate Android SDK.
+      Install Android Studio from: https://developer.android.com/studio/index.html
+      On first launch it will assist you in installing the Android SDK components.
+      (or visit https://flutter.dev/docs/get-started/install/windows#android-setup for detailed instructions).
+      If the Android SDK has been installed to a custom location, please use
+      `flutter config --android-sdk` to update to that location.
+	  
+	  
+创建项目
+flutter create 项目名字
+
+vscode安装好插件后，进入
+
+lib下main.dart
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
+}
+
+可以输入sts，快速创建无状态组件class extends StatelessWidget
+stf快速创建有状态组件
+
+widget
+有状态：类似react的类组件
+无状态：类似react的函数组件
+
+flutter在人口调用的第一个widget要用MaterialApp当首个widget
+
+MaterialApp返回什么
+手机上就显示什么
