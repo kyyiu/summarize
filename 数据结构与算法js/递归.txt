@@ -1,0 +1,11 @@
+master 公式求解时间复杂度
+T(N) = a*T(N/b) + o(N^d)
+T(N) 母问题规模
+a*T(N/b)  子问题规模等量 ，a是子问题等规模的情况下调用次数
+o(N^d) 其他时间
+
+可以得到a，b，d
+以b为底
+loga < d => O(N^d)
+loga > d => O(N^loga)
+loga = d => O(N^d * log(2, N))

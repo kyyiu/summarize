@@ -1,0 +1,34 @@
+qs(arr) {
+	if ( arr === null || arr.length < 2) return
+	qsMain(arr, 0, arr.length-1)
+}
+
+qsMain(arr, l, r) {
+	if (l < r) {
+		// 在l~r区间中选一个当中间数，并和最后一个位置的数交换
+		// 末项-首项+1=总个数,这里是子数组的长度
+		// 
+		swap(arr, l+(Math.random()* (r-l+1)), r)
+		p = partittion(arr, l, r) //得到等于中间数的左右边界，为一个lengt==2的数组
+		qsMain(arr,l,p[0]-1) // 小于中间指的区域
+		qsMain(arr,p[1]+1, r) // 大于中间指的区域
+	}
+}
+
+partition(arr, l, r) {
+	let less = l-1 // 小于区右边界
+	let more = r // 大于区左边界
+	while(l < more) {
+		// l 是当前数的位置, arr[r] 划分值（中间指
+		if(arr[l] < arr[r]) {
+			// 当前数 < 中间指
+			swap(arr,++less,l++)
+		} else if (arr[l] > arr[r]) {
+			swap(arr, --more, l)
+		} else {
+			l++
+		}
+	}
+	swap(arr, more, r)
+	return [less+1, more]
+}
