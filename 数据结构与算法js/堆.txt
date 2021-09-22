@@ -7,3 +7,57 @@ i位置左孩子2*i+1
 堆是完全二叉树
 大根堆：完全二叉树中每个子树的最大值都在顶部是每个子树的根节点
 优先级队列结构，就是堆结构
+
+某个数现在处在index位置，往上继续移动
+heapInsert(arrm, index) {
+	// 当前的数大于父位置的数，则两者交换位置，index来到父位置，继续
+	// 直到index位置的数不再比父位置大，或者来到头位置
+	while(arr[index] > arr[(index-1)/2]) {
+		swap(arr, index, (index-1)/2);
+		index = (index-1) /2
+	}
+}
+
+某个数在index位置，能否往下移动
+heapify(arr, index, heapSize) {
+	let left = index*2+1 // 左孩子下标
+	while(left < heapSize) { // 从index位置出发左下方还有孩子的时候
+		// 两个孩子中，谁的值大，把下标给bigger
+		// left +1 <heapSize  有右孩子
+		// arr[left+1] > arr[left] 右孩子大于左孩子 
+		let bigger = left +1 <heapSize && arr[left+1] > arr[left] ? left+1 : left
+		// 父亲和孩子之间，谁的值大，把下标给bigger
+		bigger = arr[bigger] > arr[index] ? bigger : index
+		if (bigger == index) {
+			break
+		}
+		swap(arr, bigger, index)
+		index = bigger
+		left = index*2+1
+	}
+}
+
+heapSort(arr) {
+	if(arr==null || arr.length<2) {
+		return
+	}
+	
+	// 初始化方案1,当作每个数是一个一个进来的
+	for(let i = 0; i<arr.length; I++) {
+		heapInsert(arr, i)
+	}
+	
+	// 初始化方案2，当作已经存在二叉树，但是不是堆结构,从叶子节点开始往上heapfiy
+	for(let i = arr.length-1;i>=0;i--) {
+		heapify(arr, i, arr.length)
+	}
+	
+	
+	
+	let heapSize = arr.length;
+	swap(arr, 0, --heapSize) // 把目前堆中的最大值放后面,并排除在堆外,并把最后的数放到第一位
+	while(heapSize>0) { // O(N)
+		heapify(arr, 0, heapSize) // 在剩下的堆中把最大值放到首位 O(logN)
+		swap(arr, 0, --heapSize)
+	}
+}
