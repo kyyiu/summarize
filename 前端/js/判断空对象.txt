@@ -1,0 +1,32 @@
+1:
+JSON.stringify(obj) === '{}'
+
+2:
+
+let fn = (obj) => {
+	for(let item in obj) {
+		return false
+	}
+	return true
+}
+fn(obj)
+
+3:
+获取对象中全部属性名，存到一个数组中
+let keyArr = Object.getOwnPropertyNames(obj)
+
+4.
+获取给定对象的所有可枚举属性的字符串数组
+let keyArr = Object.keys(obj)
+
+hasOwnProperty
+检测属性是否存在对象示例中（可枚举属性
+存在返回true
+fn2 = (obj) => {
+	for(let k in obj) {
+		if(obj.hasOwnProperty(k)) {
+			return false
+		}
+	}
+	return true
+}
