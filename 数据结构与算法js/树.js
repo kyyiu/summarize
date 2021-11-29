@@ -248,3 +248,125 @@ console.log(resultString)
 bst.remove(15)
 
 
+// 递归序 1, 2,2,2, 1, 3,3,3, 1
+f(t) {
+	if (!t) {
+		return
+	}
+	// 第一次进入本次f,这里处理则是先序遍历，第一次进入本次f时就记录
+	f(t.left)
+	// 第二次进入本次f,这里处理则是中序遍历，第二次进入本次f时就记录
+	f(t.right)
+	// 第三次进入本次f,这里处理则是后序遍历，第三次进入本次f时就记录
+}
+
+
+// 遍历实现
+// 先序
+pre(head) {
+	let stack = []
+	if (head !== null) {
+		stack.push(head)
+		while(stack.length > 0) {
+			head = stack.pop()
+			// console.log(head.val) 此次处理，为先序
+			if (head.right !== null) {
+				stack.push(head.right)
+			}
+			if (head.left !== null) {
+				stack.push(head.left)
+			}
+		}
+	}
+}
+
+// 后序遍历
+back(head) {
+	if (head !== null) {
+		// s1压栈顺序是树的根左右
+		let s1 = []
+		// s2的压栈顺序的根据s1的弹出，是s1的弹出逆序，s1的弹出顺序是根右左，即最后就是左右根
+		let s2 = []
+		s1.push(head)
+		while (s1.length > 0) {
+			head = s1.pop()
+			// 第一次执行时，把根放到了s2的底部
+			s2.push(head)
+			// 先在s1压左节点，后压右节点，每次循环s1先弹出,最后在s2弹出的顺序就是左右根
+			if(head.left !== null) {
+				s1.push(head.left)
+			}
+			if( head.right !== null) {
+				s1.push(head.right)
+			}
+		}
+		while(s2.length>0) {
+			console.log(s2.pop().val)
+		}
+	}
+}
+
+// 中序遍历
+// 每个子树的左边界依次进栈
+// 依次弹出
+// 弹出的过程中压入弹出节点的右树左边界
+// 这样压入的顺序是根左
+// 弹出的时候就是左根
+// 过程中右树是后处理的
+// 即左根右
+mid(head) {
+	if(head !== null) {
+		let s = []
+		while(s.length > 0 || head!==null) {
+			if (head !== null) {
+				// 一直往左边找，不停的压栈
+				s.push(head)
+				head = head.left
+			} else {
+				// 左边界压完了，弹出，如果该节点有右孩子，则会压入并继续压入它的左边界
+				head = s.pop()
+				console.log(head.val)
+				head = head.right
+			}
+		}
+	}
+}
+
+
+ int getWidth(BiNode head) {    
+     if(head==null)    
+         return 0;    
+     int max=1;    
+     LinkedList<BiNode>ll=new LinkedList<BiNode>();    
+        ll.add(head);    
+        while(true){    
+            int len=ll.size();   //获取当前层的节点数 
+            if(len==0)  //队列空，二叉树已经遍历完  
+                break;    
+            while(len>0){    
+                BiNode b=ll.poll();    
+                len--;    //出一个结点-1，为0就退循环
+                if(b.left!=null)    
+                    ll.add(b.left);    
+                if(b.right!=null)    
+                    ll.add(b.right);    
+            }    
+            max=Math.max(max, ll.size());              
+        }    
+        return max;    
+    }  
+	
+	
+// 如何判断一个树是搜索二叉树 ； 使用中序遍历
+
+// 如何判断完全二叉树 （除了最后一层，其他层都有节点，最后一层的节点集中在左边）
+// ： 按宽度遍历，任意节点有右无左为false, 在不违规前面的情况下遇到了第一个左右孩子不全，后面的节点都必须是叶子节点
+
+// 判断满二叉树（节点个数和深度关系N=2^h-1
+
+// 平衡二叉树（左树和右数的高度差不能超过1）： 左数是平衡树，右数是平衡树，且左右高度差绝对值《=1
+
+// 树形dp套路
+// 1.需要从左右获取那些信息,往上返回
+// 2.left = func(x.left) , right = func(x.right)， 递归左右子树
+// 3.处理left和right中拿到的数据，返回结果

@@ -160,5 +160,111 @@ g.dfs(g.vertexes[0],function(v){
 })
 console.log(rst)
 
+// 宽度优先遍历
+// 1.队列实现
+// 2.从源节点开始依次按照宽度进入队列，然后弹出
+// 3.每次弹出一个点，把该点所有没有进入过队列的邻接点放入队列
+// 4.直到队列变空
+bfc(node) {
+	if(node===null) {
+		return
+	}
+	queue = []
+	set = new Set()
+	queue.push(node)
+	set.add(node)
+	while(!queue.length<1) {
+		cur = queue.shift()
+		console.log(cur.val)
+	}
+	for(const next of cur.nexts) {
+		if(!set.has(next)) {
+			set.add(next)
+			queue.push((next))
+		}
+	}
+}
 
+// 广度优先遍历
+// 1.栈实现
+// 2.源节点开始把节点按照深度放入，然后弹出
+// 3.每次弹出一个，把该节点下一个没有进入过栈的邻接点放入栈
+// 4.直到栈变空
 
+dfc(node) {
+	if(node===null) {
+		return
+	}
+	stack = []
+	set = []
+	stack.push(node)
+	set.add(node)
+	console.log(node.val)
+	while(!stack.length<1) {
+		cur = stack.pop()
+		for(const next of cur.nexts) {
+			// 先一条路走到底
+			if(!set.has(next)) {
+				stack.push(cur)
+				stack.push(next)
+				set.add(next)
+				console.log(next.val)
+				break
+			}
+		}
+	}
+}
+
+// 图的存储方式
+// 邻接表
+// 邻接矩阵
+
+// 好用的图结构如下， 以后的各种图可以通过某种方式转换为下面的图结构
+class Edge(weight, fromWhere , to) {
+	this.weight = weight
+	this.fromWhere = fromWhere
+	this.to = to
+}
+
+class Node(val) {
+	this.val = val
+	this.In = 0
+	this.out = 0
+	this.nexts = []
+	this.edges = []
+}
+
+class Graph() {
+	this.nodes = new Map()
+	this.edges = new Set()
+}
+
+// 拓扑排序
+// 有向图，且无环，入度为0的节点
+sortTopo(graph) {
+	// key: 某一个node
+	// value：剩下的入度
+	inMap = new Map()
+	// 入度为0的才能进入队列
+	queue = []
+	for(const node of graph.nodes.v) {
+		inmap(node, node.in)
+		if(node.in === 0 ) {
+			queue.push(node)
+		}
+	}
+	
+	// 拓扑排序的结果，依次加入result
+	result = []
+	while(!queue.length<1) {
+		cur = queue.shift()
+		result.push(cur)
+		for(const next of cur.nexts) {
+			inMap(next, inMap.get(next)-1)
+			if(inMap.get(next)===0) {
+				queue.push(next)
+			}
+		}
+	}
+	return result
+}
