@@ -202,3 +202,65 @@ HTTP 的缺点
 如果在 HTTP 协议通信过程中使用未经加密的明文，比如在 Web 页面中输入信用卡号，如果这条通信线路遭到窃听，那么信用卡号就暴露了。
 另外，对于 HTTP 来说，服务器也好，客户端也好，都是没有办法确认通信方的。因为很有可能并不是和原本预想的通信方在实际通信。并且还需要考虑到接收到的报文在通信途中已经遭到篡改这一可能性。
 为了统一解决上述这些问题，需要在 HTTP 上再加入加密处理和认证等机制。我们把添加了加密及认证机制的 HTTP 称为 HTTPS（HTTP Secure）。
+
+
+HTTPS 并非是应用层的一种新协议。只是 HTTP 通信接口部分用 SSL（Secure Socket Layer）和 TLS（TransportLayer Security）协议代替而已。
+
+
+### HTTPS 的安全通信机制
+
+SSL 和 TLS
+HTTPS 使用 SSL（Secure Socket Layer） 和 TLS（Transport Layer Security）这两个协议。
+SSL 技术最初是由浏览器开发商网景通信公司率先倡导的，开发过 SSL3.0 之前的版本。目前主导权已转移到IETF（Internet Engineering Task Force，Internet 工程任务组）的手中。
+IETF 以 SSL3.0 为基准，后又制定了 TLS1.0、TLS1.1 和 TLS1.2。TSL 是以 SSL 为原型开发的协议，有时会统一称该协议为 SSL。当前主流的版本是 SSL3.0 和 TLS1.0。
+由于 SSL1.0 协议在设计之初被发现出了问题，就没有实际投入使用。SSL2.0 也被发现存在问题，所以很多浏览器直接废除了该协议版本。
+
+
+SSL 的慢分两种。一种是指通信慢。另一种是指由于大量消耗 CPU 及内存等资源，导致处理速度变慢。
+和使用 HTTP 相比，网络负载可能会变慢 2 到 100 倍。除去和 TCP 连接、发送 HTTP 请求 • 响应以外，还必须进行SSL 通信，因此整体上处理通信量不可避免会增加。
+另一点是 SSL 必须进行加密处理。在服务器和客户端都需要进行加密和解密的运算处理。因此从结果上讲，比起HTTP 会更多地消耗服务器和客户端的硬件资源，导致负载增强。
+针对速度变慢这一问题，并没有根本性的解决方案，我们会使用 SSL 加速器这种（专用服务器）硬件来改善该问题。该硬件为 SSL 通信专用硬件，相对软件来讲，能够提高数倍 SSL 的计算速度。仅在 SSL 处理时发挥 SSL 加速器的功效，以分担负载。
+
+### HTTP 的瓶颈
+使用 HTTP 协议探知服务器上是否有内容更新，就必须频繁地从客户端到服务器端进行确认。如果服务器上没有内容更新，那么就会产生徒劳的通信。 
+一条连接上只可发送一个请求。
+请求只能从客户端开始。客户端不可以接收除响应以外的指令。
+请求 / 响应首部未经压缩就发送。首部信息越多延迟越大。
+发送冗长的首部。每次互相发送相同的首部造成的浪费较多。
+可任意选择数据压缩格式。非强制压缩发送。
+Ajax 的解决方
+Ajax 实时地从服务器获取内容，有可能会导致大量请求产生。
+Comet 的解决方法
+内容上虽然可以做到实时更新，但为了保留响应，一次连接的持续时间也变长了。
+
+WebSocket 协议
+一旦 Web 服务器与客户端之间建立起 WebSocket 协议的通信连接，之后所有的通信都依靠这个专用协议进行。通信过程中可互相发送 JSON、XML、HTML 或图片等任意格式的数据。
+由于是建立在 HTTP 基础上的协议，因此连接的发起方仍是客户端，而一旦确立 WebSocket 通信连接，不论服务器还是客户端，任意一方都可直接向对方发送报文。
+下面我们列举一下 WebSocket 协议的主要特点。
+推送功能
+支持由服务器向客户端推送数据的推送功能。这样，服务器可直接发送数据，而不必等待客户端的请求。
+减少通信量
+只要建立起 WebSocket 连接，就希望一直保持连接状态。和 HTTP 相比，不但每次连接时的总开销减少，而且由于WebSocket 的首部信息很小，通信量也相应减少了。
+为了实现 WebSocket 通信，在 HTTP 连接建立之后，需要完成一次“握手”（Handshaking）的步骤。
+握手·请求
+为了实现 WebSocket 通信，需要用到 HTTP 的 Upgrade 首部字段，告知服务器通信协议发生改变，以达到握手的目的。
+GET /chat HTTP/1.1
+Host: server.example.com
+Upgrade: websocket
+Connection: Upgrade
+Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
+Origin: http://example.com
+Sec-WebSocket-Protocol: chat, 
+superchatSec-WebSocket-Version: 13
+Sec-WebSocket-Key 字段内记录着握手过程中必不可少的键值。Sec-WebSocket-Protocol 字段内记录使用的子协议。
+子协议按 WebSocket 协议标准在连接分开使用时，定义那些连接的名称。
+握手·响应
+对于之前的请求，返回状态码 101 Switching Protocols 的响应。
+HTTP/1.1 101 Switching Protocols
+Upgrade: websocketConnection: Upgrade
+Sec-WebSocket-Accep
+t: s3pPLMBiTxaQ9kYGz
+zhZRbK+xOo=Sec-WebSocket-Proto
+col: chat
+Sec-WebSocket-Accept 的字段值是由握手请求中的 Sec-WebSocket-Key 的字段值生成的。
+成功握手确立 WebSocket 连接之后，通信时不再使用 HTTP 的数据帧，而采用 WebSocket 独立的数据帧。
