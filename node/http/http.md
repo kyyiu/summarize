@@ -96,7 +96,7 @@ Chrome浏览器最多允许对同一个域名Host建立6个TCP连接，不同的
 请求首部字段是从客户端往服务器端发送请求报文中所使用的字段，用于补充请求的附加信息、客户端信息、对响应内容相关的优先级等内容。   
 
 ```javascript
-AcceptAccept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8 
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8 
 ```  
 
 Accept 首部字段可通知服务器，用户代理能够处理的媒体类型及媒体类型的相对优先级。可使用 type/subtype 这种形式，一次指定多种媒体类型。
