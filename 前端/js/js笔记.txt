@@ -1885,3 +1885,9 @@ const makeRequest = async () => {
   const value2 = await promise2(value1)
   return promise3(value1, value2)
 }
+
+复读红宝书收获
+使用分号(;)结尾的好处
+1.防止省略分号造成的意外问题
+2.可以通过删除空行压缩代码
+3.某些情况可以提升性能,因为解析器会尝试在合适的地方补充分号来纠正语法错误
