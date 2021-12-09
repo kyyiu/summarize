@@ -54,4 +54,131 @@
 
 #### React15的缺点     
 在Reconciler中，mount的组件会调用mountComponent (opens new window)，update的组件会调用updateComponent (opens new window)。这两个方法都会递归更新子组件,由于递归执行，所以更新一旦开始，中途就无法中断。当层级很深时，递归更新时间超过了16ms，用户交互就会卡顿。
-Reconciler和Renderer是交替工作的.所以一旦中间需要中断则会出现渲染不完全的页面.
+Reconciler和Renderer是交替工作的.所以一旦中间需要中断则会出现渲染不完全的页面.    
+
+
+#### React16的架构   
+---   
+1. Scheduler（调度器）调度任务的优先级，高优任务优先进入Reconciler     
+    既然我们以浏览器是否有剩余时间作为任务中断的标准，那么我们需要一种机制，当浏览器有剩余时间时通知我们。
+
+    其实部分浏览器已经实现了这个API，这就是requestIdleCallback (opens new window)。但是由于以下因素，React放弃使用：
+
+    浏览器兼容性
+    触发频率不稳定，受很多因素影响。比如当我们的浏览器切换tab后，之前tab注册的requestIdleCallback触发的频率会变得很低
+    基于以上原因，React实现了功能更完备的requestIdleCallbackpolyfill，这就是Scheduler。除了在空闲时触发回调的功能外，Scheduler还提供了多种调度优先级供任务设置。
+2. Reconciler（协调器）负责找出变化的组件     
+    我们知道，在React15中Reconciler是递归处理虚拟DOM的。让我们看看React16的Reconciler (opens new window)。
+
+    我们可以看见，更新工作从递归变成了可以中断的循环过程。每次循环都会调用shouldYield判断当前是否有剩余时间。
+
+    ```javascript
+    /** @noinline */
+    function workLoopConcurrent() {
+    // Perform work until Scheduler asks us to yield
+    while (workInProgress !== null && !shouldYield()) {
+        workInProgress = performUnitOfWork(workInProgress);
+    }
+    }
+    ```
+    那么React16是如何解决中断更新时DOM渲染不完全的问题呢？
+
+    在React16中，Reconciler与Renderer不再是交替工作。当Scheduler将任务交给Reconciler后，Reconciler会为变化的虚拟DOM打上代表增/删/更新的标记，类似这样：
+
+    ```javascript
+    export const Placement = /*             */ 0b0000000000010;
+    export const Update = /*                */ 0b0000000000100;
+    export const PlacementAndUpdate = /*    */ 0b0000000000110;
+    export const Deletion = /*              */ 0b0000000001000;
+    ```
+    全部的标记见这里(opens new window)
+
+    整个Scheduler与Reconciler的工作都在内存中进行。只有当所有组件都完成Reconciler的工作，才会统一交给Renderer。
+3. Renderer（渲染器） 负责将变化的组件渲染到页面上     
+    Renderer根据Reconciler为虚拟DOM打的标记，同步执行对应的DOM操作。
+    在执行renderer之前可能会由于以下原因中断:     
+    1. 有其他更高优先级任务需要先更新
+    2. 当前帧没有剩余时间
+    但是在renderer之前的工作是在内存中进行的，所以不会 更新到页面上，所以即使反复的中断也不会出现更新不完全的情况 
+
+
+** 代数效应
+它可以把「做什么」和「怎么做」完全分离。
+
+它可以让你写代码的时候先把注意力都放在「做什么」上：
+
+function enumerateFiles(dir) {
+  const contents = perform OpenDirectory(dir);
+  perform Log('Enumerating files in ', dir);
+  for (let file of contents.files) {
+    perform HandleFile(file);
+  }
+  perform Log('Enumerating subdirectories in ', dir);
+  for (let directory of contents.dir) {
+    // 我们可以递归或者调用别的有效应的函数
+    enumerateFiles(directory);
+  }
+  perform Log('Done');
+}
+然后再把上面的代码用「怎么做」包裹起来：
+
+let files = [];
+try {
+  enumerateFiles('C:\\');
+} handle (effect) {
+  if (effect instanceof Log) {
+    myLoggingLibrary.log(effect.message);
+    resume;
+  } else if (effect instanceof OpenDirectory) {
+    myFileSystemImpl.openDir(effect.dirName, (contents) => {
+      resume with contents;
+    });
+  } else if (effect instanceof HandleFile) {
+    files.push(effect.fileName);
+    resume;
+  }
+}
+// `files`数组里现在有所有的文件了
+这甚至意味着上面的函数可以被封装成代码库了：
+
+import { withMyLoggingLibrary } from 'my-log';
+import { withMyFileSystem } from 'my-fs';
+
+function ourProgram() {
+  enumerateFiles('C:\\');
+}
+
+withMyLoggingLibrary(() => {
+  withMyFileSystem(() => {
+    ourProgram();
+  });
+});
+与async/await不同的是，代数效应不会把中间的代码搞复杂。enumerateFile可能位于outProgram底下相当深的调用链条中，但是只要它的上方某处存在着效应处理块，我们的代码就能运行。
+
+代数效应同样允许我们不用写太多脚手架代码就能把业务逻辑和实现它的效应的具体代码分离开。比如说，我们可以在测试中用一个伪造的文件系统和日志系统来代替上面的生产环境：
+
+import { withFakeFileSystem } from 'fake-fs';
+
+function withLogSnapshot(fn) {
+  let logs = [];
+  try {
+    fn();
+  } handle (effect) {
+    if (effect instanceof Log) {
+      logs.push(effect.message);
+      resume;
+    }
+  }
+  // Snapshot emitted logs.
+  expect(logs).toMatchSnapshot();
+}
+
+test('my program', () => {
+  const fakeFiles = [/* ... */];
+  withFakeFileSystem(fakeFiles, () => {
+    withLogSnapshot(() => {
+      ourProgram();
+     });
+  });
+});
+因为这里没有「颜色」问题（夹在中间的代码不需要管代数效应），并且代数效应是可组合的（你可以把它嵌套起来），你可以用它创建表达能力超强的抽象。
