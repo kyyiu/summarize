@@ -107,6 +107,7 @@ Reconciler和Renderer是交替工作的.所以一旦中间需要中断则会出�
 
 它可以让你写代码的时候先把注意力都放在「做什么」上：
 
+```javascript
 function enumerateFiles(dir) {
   const contents = perform OpenDirectory(dir);
   perform Log('Enumerating files in ', dir);
@@ -120,8 +121,10 @@ function enumerateFiles(dir) {
   }
   perform Log('Done');
 }
+```
 然后再把上面的代码用「怎么做」包裹起来：
 
+```javascript
 let files = [];
 try {
   enumerateFiles('C:\\');
@@ -139,8 +142,10 @@ try {
   }
 }
 // `files`数组里现在有所有的文件了
+```
 这甚至意味着上面的函数可以被封装成代码库了：
 
+```javascript
 import { withMyLoggingLibrary } from 'my-log';
 import { withMyFileSystem } from 'my-fs';
 
@@ -153,10 +158,12 @@ withMyLoggingLibrary(() => {
     ourProgram();
   });
 });
+```
 与async/await不同的是，代数效应不会把中间的代码搞复杂。enumerateFile可能位于outProgram底下相当深的调用链条中，但是只要它的上方某处存在着效应处理块，我们的代码就能运行。
 
 代数效应同样允许我们不用写太多脚手架代码就能把业务逻辑和实现它的效应的具体代码分离开。比如说，我们可以在测试中用一个伪造的文件系统和日志系统来代替上面的生产环境：
 
+```javascript
 import { withFakeFileSystem } from 'fake-fs';
 
 function withLogSnapshot(fn) {
@@ -181,4 +188,68 @@ test('my program', () => {
      });
   });
 });
-因为这里没有「颜色」问题（夹在中间的代码不需要管代数效应），并且代数效应是可组合的（你可以把它嵌套起来），你可以用它创建表达能力超强的抽象。
+```
+因为这里没有「颜色」问题（夹在中间的代码不需要管代数效应），并且代数效应是可组合的（你可以把它嵌套起来），你可以用它创建表达能力超强的抽象。    
+
+# <center>React17.0.2</center>
+###  目录结构   
+---   
+```javascript
+除去配置文件和隐藏文件夹，根目录的文件夹包括三个
+根目录
+├── fixtures        # 包含一些给贡献者准备的小型 React 测试项目
+├── packages        # 包含元数据（比如 package.json）和 React 仓库中所有 package 的源码（子目录 src）
+├── scripts         # 各种工具链的脚本，比如git、jest、eslint等
+```
+##### packages目录(主要)     
+1.  react文件夹    
+    react的核心，包含所有全局 React API,这些 API 是全平台通用的，它不包含ReactDOM、ReactNative等平台特定的代码。在 NPM 上作为单独的一个包发布。     
+
+2. scheduler文件夹     
+    Scheduler（调度器）的实现。     
+
+3. shared文件夹  
+    源码中其他模块公用的方法和全局变量，比如在shared/ReactSymbols.js 中保存React不同组件类型的定义。    
+
+4. Renderer相关的文件夹     
+    ```javascript
+    - react-art
+    - react-dom                 # 注意这同时是DOM和SSR（服务端渲染）的入口
+    - react-native-renderer
+    - react-noop-renderer       # 用于debug fiber（后面会介绍fiber）
+    - react-test-renderer
+    ```     
+
+5. 试验性包的文件夹     
+    React将自己流程中的一部分抽离出来，形成可以独立使用的包，由于他们是试验性质的，所以不被建议在生产环境使用。包括如下文件夹：   
+    ```javascript
+    - react-server        # 创建自定义SSR流
+    - react-client        # 创建自定义的流
+    - react-fetch         # 用于数据请求
+    - react-interactions  # 用于测试交互相关的内部特性，比如React的事件模型
+    - react-reconciler    # Reconciler的实现，你可以用他构建自己的Renderer
+    ```     
+
+6. 辅助包的文件夹    
+    React将一些辅助功能形成单独的包。包括如下文件夹：
+    ```javascript
+    - react-is       # 用于测试组件是否是某类型
+    - react-client   # 创建自定义的流
+    - react-fetch    # 用于数据请求
+    - react-refresh  # “热重载”的React官方实现
+    ```     
+
+7. react-reconciler文件夹     
+    虽然他是一个实验性的包，内部的很多功能在正式版本中还未开放。但是他一边对接Scheduler，一边对接不同平台的Renderer，构成了整个 React16 的架构体系。
+
+---    
+####  Fiber    
+---      
+1. 作为架构来说:    
+之前React15的Reconciler采用递归的方式执行，数据保存在递归调用栈中，所以被称为stack Reconciler。React16的Reconciler基于Fiber节点实现，被称为Fiber Reconciler。    
+2. 作为静态的数据结构来说:    
+每个Fiber节点对应一个React element，保存了该组件的类型（函数组件/类组件/原生组件...）、对应的DOM节点等信息。       
+3. 作为动态的工作单元来说:      
+每个Fiber节点保存了本次更新中该组件改变的状态、要执行的工作（需要被删除/被插入页面中/被更新...）。
+
+文件位置: react-17.0.2/packages/react-reconciler/src/ReactFiber 这里有两个，一个是.new一个是.old
