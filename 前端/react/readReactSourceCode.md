@@ -243,6 +243,222 @@ test('my program', () => {
     虽然他是一个实验性的包，内部的很多功能在正式版本中还未开放。但是他一边对接Scheduler，一边对接不同平台的Renderer，构成了整个 React16 的架构体系。
 
 ---    
+
+#### JSX     
+---     
+JSX在编译时会被Babel默认编译为React.createElement方法
+```javascript
+function A() {
+  const labelList = [1,2,3]
+  return <div key='1'>
+    <div>elemt</div>
+  	{labelList.length ? labelList.map((t) => (
+      <Label content={t} />
+    )) : null}
+  </div>
+}
+
+function Label({content}) {
+  return <div>{content}</div>
+}
+
+// 编译后
+function A() {
+  return React.createElement("div", {
+    key: "1"
+  }, 
+  React.createElement("div", null, "elemt"), 
+  labelList.length ? labelList.map(t => React.createElement(Label, {
+    content: t
+  })) : null);
+}
+
+// createElement第三个参数可以传多个，超过一个会在内部处理成数组
+
+function Label({
+  content
+}) {
+  return React.createElement("div", null, content);
+}
+```
+```javascript
+//createElement方法在/packages/react/src/ReactElement.js    
+createElement(type, config, children) {
+  let propName;
+
+  // Reserved names are extracted
+  const props = {};
+
+  let key = null;
+  let ref = null;
+  let self = null;
+  let source = null;
+
+  // 将 config 处理后赋值给 props
+  if (config != null) {
+    if (hasValidRef(config)) {
+      ref = config.ref;
+
+      if (__DEV__) {
+        warnIfStringRefCannotBeAutoConverted(config);
+      }
+    }
+    if (hasValidKey(config)) {
+      key = '' + config.key;
+    }
+
+    self = config.__self === undefined ? null : config.__self;
+    source = config.__source === undefined ? null : config.__source;
+    // Remaining properties are added to a new props object
+    for (propName in config) {
+      if (
+        hasOwnProperty.call(config, propName) &&
+        !RESERVED_PROPS.hasOwnProperty(propName)
+      ) {
+        props[propName] = config[propName];
+      }
+    }
+  }
+
+  // Children can be more than one argument, and those are transferred onto
+  // the newly allocated props object.
+  const childrenLength = arguments.length - 2;
+  // 处理 children，会被赋值给props.children
+  if (childrenLength === 1) {
+    props.children = children;
+  } else if (childrenLength > 1) {
+    const childArray = Array(childrenLength);
+    for (let i = 0; i < childrenLength; i++) {
+      childArray[i] = arguments[i + 2];
+    }
+    if (__DEV__) {
+      if (Object.freeze) {
+        Object.freeze(childArray);
+      }
+    }
+    props.children = childArray;
+  }
+
+  // Resolve default props  处理默认的props
+  if (type && type.defaultProps) {
+    const defaultProps = type.defaultProps;
+    for (propName in defaultProps) {
+      if (props[propName] === undefined) {
+        props[propName] = defaultProps[propName];
+      }
+    }
+  }
+  if (__DEV__) {
+    if (key || ref) {
+      const displayName =
+        typeof type === 'function'
+          ? type.displayName || type.name || 'Unknown'
+          : type;
+      if (key) {
+        defineKeyPropWarningGetter(props, displayName);
+      }
+      if (ref) {
+        defineRefPropWarningGetter(props, displayName);
+      }
+    }
+  }
+  return ReactElement(
+    type,
+    key,
+    ref,
+    self,
+    source,
+    ReactCurrentOwner.current,
+    props,
+  );
+}
+
+const ReactElement = function(type, key, ref, self, source, owner, props) {
+  const element = {
+    // This tag allows us to uniquely identify this as a React Element
+    // 标记这是个 React Element
+    $$typeof: REACT_ELEMENT_TYPE,
+
+    // Built-in properties that belong on the element
+    type: type,
+    key: key,
+    ref: ref,
+    props: props,
+
+    // Record the component responsible for creating this element.
+    _owner: owner,
+  };
+
+  if (__DEV__) {
+    // The validation flag is currently mutative. We put it on
+    // an external backing store so that we can freeze the whole object.
+    // This can be replaced with a WeakMap once they are implemented in
+    // commonly used development environments.
+    element._store = {};
+
+    // To make comparing ReactElements easier for testing purposes, we make
+    // the validation flag non-enumerable (where possible, which should
+    // include every environment we run tests in), so the test framework
+    // ignores it.
+    Object.defineProperty(element._store, 'validated', {
+      configurable: false,
+      enumerable: false,
+      writable: true,
+      value: false,
+    });
+    // self and source are DEV only properties.
+    Object.defineProperty(element, '_self', {
+      configurable: false,
+      enumerable: false,
+      writable: false,
+      value: self,
+    });
+    // Two elements created in two different places should be considered
+    // equal for testing purposes and therefore we hide it from enumeration.
+    Object.defineProperty(element, '_source', {
+      configurable: false,
+      enumerable: false,
+      writable: false,
+      value: source,
+    });
+    if (Object.freeze) {
+      Object.freeze(element.props);
+      Object.freeze(element);
+    }
+  }
+
+  return element;
+};
+// 判断一个obj是不是React Element
+// $$typeof === REACT_ELEMENT_TYPE的非null对象就是一个合法的React Element
+function isValidElement(object) {
+  return (
+    typeof object === 'object' &&
+    object !== null &&
+    object.$$typeof === REACT_ELEMENT_TYPE
+  );
+}
+```
+
+
+JSX是一种描述当前组件内容的数据结构
+如下信息就不包括在JSX中：   
+组件在更新中的优先级     
+组件的state     
+组件被打上的用于Renderer的标记    
+这些内容都包含在Fiber节点中。    
+所以，在组件mount时，Reconciler根据JSX描述的组件内容生成组件对应的Fiber节点。    
+
+在update时，Reconciler将JSX与Fiber节点保存的数据对比，生成组件对应的Fiber节点，并根据对比结果为Fiber节点打上标记。   
+
+小知识js的函数中即使不写形参也可以在内部通过arguments对象获取当前函数中传入的参数值，按顺序在里面保存    
+```javascript
+如
+function foo() {
+  console.log(arguments)
+}
+foo(1,2,3,4,5) //[Arguments] { '0': 1, '1': 2, '2': 3, '3': 4, '4': 5 }, 类数组对象
+```
 ####  Fiber    
 ---      
 1. 作为架构来说:    
