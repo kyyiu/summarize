@@ -379,3 +379,46 @@
   
   
   fn1 -> fn4 -> fn5 -> fn6
+
+
+
+
+#### node 使用 python脚本获取数据
+---  
+```javascript
+// test.js
+
+const c = require('child_process')
+// out为python里面print的数据
+const wp = c.exec('python t.py g', (err, out, stdErr) => {
+	if(err) {
+		console.log(err.stack);
+		console.log('Error code', err.code)
+	}
+	console.log('stdout', out)
+	console.log('stderr', stdErr)
+})
+
+wp.on('exit', function(code, signal) {
+	console.log('子进程结束,退出码----', code, signal)
+})
+```
+```python
+import sys
+# 解决返回给node中文乱码
+import io
+sys.stdout = io.TextIOWrapper(sys.stdout.detach(), encoding="utf-8")
+
+def foo(k):
+  print('node传入参数', k, '此脚本名字是', sys.argv[0])
+  print('aaxx')
+  print('xccc')
+  print({
+    'a': 'a',
+    'b': 'b'
+  })
+
+print('xvvv')
+# 参数为从命令行传入过来的参数 sys.argv['t.py', arg1, arg2]
+foo(sys.argv[1])
+```
