@@ -1,5 +1,7 @@
 # <center>HTTP/1.1</center>
 ---   
+##### URL和URI      
+>URI表示的是一个抽象的地址，URL表示的是一个详细的地址。 抽象的地址：湖南省长沙市（这是一个抽象的地址，相当于URI） 详细的地址：湖南省长沙市雨花区香樟路22号（这是一个详细的地址，相当于URL） 为什么URL是URI的子集，雨花区的香樟路22号（URL）属于湖南省长沙市（URI）， 那么放到web上 https://www.csdn.net是一个URI（它只说明了服务器的地址，没有具体到文件是什么类型） 那么https://www.csdn.net/image/logo.gif就是一个URL（他具体到了logo文件的位置并且logo文件是gif类型的，当然这也是一个uri，因为他是唯一的）
 ### 请求方法
 1. **GET** - 查  
     GET ：获取资源   
