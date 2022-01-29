@@ -242,6 +242,181 @@ class Man extends Person with Eat, Walk, Code{}
 
 我们定义了几个 mixin，然后通过 with 关键字将它们组合成不同的类。有一点需要注意：如果多个mixin 中有同名方法，with 时，会默认使用最后面的 mixin 的，mixin 方法中可以通过 super 关键字调用之前 mixin 或类中的方法。
 ```
+
+
+#### 生命周期     
+1. initState (类似es的constructor)    
+> 当 widget 第一次插入到 widget 树时会被调用，对于每一个State对象，Flutter 框架只会调用一次该回调，所以，通常在该回调中做一些一次性的操作，如状态初始化、订阅子树的事件通知等。不能在该回调中调用BuildContext.dependOnInheritedWidgetOfExactType（该方法用于在 widget 树上获取离当前 widget 最近的一个父级InheritedWidget，关于InheritedWidget我们将在后面章节介绍），原因是在初始化完成后， widget 树中的InheritFrom widget也可能会发生变化，所以正确的做法应该在在build（）方法或didChangeDependencies()中调用它。       
+
+2. didChangeDependencies()      
+> 当State对象的依赖发生变化时会被调用；例如：在之前build() 中包含了一个InheritedWidget，然后在之后的build() 中Inherited widget发生了变化，那么此时InheritedWidget的子 widget 的didChangeDependencies()回调都会被调用。典型的场景是当系统语言 Locale 或应用主题改变时，Flutter 框架会通知 widget 调用此回调。需要注意，组件第一次被创建后挂载的时候（包括重创建）对应的didChangeDependencies也会被调用。       
+
+3. build() (类似react的render)      
+> 主要是用于构建 widget 子树的，会在如下场景被调用：      
+在调用initState()之后。     
+在调用didUpdateWidget()之后。     
+在调用setState()之后。     
+在调用didChangeDependencies()之后。    
+在State对象从树中一个位置移除后（会调用deactivate）又重新插入到树的其它位置之后。     
+
+4. reassemble()      
+> 专门为了开发调试而提供的，在热重载(hot reload)时会被调用，此回调在Release模式下永远不会被调用。         
+
+5. didUpdateWidget ()      
+> 在 widget 重新构建时，Flutter 框架会调用widget.canUpdate来检测 widget 树中同一位置的新旧节点，然后决定是否需要更新，如果widget.canUpdate返回true则会调用此回调。正如之前所述，widget.canUpdate会在新旧 widget 的 key 和 runtimeType 同时相等时会返回true，也就是说在在新旧 widget 的key和runtimeType同时相等时didUpdateWidget()就会被调用。
+
+6. deactivate()      
+> 当 State 对象从树中被移除时，会调用此回调。在一些场景下，Flutter 框架会将 State 对象重新插到树中，如包含此 State 对象的子树在树的一个位置移动到另一个位置时（可以通过GlobalKey 来实现）。如果移除后没有重新插入到树中则紧接着会调用dispose()方法。       
+
+7. dispose()     
+> 当 State 对象从树中被永久移除时调用；通常在此回调中释放资源。     
+
+![生命周期流程](https://book.flutterchina.club/assets/img/2-5.a59bef97.jpg)      
+
+##### 注意    
+在继承StatefulWidget重写其方法时，对于包含@mustCallSuper标注的父类方法，都要在子类方法中先调用父类方法。     
+
+
+
+#### 在 widget 树中获取State对象     
+1. context对象有一个findAncestorStateOfType()方法，该方法可以从当前节点沿着 widget 树向上查找指定类型的 StatefulWidget 对应的 State 对象。         
+```dart
+Widget build(BuildContext context) {
+  ...
+  // 查找父级最近的Scaffold对应的ScaffoldState对象
+  ScaffoldState _state = context.findAncestorStateOfType<ScaffoldState>()!; 
+  ...
+}  
+```
+通过 context.findAncestorStateOfType 获取 StatefulWidget 的状态的方法是通用的，我们并不能在语法层面指定 StatefulWidget 的状态是否私有，所以在 Flutter 开发中便有了一个默认的约定：如果 StatefulWidget 的状态是希望暴露出的，应当在 StatefulWidget 中提供一个of 静态方法来获取其 State 对象，开发者便可直接通过该方法来获取；如果 State不希望暴露，则不提供of方法。这个约定在 Flutter SDK 里随处可见。       
+```dart
+// 直接通过of静态方法来获取ScaffoldState
+ScaffoldState _state=Scaffold.of(context);
+// 我们想显示 snack bar 的话可以通过下面代码调用
+ScaffoldMessenger.of(context).showSnackBar(
+  SnackBar(content: Text("我是SnackBar")),
+);
+```      
+
+2. Flutter还有一种通用的获取State对象的方法——通过GlobalKey来获取！ 步骤分两步:     
+   
+```dart
+// 1.给目标StatefulWidget添加GlobalKey 
+// 定义一个globalKey, 由于GlobalKey要保持全局唯一性，我们使用静态变量存储
+static GlobalKey<ScaffoldState> _globalKey= GlobalKey();
+...
+Scaffold(
+    key: _globalKey , //设置key
+    ...  
+)
+// 2.通过GlobalKey来获取State对象
+_globalKey.currentState.openDrawer()
+
+GlobalKey 是 Flutter 提供的一种在整个 App 中引用 element 的机制。如果一个 widget 设置了GlobalKey，那么我们便可以通过globalKey.currentWidget获得该 widget 对象、globalKey.currentElement来获得 widget 对应的element对象，如果当前 widget 是StatefulWidget，则可以通过globalKey.currentState来获得该 widget 对应的state对象。
+
+注意：使用 GlobalKey 开销较大，如果有其他可选方案，应尽量避免使用它。另外，同一个 GlobalKey 在整个 widget 树中必须是唯一的，不能重复。
+```
+
+
+### 通过 RenderObject 自定义 Widget     
+实际上Flutter 最原始的定义组件的方式就是通过定义RenderObject 来实现，而StatelessWidget 和 StatefulWidget 只是提供的两个帮助类。下面我们简单演示一下通过RenderObject定义组件的方式：     
+```dart
+class CustomWidget extends LeafRenderObjectWidget{
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+    // 创建 RenderObject
+    return RenderCustomObject();
+  }
+  @override
+  void updateRenderObject(BuildContext context, RenderCustomObject  renderObject) {
+    // 更新 RenderObject
+    super.updateRenderObject(context, renderObject);
+  }
+}
+
+class RenderCustomObject extends RenderBox{
+
+  @override
+  void performLayout() {
+    // 实现布局逻辑
+  }
+
+  @override
+  void paint(PaintingContext context, Offset offset) {
+    // 实现绘制
+  }
+}
+```
+
+如果组件不会包含子组件，则我们可以直接继承自 LeafRenderObjectWidget ，它是 RenderObjectWidget 的子类，而 RenderObjectWidget 继承自 Widget ，我们可以看一下它的实现：     
+```dart
+abstract class LeafRenderObjectWidget extends RenderObjectWidget {
+  const LeafRenderObjectWidget({ Key? key }) : super(key: key);
+
+  @override
+  LeafRenderObjectElement createElement() => LeafRenderObjectElement(this);
+}
+很简单，就是帮 widget 实现了createElement 方法，它会为组件创建一个 类型为 LeafRenderObjectElement 的 Element对象。如果自定义的 widget 可以包含子组件，则可以根据子组件的数量来选择继承SingleChildRenderObjectWidget 或 MultiChildRenderObjectWidget，它们也实现了createElement() 方法，返回不同类型的 Element 对象。
+
+然后我们重写了 createRenderObject 方法，它是 RenderObjectWidget 中定义方法，该方法被组件对应的 Element 调用（构建渲染树时）用于生成渲染对象。我们的主要任务就是来实现 createRenderObject 返回的渲染对象类，本例中是 RenderCustomObject 。updateRenderObject 方法是用于在组件树状态发生变化但不需要重新创建 RenderObject 时用于更新组件渲染对象的回调。
+
+RenderCustomObject 类是继承自 RenderBox，而 RenderBox 继承自 RenderObject，我们需要在 RenderCustomObject 中实现布局、绘制、事件响应等逻辑
+```     
+
+#### Flutter SDK内置组件库       
+1. 基础组件
+```dart
+//需要先导入 import 'package:flutter/widgets.dart';
+/*
+Text (opens new window)：该组件可让您创建一个带格式的文本。
+
+Row (opens new window)、 Column (opens new window)： 这些具有弹性空间的布局类 widget 可让您在水平（Row）和垂直（Column）方向上创建灵活的布局。其设计是基于 Web 开发中的 Flexbox 布局模型。
+
+Stack (opens new window)： 取代线性布局 (译者语：和 Android 中的FrameLayout相似)，[Stack](https://docs.flutter.io/flutter/ widgets/Stack-class.html)允许子 widget 堆叠， 你可以使用 Positioned (opens new window)来定位他们相对于Stack的上下左右四条边的位置。Stacks是基于Web开发中的绝对定位（absolute positioning )布局模型设计的。
+
+Container (opens new window)： Container (opens new window)可让您创建矩形视觉元素。Container 可以装饰一个BoxDecoration (opens new window), 如 background、一个边框、或者一个阴影。 Container (opens new window)也可以具有边距（margins）、填充(padding)和应用于其大小的约束(constraints)。另外， Container (opens new window)可以使用矩阵在三维空间中对其进行变换*/
+
+```      
+
+2. Material组件（ Android 默认的视觉风格组件库   
+```dart
+import 'package:flutter/material.dart';
+/*
+Flutter 提供了一套丰富 的Material 组件，它可以帮助我们构建遵循 Material Design 设计规范的应用程序。Material 应用程序以MaterialApp (opens new window) 组件开始， 该组件在应用程序的根部创建了一些必要的组件，比如Theme组件，它用于配置应用的主题。 是否使用MaterialApp (opens new window)完全是可选的，但是使用它是一个很好的做法。在之前的示例中，我们已经使用过多个 Material 组件了，如：Scaffold、AppBar、TextButton等。要使用 Material 组件，需要先引入它
+*/
+```     
+3. Cupertino组件 (iOS视觉风格)      
+```dart
+import 'package:flutter/cupertino.dart';
+/*
+Flutter 也提供了一套丰富的 Cupertino 风格的组件，尽管目前还没有 Material 组件那么丰富，但是它仍在不断的完善中。值得一提的是在 Material 组件库中有一些组件可以根据实际运行平台来切换表现风格，比如MaterialPageRoute，在路由切换时，如果是 Android 系统，它将会使用 Android 系统默认的页面切换动画(从底向上)；如果是 iOS 系统，它会使用 iOS 系统默认的页面切换动画（从右向左）*/
+
+```
+
+### 注意
+> 由于 Material 和Cupertino 都是在基础组件库之上的，所以如果我们的应用中引入了这两者之一，则不需要再引入flutter/ widgets.dart了，因为它们内部已经引入过了。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # <center>Flutter</center>
 ---   
 
