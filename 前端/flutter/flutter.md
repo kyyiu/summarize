@@ -1839,9 +1839,77 @@ Expanded(
 )
 
 其实context正是操作Widget所对应的Element的一个接口，由于Widget树对应的Element都是不同的，所以context也都是不同的，有关context的更多内容会在后面高级部分详细讨论。Flutter中有很多“of(context)”这种方法，读者在使用时一定要注意context是否正确
+```      
+
+
+### 进度指示器     
+---     
+Material 组件库中提供了两种进度指示器：LinearProgressIndicator和CircularProgressIndicator，它们都可以同时用于精确的进度指示和模糊的进度指示。     
+LinearProgressIndicator是一个线性、条状的进度条，定义如下     
+```dart
+LinearProgressIndicator({
+  double value,
+  Color backgroundColor,
+  Animation<Color> valueColor,
+  ...
+})
+
+value：value表示当前的进度，取值范围为[0,1]；如果value为null时则指示器会执行一个循环动画（模糊进度）；当value不为null时，指示器为一个具体进度的进度条。
+
+backgroundColor：指示器的背景色。
+
+valueColor: 指示器的进度条颜色；值得注意的是，该值类型是Animation<Color>，这允许我们对进度条的颜色也可以指定动画。如果我们不需要对进度条颜色执行动画，换言之，我们想对进度条应用一种固定的颜色，此时我们可以通过AlwaysStoppedAnimation来指定。 
+
+// 模糊进度条(会执行一个动画)
+LinearProgressIndicator(
+  backgroundColor: Colors.grey[200],
+  valueColor: AlwaysStoppedAnimation(Colors.blue),
+),
+//进度条显示50%
+LinearProgressIndicator(
+  backgroundColor: Colors.grey[200],
+  valueColor: AlwaysStoppedAnimation(Colors.blue),
+  value: .5, 
+)
+第一个进度条在执行循环动画：蓝色条一直在移动，而第二个进度条是静止的，停在50%的位置
+
+
+CircularProgressIndicator是一个圆形进度条，定义如下
+ CircularProgressIndicator({
+  double value,
+  Color backgroundColor,
+  Animation<Color> valueColor,
+  this.strokeWidth = 4.0,
+  ...   
+}) 
+strokeWidth 表示圆形进度条的粗细
+
+
+自定义尺寸
+其实LinearProgressIndicator和CircularProgressIndicator都是取父容器的尺寸作为绘制的边界的。知道了这点，我们便可以通过尺寸限制类Widget，如ConstrainedBox、SizedBox （我们将在后面容器类组件一章中介绍）来指定尺寸，如：
+// 线性进度条高度指定为3
+SizedBox(
+  height: 3,
+  child: LinearProgressIndicator(
+    backgroundColor: Colors.grey[200],
+    valueColor: AlwaysStoppedAnimation(Colors.blue),
+    value: .5,
+  ),
+),
+// 圆形进度条直径指定为100
+SizedBox(
+  height: 100,
+  width: 100,
+  child: CircularProgressIndicator(
+    backgroundColor: Colors.grey[200],
+    valueColor: AlwaysStoppedAnimation(Colors.blue),
+    value: .7,
+  ),
+),
+
 ```
 
-
+ 
 
 
 
