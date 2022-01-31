@@ -1907,7 +1907,463 @@ SizedBox(
   ),
 ),
 
+```      
+
+# 布局       
+---     
+布局原理与约束（constraints）      
+尺寸限制类容器用于限制容器大小，Flutter中提供了多种这样的容器，如ConstrainedBox、SizedBox、UnconstrainedBox、AspectRatio 等
+Flutter 中有两种布局模型：
+
+基于 RenderBox 的盒模型布局。
+基于 Sliver ( RenderSliver ) 按需加载列表布局。     
+
+两种布局方式在细节上略有差异，但大体流程相同，布局流程如下：
+
+上层组件向下层组件传递约束（constraints）条件。
+下层组件确定自己的大小，然后告诉上层组件。注意下层组件的大小必须符合父组件的约束。
+上层组件确定下层组件相对于自身的偏移和确定自身的大小（大多数情况下会根据子组件的大小来确定自身的大小）。
+比如，父组件传递给子组件的约束是“最大宽高不能超过100，最小宽高为0”，如果我们给子组件设置宽高都为200，则子组件最终的大小是100*100，因为任何时候子组件都必须先遵守父组件的约束，在此基础上再应用子组件约束（相当于父组件的约束和自身的大小求一个交集）      
+
+盒模型布局组件有两个特点：
+
+组件对应的渲染对象都继承自 RenderBox 类。在本书后面文章中如果提到某个组件是 RenderBox，则指它是基于盒模型布局的，而不是说组件是 RenderBox 类的实例。
+在布局过程中父级传递给子级的约束信息由 BoxConstraints 描述。     
+
+### BoxConstraints    
+```dart
+BoxConstraints 是盒模型布局过程中父渲染对象传递给子渲染对象的约束信息，包含最大宽高信息，子组件大小需要在约束的范围内，BoxConstraints 默认的构造函数如下：
+
+const BoxConstraints({
+  this.minWidth = 0.0, //最小宽度
+  this.maxWidth = double.infinity, //最大宽度
+  this.minHeight = 0.0, //最小高度
+  this.maxHeight = double.infinity //最大高度
+})
+
+它包含 4 个属性，BoxConstraints还定义了一些便捷的构造函数，用于快速生成特定限制规则的BoxConstraints，如BoxConstraints.tight(Size size)，它可以生成固定宽高的限制；BoxConstraints.expand()可以生成一个尽可能大的用以填充另一个容器的BoxConstraints。除此之外还有一些其它的便捷函数，读者可以查看类定义。另外我们会在后面深入介绍布局原理时还会讨论 Constraints，在这里，读者只需知道父级组件是通过 BoxConstraints 来描述对子组件可用的空间范围即可。
+
+约定：为了描述方便，如果我们说一个组件不约束其子组件或者取消对子组件约束时是指对子组件约束的最大宽高为无限大，而最小宽高为0，相当于子组件完全可以自己根据需要的空间来确定自己的大小。
+```     
+
+### ConstrainedBox      
+```dart
+ConstrainedBox用于对子组件添加额外的约束。例如，如果你想让子组件的最小高度是80像素，你可以使用const BoxConstraints(minHeight: 80.0)作为子组件的约束。
+我们先定义一个redBox，它是一个背景颜色为红色的盒子，不指定它的宽度和高度：
+Widget redBox = DecoratedBox(
+  decoration: BoxDecoration(color: Colors.red),
+);
+
+我们实现一个最小高度为50，宽度尽可能大的红色容器
+ConstrainedBox(
+  constraints: BoxConstraints(
+    minWidth: double.infinity, //宽度尽可能大
+    minHeight: 50.0 //最小高度为50像素
+  ),
+  child: Container(
+    height: 5.0, 
+    child: redBox ,
+  ),
+)
+
+以看到，我们虽然将Container的高度设置为5像素，但是最终却是50像素，这正是ConstrainedBox的最小高度限制生效了。
+
+```     
+
+### SizedBox    
+```dart
+用于给子元素指定固定的宽高
+
+SizedBox(
+  width: 80.0,
+  height: 80.0,
+  child: redBox
+)
+
+实际上SizedBox只是ConstrainedBox的一个定制，上面代码等价于：
+
+ConstrainedBox(
+  constraints: BoxConstraints.tightFor(width: 80.0,height: 80.0),
+  child: redBox, 
+)
+
+而BoxConstraints.tightFor(width: 80.0,height: 80.0)等价于：
+BoxConstraints(minHeight: 80.0,maxHeight: 80.0,minWidth: 80.0,maxWidth: 80.0)
+```    
+
+### 多重限制    
+多重限制时，对于minWidth和minHeight来说，是取父子中相应数值较大的。实际上，只有这样才能保证父限制与子限制不冲突。      
+
+### UnconstrainedBox     
+```dart
+虽然任何时候子组件都必须遵守其父组件的约束，但前提条件是它们必须是父子关系，假如有一个组件 A，它的子组件是B，B 的子组件是 C，则 C 必须遵守 B 的约束，同时 B 必须遵守 A 的约束，但是 A 的约束不会直接约束到 C，除非B将A对它自己的约束透传给了C。 利用这个原理，就可以实现一个这样的 B 组件：
+
+B 组件中在布局 C 时不约束C（可以为无限大）。
+C 根据自身真实的空间占用来确定自身的大小。
+B 在遵守 A 的约束前提下结合子组件的大小确定自身大小。
+而这个 B组件就是 UnconstrainedBox 组件，也就是说UnconstrainedBox 的子组件将不再受到约束，大小完全取决于自己。一般情况下，我们会很少直接使用此组件，但在"去除"多重限制的时候也许会有帮助，我们看下下面的代码：
+
+ConstrainedBox(
+  constraints: BoxConstraints(minWidth: 60.0, minHeight: 100.0),  //父
+  child: UnconstrainedBox( //“去除”父级限制
+    child: ConstrainedBox(
+      constraints: BoxConstraints(minWidth: 90.0, minHeight: 20.0),//子
+      child: redBox,
+    ),
+  )
+)
+
+UnconstrainedBox对父组件限制的“去除”并非是真正的去除：上面例子中虽然红色区域大小是90×20，但上方仍然有80的空白空间。也就是说父限制的minHeight(100.0)仍然是生效的，只不过它不影响最终子元素redBox的大小，但仍然还是占有相应的空间，可以认为此时的父ConstrainedBox是作用于子UnconstrainedBox上，而redBox只受子ConstrainedBox限制，这一点请读者务必注意。
+
+任何时候子组件都必须遵守其父组件的约束，所以在此提示读者，在定义一个通用的组件时，如果要对子组件指定约束，那么一定要注意，因为一旦指定约束条件，子组件自身就不能违反约束。(即 彻底去除父ConstrainedBox的限制是不可以的)
+
+在实际开发中，当我们发现已经使用 SizedBox 或 ConstrainedBox给子元素指定了固定宽高，但是仍然没有效果时，几乎可以断定：已经有父组件指定了约束
+
+需要注意，UnconstrainedBox 虽然在其子组件布局时可以取消约束（子组件可以为无限大），但是 UnconstrainedBox 自身是受其父组件约束的，所以当 UnconstrainedBox 随着其子组件变大后，如果UnconstrainedBox 的大小超过它父组件约束时，也会导致溢出报错
+```     
+
+### 线性布局    
+Flutter 中通过Row和Column来实现线性布局，Row和Column都继承自Flex     
+对于线性布局，有主轴和纵轴之分，如果布局是沿水平方向，那么主轴就是指水平方向，而纵轴即垂直方向；如果布局沿垂直方向，那么主轴就是指垂直方向，而纵轴就是水平方向。在线性布局中，有两个定义对齐方式的枚举类MainAxisAlignment和CrossAxisAlignment，分别代表主轴对齐和纵轴对齐。    
+```dart
+Row可以沿水平方向排列其子widget。
+Row({
+  ...  
+  TextDirection textDirection,    
+  MainAxisSize mainAxisSize = MainAxisSize.max,    
+  MainAxisAlignment mainAxisAlignment = MainAxisAlignment.start,
+  VerticalDirection verticalDirection = VerticalDirection.down,  
+  CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
+  List<Widget> children = const <Widget>[],
+})
+
+textDirection：表示水平方向子组件的布局顺序(是从左往右还是从右往左)，默认为系统当前Locale环境的文本方向(如中文、英语都是从左往右，而阿拉伯语是从右往左)。
+mainAxisSize：表示Row在主轴(水平)方向占用的空间，默认是MainAxisSize.max，表示尽可能多的占用水平方向的空间，此时无论子 widgets 实际占用多少水平空间，Row的宽度始终等于水平方向的最大宽度；而MainAxisSize.min表示尽可能少的占用水平空间，当子组件没有占满水平剩余空间，则Row的实际宽度等于所有子组件占用的的水平空间；
+mainAxisAlignment：表示子组件在Row所占用的水平空间内对齐方式，如果mainAxisSize值为MainAxisSize.min，则此属性无意义，因为子组件的宽度等于Row的宽度。只有当mainAxisSize的值为MainAxisSize.max时，此属性才有意义，MainAxisAlignment.start表示沿textDirection的初始方向对齐，如textDirection取值为TextDirection.ltr时，则MainAxisAlignment.start表示左对齐，textDirection取值为TextDirection.rtl时表示从右对齐。而MainAxisAlignment.end和MainAxisAlignment.start正好相反；MainAxisAlignment.center表示居中对齐。读者可以这么理解：textDirection是mainAxisAlignment的参考系。
+verticalDirection：表示Row纵轴（垂直）的对齐方向，默认是VerticalDirection.down，表示从上到下。
+crossAxisAlignment：表示子组件在纵轴方向的对齐方式，Row的高度等于子组件中最高的子元素高度，它的取值和MainAxisAlignment一样(包含start、end、 center三个值)，不同的是crossAxisAlignment的参考系是verticalDirection，即verticalDirection值为VerticalDirection.down时crossAxisAlignment.start指顶部对齐，verticalDirection值为VerticalDirection.up时，crossAxisAlignment.start指底部对齐；而crossAxisAlignment.end和crossAxisAlignment.start正好相反；
+children ：子组件数组
+
+
+Column参数和Row一样，不同的是布局方向为垂直，主轴纵轴正好相反，读者可类比Row来理解
+
+Row和Column都只会在主轴方向占用尽可能大的空间，而纵轴的长度则取决于他们最大子元素的长度。
+
+特殊情况
+如果Row里面嵌套Row，或者Column里面再嵌套Column，那么只有最外面的Row或Column会占用尽可能大的空间，里面Row或Column所占用的空间为实际大小
+```    
+
+
+### 弹性布局    
+Flutter 中的弹性布局主要通过Flex和Expanded来配合实现。     
+```dart
+Flex和弹性布局相关的属性(其它属性已经在介绍Row和Column时介绍过了)
+Flex({
+  ...
+  required this.direction, //弹性布局的方向, Row默认为水平方向，Column默认为垂直方向
+  List<Widget> children = const <Widget>[],
+})
+
+Expanded
+Expanded 只能作为 Flex 的孩子（否则会报错），它可以按比例“扩伸”Flex子组件所占用的空间。因为 Row和Column 都继承自 Flex，所以 Expanded 也可以作为它们的孩子。
+const Expanded({
+  int flex = 1, 
+  required Widget child,
+})
+flex参数为弹性系数，如果为 0 或null，则child是没有弹性的，即不会被扩伸占用的空间。如果大于0，所有的Expanded按照其 flex 的比例来分割主轴的全部空闲空间。
+```    
+
+### 流式布局    
+在介绍 Row 和 Colum 时，如果子 widget 超出屏幕范围，则会报溢出错误
+这是因为Row默认只有一行，如果超出屏幕不会折行。我们把超出屏幕显示范围会自动折行的布局称为流式布局。Flutter中通过Wrap和Flow来支持流式布局
+```dart
+Wrap({
+  ...
+  this.direction = Axis.horizontal,
+  this.alignment = WrapAlignment.start,
+  this.spacing = 0.0,
+  this.runAlignment = WrapAlignment.start,
+  this.runSpacing = 0.0,
+  this.crossAxisAlignment = WrapCrossAlignment.start,
+  this.textDirection,
+  this.verticalDirection = VerticalDirection.down,
+  List<Widget> children = const <Widget>[],
+})
+
+可以认为Wrap和Flex（包括Row和Column）除了超出显示范围后Wrap会折行外，其它行为基本相同。下面我们看一下Wrap特有的几个属性：
+
+spacing：主轴方向子widget的间距
+runSpacing：纵轴方向的间距
+runAlignment：纵轴方向的对齐方式
+
+Flow
+我们一般很少会使用Flow，因为其过于复杂，需要自己实现子 widget 的位置转换，在很多场景下首先要考虑的是Wrap是否满足需求。
+
+Flow有如下优点：
+
+性能好；Flow是一个对子组件尺寸以及位置调整非常高效的控件，Flow用转换矩阵在对子组件进行位置调整的时候进行了优化：在Flow定位过后，如果子组件的尺寸或者位置发生了变化，在FlowDelegate中的paintChildren()方法中调用context.paintChild 进行重绘，而context.paintChild在重绘时使用了转换矩阵，并没有实际调整组件位置。
+灵活；由于我们需要自己实现FlowDelegate的paintChildren()方法，所以我们需要自己计算每一个组件的位置，因此，可以自定义布局策略。
+缺点：
+
+使用复杂。
+Flow 不能自适应子组件大小，必须通过指定父容器大小或实现TestFlowDelegate的getSize返回固定大小。
+```     
+
+### 层叠布局 Stack、Positioned     
+lutter中使用Stack和Positioned这两个组件来配合实现绝对定位。Stack允许子组件堆叠，而Positioned用于根据Stack的四个角来确定子组件的位置。
+```dart
+Stack({
+  this.alignment = AlignmentDirectional.topStart,
+  this.textDirection,
+  this.fit = StackFit.loose,
+  this.overflow = Overflow.clip,
+  List<Widget> children = const <Widget>[],
+})
+alignment：此参数决定如何去对齐没有定位（没有使用Positioned）或部分定位的子组件。所谓部分定位，在这里特指没有在某一个轴上定位：left、right为横轴，top、bottom为纵轴，只要包含某个轴上的一个定位属性就算在该轴上有定位。
+
+textDirection：和Row、Wrap的textDirection功能一样，都用于确定alignment对齐的参考系，即：textDirection的值为TextDirection.ltr，则alignment的start代表左，end代表右，即从左往右的顺序；textDirection的值为TextDirection.rtl，则alignment的start代表右，end代表左，即从右往左的顺序。
+
+fit：此参数用于确定没有定位的子组件如何去适应Stack的大小。StackFit.loose表示使用子组件的大小，StackFit.expand表示扩伸到Stack的大小。
+
+overflow：此属性决定如何显示超出Stack显示空间的子组件；值为Overflow.clip时，超出部分会被剪裁（隐藏），值为Overflow.visible 时则不会
+
+Positioned
+const Positioned({
+  Key? key,
+  this.left, 
+  this.top,
+  this.right,
+  this.bottom,
+  this.width,
+  this.height,
+  required Widget child,
+})
+
+left、top 、right、 bottom分别代表离Stack左、上、右、底四边的距离。width和height用于指定需要定位元素的宽度和高度。注意，Positioned的width、height 和其它地方的意义稍微有点区别，此处用于配合left、top 、right、 bottom来定位组件，举个例子，在水平方向时，你只能指定left、right、width三个属性中的两个，如指定left和width后，right会自动算出(left+width)，如果同时指定三个属性则会报错，垂直方向同理
+
+我们通过对几个Text组件的定位来演示Stack和Positioned的特性
+
+//通过ConstrainedBox来确保Stack占满屏幕
+ConstrainedBox(
+  constraints: BoxConstraints.expand(),
+  child: Stack(
+    alignment:Alignment.center , //指定未定位或部分定位widget的对齐方式
+    children: <Widget>[
+      Container(
+        child: Text("Hello world",style: TextStyle(color: Colors.white)),
+        color: Colors.red,
+      ),
+      Positioned(
+        left: 18.0,
+        child: Text("I am Jack"),
+      ),
+      Positioned(
+        top: 18.0,
+        child: Text("Your friend"),
+      )        
+    ],
+  ),
+);
+
+由于第一个子文本组件Text("Hello world")没有指定定位，并且alignment值为Alignment.center，所以它会居中显示。第二个子文本组件Text("I am Jack")只指定了水平方向的定位(left)，所以属于部分定位，即垂直方向上没有定位，那么它在垂直方向的对齐方式则会按照alignment指定的对齐方式对齐，即垂直方向居中。对于第三个子文本组件Text("Your friend")，和第二个Text原理一样，只不过是水平方向没有定位，则水平方向居中。
+
+我们给上例中的Stack指定一个fit属性，然后将三个子文本组件的顺序调整一下
+Stack(
+  alignment:Alignment.center ,
+  fit: StackFit.expand, //未定位widget占满Stack整个空间
+  children: <Widget>[
+    Positioned(
+      left: 18.0,
+      child: Text("I am Jack"),
+    ),
+    Container(child: Text("Hello world",style: TextStyle(color: Colors.white)),
+      color: Colors.red,
+    ),
+    Positioned(
+      top: 18.0,
+      child: Text("Your friend"),
+    )
+  ],
+),
+
+可以看到，由于第二个子文本组件没有定位，所以fit属性会对它起作用，就会占满Stack。由于Stack子元素是堆叠的，所以第一个子文本组件被第二个遮住了，而第三个在最上层，所以可以正常显示。
+```     
+
+### 对齐与相对定位（Align）    
+```dart
+通过Stack和Positioned，我们可以指定一个或多个子元素相对于父元素各个边的精确偏移，并且可以重叠。但如果我们只想简单的调整一个子元素在父元素中的位置的话，使用Align组件会更简单一些。
+
+Align 组件可以调整子组件的位置，定义如下：
+Align({
+  Key key,
+  this.alignment = Alignment.center,
+  this.widthFactor,
+  this.heightFactor,
+  Widget child,
+})
+
+alignment : 需要一个AlignmentGeometry类型的值，表示子组件在父组件中的起始位置。AlignmentGeometry 是一个抽象类，它有两个常用的子类：Alignment和 FractionalOffset，我们将在下面的示例中详细介绍。
+
+widthFactor和heightFactor是用于确定Align 组件本身宽高的属性；它们是两个缩放因子，会分别乘以子元素的宽、高，最终的结果就是Align 组件的宽高。如果值为null，则组件的宽高将会占用尽可能多的空间
+
+例子
+Container(
+  height: 120.0,
+  width: 120.0,
+  color: Colors.shade50,
+  child: Align(
+    alignment: Alignment.topRight,
+    child: FlutterLogo(
+      size: 60,
+    ),
+  ),
+)
+
+FlutterLogo 是Flutter SDK 提供的一个组件，内容就是 Flutter 的 logo 。在上面的例子中，我们显式指定了Container的宽、高都为 120。如果我们不显式指定宽高，而通过同时指定widthFactor和heightFactor 为 2 也是可以达到同样的效果
+
+因为FlutterLogo的宽高为 60，则Align的最终宽高都为2*60=120。
+
+另外，我们通过Alignment.topRight将FlutterLogo定位在Container的右上角。那Alignment.topRight是什么呢？通过源码我们可以看到其定义如下：
+
+//右上角
+static const Alignment topRight = Alignment(1.0, -1.0);
+可以看到它只是Alignment的一个实例
+Alignment继承自AlignmentGeometry，表示矩形内的一个点，他有两个属性x、y，分别表示在水平和垂直方向的偏移，Alignment定义如下：
+
+Alignment(this.x, this.y)
+
+Alignment Widget会以矩形的中心点作为坐标原点，即Alignment(0.0, 0.0) 。x、y的值从-1到1分别代表矩形左边到右边的距离和顶部到底边的距离，因此2个水平（或垂直）单位则等于矩形的宽（或高），如Alignment(-1.0, -1.0) 代表矩形的左侧顶点，而Alignment(1.0, 1.0)代表右侧底部终点，而Alignment(1.0, -1.0) 则正是右侧顶点，即Alignment.topRight。为了使用方便，矩形的原点、四个顶点，以及四条边的终点在Alignment类中都已经定义为了静态常量。
+
+Alignment可以通过其坐标转换公式将其坐标转为子元素的具体偏移坐标：
+
+(Alignment.x*childWidth/2+childWidth/2, Alignment.y*childHeight/2+childHeight/2)
+
+其中childWidth为子元素的宽度，childHeight为子元素高度。
+
+现在我们再看看上面的示例，我们将Alignment(1.0, -1.0)带入上面公式，可得FlutterLogo的实际偏移坐标正是（60，0）。
+
+
+FractionalOffset
+FractionalOffset 继承自 Alignment，它和 Alignment唯一的区别就是坐标原点不同！FractionalOffset 的坐标原点为矩形的左侧顶点，这和布局系统的一致，所以理解起来会比较容易
+FractionalOffset的坐标转换公式为：
+
+实际偏移 = (FractionalOffse.x * childWidth, FractionalOffse.y * childHeight)
+
+Align和Stack/Positioned都可以用于指定子元素相对于父元素的偏移，但它们还是有两个主要区别：
+
+定位参考系统不同；Stack/Positioned定位的的参考系可以是父容器矩形的四个顶点；而Align则需要先通过alignment 参数来确定坐标原点，不同的alignment会对应不同原点，最终的偏移是需要通过alignment的转换公式来计算出。
+Stack可以有多个子元素，并且子元素可以堆叠，而Align只能有一个子元素，不存在堆叠
+
+
+Center组件
+class Center extends Align {
+  const Center({ Key? key, double widthFactor, double heightFactor, Widget? child })
+    : super(key: key, widthFactor: widthFactor, heightFactor: heightFactor, child: child);
+}
+
+可以看到Center继承自Align，它比Align只少了一个alignment 参数；由于Align的构造函数中alignment 值为Alignment.center，所以，我们可以认为Center组件其实是对齐方式确定（Alignment.center）了的Align。
+
+上面我们讲过当widthFactor或heightFactor为null时组件的宽高将会占用尽可能多的空间，这一点需要特别注意
+
+```     
+
+
+### LayoutBuilder、AfterLayout    
+```dart
+通过 LayoutBuilder，我们可以在布局过程中拿到父组件传递的约束信息，然后我们可以根据约束信息动态的构建不同的布局。
+
+比如我们实现一个响应式的 Column 组件 ResponsiveColumn，它的功能是当当前可用的宽度小于 200 时，将子组件显示为一列，否则显示为两列
+
+class ResponsiveColumn extends StatelessWidget {
+  const ResponsiveColumn({Key? key, required this.children}) : super(key: key);
+
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    // 通过 LayoutBuilder 拿到父组件传递的约束，然后判断 maxWidth 是否小于200
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        if (constraints.maxWidth < 200) {
+          // 最大宽度小于200，显示单列
+          return Column(children: children, mainAxisSize: MainAxisSize.min);
+        } else {
+          // 大于200，显示双列
+          var _children = <Widget>[];
+          for (var i = 0; i < children.length; i += 2) {
+            if (i + 1 < children.length) {
+              _children.add(Row(
+                children: [children[i], children[i + 1]],
+                mainAxisSize: MainAxisSize.min,
+              ));
+            } else {
+              _children.add(children[i]);
+            }
+          }
+          return Column(children: _children, mainAxisSize: MainAxisSize.min);
+        }
+      },
+    );
+  }
+}
+
+
+class LayoutBuilderRoute extends StatelessWidget {
+  const LayoutBuilderRoute({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    var _children = List.filled(6, Text("A"));
+    // Column在本示例中在水平方向的最大宽度为屏幕的宽度
+    return Column(
+      children: [
+        // 限制宽度为190，小于 200
+        SizedBox(width: 190, child: ResponsiveColumn(children: _children)),
+        ResponsiveColumn(children: _children),
+        LayoutLogPrint(child:Text("xx")) // 下面介绍
+      ],
+    );
+  }
+}
+
+它主要有两个使用场景：
+
+可以使用 LayoutBuilder 来根据设备的尺寸来实现响应式布局。
+LayoutBuilder 可以帮我们高效排查问题。比如我们在遇到布局问题或者想调试组件树中某一个节点布局的约束时 LayoutBuilder 就很有用
+
+打印布局时的约束信息
+为了便于排错，我们封装一个能打印父组件传递给子组件约束的组件：
+class LayoutLogPrint<T> extends StatelessWidget {
+  const LayoutLogPrint({
+    Key? key,
+    this.tag,
+    required this.child,
+  }) : super(key: key);
+
+  final Widget child;
+  final T? tag; //指定日志tag
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (_, constraints) {
+      // assert在编译release版本时会被去除
+      assert(() {
+        print('${tag ?? key ?? child}: $constraints');
+        return true;
+      }());
+      return child;
+    });
+  }
+}
+
+这样，我们就可以使用 LayoutLogPrint 组件树中任意位置的约束信息
+LayoutLogPrint(child:Text("xx"))
+控制台输出：
+flutter: Text("xx"): BoxConstraints(0.0<=w<=428.0, 0.0<=h<=823.0)
+可以看到 Text("xx") 的显示空间最大宽度为 428，最大高度为 823 。
+注意！我们的大前提是盒模型布局，如果是Sliver 布局，可以使用 SliverLayoutBuiler 来打印。
 ```
+
 
  
 
