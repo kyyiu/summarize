@@ -2362,7 +2362,498 @@ LayoutLogPrint(child:Text("xx"))
 flutter: Text("xx"): BoxConstraints(0.0<=w<=428.0, 0.0<=h<=823.0)
 可以看到 Text("xx") 的显示空间最大宽度为 428，最大高度为 823 。
 注意！我们的大前提是盒模型布局，如果是Sliver 布局，可以使用 SliverLayoutBuiler 来打印。
+```    
+
+
+## 容器类组件      
+###  填充（Padding）     
+```dart
+Padding({
+  ...
+  EdgeInsetsGeometry padding,
+  Widget child,
+})
+
+EdgeInsetsGeometry是一个抽象类，开发中，我们一般都使用EdgeInsets类，它是EdgeInsetsGeometry的一个子类，定义了一些设置填充的便捷方法。
+
+EdgeInsets
+我们看看EdgeInsets提供的便捷方法：
+
+fromLTRB(double left, double top, double right, double bottom)：分别指定四个方向的填充。
+all(double value) : 所有方向均使用相同数值的填充。
+only({left, top, right ,bottom })：可以设置具体某个方向的填充(可以同时指定多个方向)。
+symmetric({ vertical, horizontal })：用于设置对称方向的填充，vertical指top和bottom，horizontal指left和right。
+
+```     
+
+### 装饰容器DecoratedBox      
+```dart
+DecoratedBox可以在其子组件绘制前(或后)绘制一些装饰（Decoration），如背景、边框、渐变等。DecoratedBox定义如下：
+
+const DecoratedBox({
+  Decoration decoration,
+  DecorationPosition position = DecorationPosition.background,
+  Widget? child
+})
+
+decoration：代表将要绘制的装饰，它的类型为Decoration。Decoration是一个抽象类，它定义了一个接口 createBoxPainter()，子类的主要职责是需要通过实现它来创建一个画笔，该画笔用于绘制装饰。
+position：此属性决定在哪里绘制Decoration，它接收DecorationPosition的枚举类型，该枚举类有两个值：
+background：在子组件之后绘制，即背景装饰。
+foreground：在子组件之上绘制，即前景。
+
+通常会直接使用BoxDecoration类，它是一个Decoration的子类，实现了常用的装饰元素的绘制
+BoxDecoration({
+  Color color, //颜色
+  DecorationImage image,//图片
+  BoxBorder border, //边框
+  BorderRadiusGeometry borderRadius, //圆角
+  List<BoxShadow> boxShadow, //阴影,可以指定多个
+  Gradient gradient, //渐变
+  BlendMode backgroundBlendMode, //背景混合模式
+  BoxShape shape = BoxShape.rectangle, //形状
+})
+```      
+
+### 变换（Transform）    
+```dart
+Transform可以在其子组件绘制时对其应用一些矩阵变换来实现一些特效。Matrix4是一个4D矩阵，通过它我们可以实现各种矩阵操作，下面是一个例子：
+
+Container(
+  color: Colors.black,
+  child: Transform(
+    alignment: Alignment.topRight, //相对于坐标系原点的对齐方式
+    transform: Matrix4.skewY(0.3), //沿Y轴倾斜0.3弧度
+    child: Container(
+      padding: const EdgeInsets.all(8.0),
+      color: Colors.deepOrange,
+      child: const Text('Apartment for rent!'),
+    ),
+  ),
+)
+
+Transform.translate接收一个offset参数，可以在绘制时沿x、y轴对子组件平移指定的距离。
+DecoratedBox(
+  decoration:BoxDecoration(color: Colors.red),
+  //默认原点为左上角，左移20像素，向上平移5像素  
+  child: Transform.translate(
+    offset: Offset(-20.0, -5.0),
+    child: Text("Hello world"),
+  ),
+)
+
+Transform.rotate可以对子组件进行旋转变换，如：
+要使用math.pi需先进行如下导包。
+import 'dart:math' as math;  
+DecoratedBox(
+  decoration:BoxDecoration(color: Colors.red),
+  child: Transform.rotate(
+    //旋转90度
+    angle:math.pi/2 ,
+    child: Text("Hello world"),
+  ),
+)
+RotatedBox和Transform.rotate功能相似，它们都可以对子组件进行旋转变换，但是有一点不同：RotatedBox的变换是在layout阶段，会影响在子组件的位置和大小
+
+Transform.scale可以对子组件进行缩小或放大，如：
+DecoratedBox(
+  decoration:BoxDecoration(color: Colors.red),
+  child: Transform.scale(
+    scale: 1.5, //放大到1.5倍
+    child: Text("Hello world")
+  )
+);
+```     
+
+### 变换注意事项     
+Transform的变换是应用在绘制阶段，而并不是应用在布局(layout)阶段，所以无论对子组件应用何种变化，其占用空间的大小和在屏幕上的位置都是固定不变的，因为这些是在布局阶段就确定的。      
+
+
+## Container      
+```dart
+Container是一个组合类容器，它本身不对应具体的RenderObject，它是DecoratedBox、ConstrainedBox、Transform、Padding、Align等组件组合的一个多功能容器，所以我们只需通过一个Container组件可以实现同时需要装饰、变换、限制的场景。下面是Container的定义：
+
+Container({
+  this.alignment,
+  this.padding, //容器内补白，属于decoration的装饰范围
+  Color color, // 背景色
+  Decoration decoration, // 背景装饰
+  Decoration foregroundDecoration, //前景装饰
+  double width,//容器的宽度
+  double height, //容器的高度
+  BoxConstraints constraints, //容器大小的限制条件
+  this.margin,//容器外补白，不属于decoration的装饰范围
+  this.transform, //变换
+  this.child,
+  ...
+})
+容器的大小可以通过width、height属性来指定，也可以通过constraints来指定；如果它们同时存在时，width、height优先。实际上Container内部会根据width、height来生成一个constraints。
+color和decoration是互斥的，如果同时设置它们则会报错！实际上，当指定color时，Container内会自动创建一个decoration
+
+Padding和Margin
+Container(
+  margin: EdgeInsets.all(20.0), //容器外补白
+  color: Colors.orange,
+  child: Text("Hello world!"),
+),
+Container(
+  padding: EdgeInsets.all(20.0), //容器内补白
+  color: Colors.orange,
+  child: Text("Hello world!"),
+),
+
+事实上，Container内margin和padding都是通过Padding 组件来实现的，上面的示例代码实际上等价于
+Padding(
+  padding: EdgeInsets.all(20.0),
+  child: DecoratedBox(
+    decoration: BoxDecoration(color: Colors.orange),
+    child: Text("Hello world!"),
+  ),
+),
+DecoratedBox(
+  decoration: BoxDecoration(color: Colors.orange),
+  child: Padding(
+    padding: const EdgeInsets.all(20.0),
+    child: Text("Hello world!"),
+  ),
+),
+```      
+
+## 剪裁（Clip）     
+```dart
+剪裁Widget	默认行为
+ClipOval	子组件为正方形时剪裁成内贴圆形；为矩形时，剪裁成内贴椭圆
+ClipRRect	将子组件剪裁为圆角矩形
+ClipRect	默认剪裁掉子组件布局空间之外的绘制内容（溢出部分剪裁）
+ClipPath	按照自定义的路径剪裁
+
+import 'package:flutter/material.dart';
+
+class ClipTestRoute extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // 头像  
+    Widget avatar = Image.asset("imgs/avatar.png", width: 60.0);
+    return Center(
+      child: Column(
+        children: <Widget>[
+          avatar, //不剪裁
+          ClipOval(child: avatar), //剪裁为圆形
+          ClipRRect( //剪裁为圆角矩形
+            borderRadius: BorderRadius.circular(5.0),
+            child: avatar,
+          ), 
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Align(
+                alignment: Alignment.topLeft,
+                widthFactor: .5,//宽度设为原来宽度一半，另一半会溢出
+                child: avatar,
+              ),
+              Text("你好世界", style: TextStyle(color: Colors.green),)
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              ClipRect(//将溢出部分剪裁
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  widthFactor: .5,//宽度设为原来宽度一半
+                  child: avatar,
+                ),
+              ),
+              Text("你好世界",style: TextStyle(color: Colors.green))
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+最后的两个Row！它们通过Align设置widthFactor为0.5后，图片的实际宽度等于60×0.5，即原宽度一半，但此时图片溢出部分依然会显示，所以第一个“你好世界”会和图片的另一部分重合，为了剪裁掉溢出部分，我们在第二个Row中通过ClipRect将溢出部分剪裁掉了
+
+
+
+如果我们只想截取图片中部40×30像素的范围应该怎么做？这时我们可以使用CustomClipper来自定义剪裁区域，实现代码如下：
+首先，自定义一个CustomClipper：
+class MyClipper extends CustomClipper<Rect> {
+  @override
+  Rect getClip(Size size) => Rect.fromLTWH(10.0, 15.0, 40.0, 30.0);
+
+  @override
+  bool shouldReclip(CustomClipper<Rect> oldClipper) => false;
+}
+
+getClip()是用于获取剪裁区域的接口，由于图片大小是60×60，我们返回剪裁区域为Rect.fromLTWH(10.0, 15.0, 40.0, 30.0)，即图片中部40×30像素的范围。
+shouldReclip() 接口决定是否重新剪裁。如果在应用中，剪裁区域始终不会发生变化时应该返回false，这样就不会触发重新剪裁，避免不必要的性能开销。如果剪裁区域会发生变化（比如在对剪裁区域执行一个动画），那么变化后应该返回true来重新执行剪裁。
+
+通过ClipRect来执行剪裁，为了看清图片实际所占用的位置，我们设置一个红色背景：
+
+DecoratedBox(
+  decoration: BoxDecoration(
+    color: Colors.red
+  ),
+  child: ClipRect(
+    clipper: MyClipper(), //使用自定义的clipper
+    child: avatar
+  ),
+)
+```        
+
+
+## 空间适配 FittedBox     
+```dart
+子组件如何适配父组件空间。而根据 Flutter 布局协议适配算法应该在容器或布局组件的 layout 中实现，为了方便开发者自定义适配规则，Flutter 提供了一个 FittedBox 组件，定义如下：
+
+const FittedBox({
+  Key? key,
+  this.fit = BoxFit.contain, // 适配方式
+  this.alignment = Alignment.center, //对齐方式
+  this.clipBehavior = Clip.none, //是否剪裁
+  Widget? child,
+})
+
+适配原理
+`.FittedBox 在布局子组件时会忽略其父组件传递的约束，可以允许子组件无限大，即FittedBox 传递给子组件的约束为（0<=width<=double.infinity, 0<= height <=double.infinity）。
+2.FittedBox 对子组件布局结束后就可以获得子组件真实的大小。
+3.FittedBox 知道子组件的真实大小也知道他父组件的约束，那么FittedBox 就可以通过指定的适配方式（BoxFit 枚举中指定），让起子组件在 FittedBox 父组件的约束范围内按照指定的方式显示
+
+Widget build(BuildContext context) {
+  return Center(
+    child: Column(
+      children: [
+        wContainer(BoxFit.none),
+        Text('Wendux'),
+        wContainer(BoxFit.contain),
+        Text('Flutter中国'),
+      ],
+    ),
+  );
+}
+
+Widget wContainer(BoxFit boxFit) {
+  return Container(
+    width: 50,
+    height: 50,
+    color: Colors.red,
+    child: FittedBox(
+      fit: boxFit,
+      // 子容器超过父容器大小
+      child: Container(width: 60, height: 70, color: Colors.blue),
+    ),
+  );
+}
+
+因为父Container要比子Container 小，所以当没有指定任何适配方式时，子组件会按照其真实大小进行绘制，所以第一个蓝色区域会超出父组件的空间，因而看不到红色区域。第二个我们指定了适配方式为 BoxFit.contain，含义是按照子组件的比例缩放，尽可能多的占据父组件空间，因为子组件的长宽并不相同，所以按照比例缩放适配父组件后，父组件能显示一部分。
+
+要注意一点，在未指定适配方式时，虽然 FittedBox 子组件的大小超过了 FittedBox 父 Container 的空间，但FittedBox 自身还是要遵守其父组件传递的约束，所以最终 FittedBox 的本身的大小是 50×50，这也是为什么蓝色会和下面文本重叠的原因，因为在布局空间内，父Container只占50×50的大小，接下来文本会紧挨着Container进行布局，而此时Container 中有子组件的大小超过了自己，所以最终的效果就是绘制范围超出了Container，但布局位置是正常的，所以就重叠了。如果我们不想让蓝色超出父组件布局范围，那么可以可以使用 ClipRect 对超出的部分剪裁掉即可：
+ClipRect( // 将超出子组件布局范围的绘制内容剪裁掉
+  child: Container(
+    width: 50,
+    height: 50,
+    color: Colors.red,
+    child: FittedBox(
+      fit: boxFit,
+      child: Container(width: 60, height: 70, color: Colors.blue),
+    ),
+  ),
+);
+```     
+
+## Scaffold     
+一个完整的路由页可能会包含导航栏、抽屉菜单(Drawer)以及底部 Tab 导航菜单等。如果每个路由页面都需要开发者自己手动去实现这些，这会是一件非常麻烦且无聊的事。幸运的是，Flutter Material 组件库提供了一些现成的组件来减少我们的开发任务。Scaffold 是一个路由页的骨架，我们使用它可以很容易地拼装出一个完整的页面。
+```dart
+我们实现一个页面，它包含：
+
+一个导航栏
+导航栏右边有一个分享按钮
+有一个抽屉菜单
+有一个底部导航
+右下角有一个悬浮的动作按钮
+
+class ScaffoldRoute extends StatefulWidget {
+  @override
+  _ScaffoldRouteState createState() => _ScaffoldRouteState();
+}
+
+class _ScaffoldRouteState extends State<ScaffoldRoute> {
+  int _selectedIndex = 1;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar( //导航栏
+        title: Text("App Name"), 
+        actions: <Widget>[ //导航栏右侧菜单
+          IconButton(icon: Icon(Icons.share), onPressed: () {}),
+        ],
+      ),
+      drawer: MyDrawer(), //抽屉
+      bottomNavigationBar: BottomNavigationBar( // 底部导航
+        items: <BottomNavigationBarItem>[
+          BottomNavigationBarItem(icon: Icon(Icons.home), title: Text('Home')),
+          BottomNavigationBarItem(icon: Icon(Icons.business), title: Text('Business')),
+          BottomNavigationBarItem(icon: Icon(Icons.school), title: Text('School')),
+        ],
+        currentIndex: _selectedIndex,
+        fixedColor: Colors.blue,
+        onTap: _onItemTapped,
+      ),
+      floatingActionButton: FloatingActionButton( //悬浮按钮
+          child: Icon(Icons.add),
+          onPressed:_onAdd
+      ),
+    );
+  }
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+  void _onAdd(){
+  }
+}
+
+用到了如下组件：
+
+组件名称	解释
+AppBar	一个导航栏骨架
+MyDrawer	抽屉菜单
+BottomNavigationBar	底部导航栏
+FloatingActionButton	漂浮按钮
+
+AppBar
+AppBar是一个Material风格的导航栏，通过它可以设置导航栏标题、导航栏菜单、导航栏底部的Tab标题等。下面我们看看AppBar的定义：
+
+AppBar({
+  Key? key,
+  this.leading, //导航栏最左侧Widget，常见为抽屉菜单按钮或返回按钮。
+  this.automaticallyImplyLeading = true, //如果leading为null，是否自动实现默认的leading按钮
+  this.title,// 页面标题
+  this.actions, // 导航栏右侧菜单
+  this.bottom, // 导航栏底部菜单，通常为Tab按钮组
+  this.elevation = 4.0, // 导航栏阴影
+  this.centerTitle, //标题是否居中 
+  this.backgroundColor,
+  ...   //其它属性见源码注释
+})
+
+如果给Scaffold添加了抽屉菜单，默认情况下Scaffold会自动将AppBar的leading设置为菜单按钮（如上面截图所示），点击它便可打开抽屉菜单。如果我们想自定义菜单图标，可以手动来设置leading，如：
+
+Scaffold(
+  appBar: AppBar(
+    title: Text("App Name"),
+    leading: Builder(builder: (context) {
+      return IconButton(
+        icon: Icon(Icons.dashboard, color: Colors.white), //自定义图标
+        onPressed: () {
+          // 打开抽屉菜单  
+          Scaffold.of(context).openDrawer(); 
+        },
+      );
+    }),
+    ...  
+  )  
+
+码中打开抽屉菜单的方法在ScaffoldState中，通过Scaffold.of(context)可以获取父级最近的Scaffold 组件的State对象。
+
+抽屉菜单Drawer
+Scaffold的drawer和endDrawer属性可以分别接受一个Widget来作为页面的左、右抽屉菜单。如果开发者提供了抽屉菜单，那么当用户手指从屏幕左（或右）侧向里滑动时便可打开抽屉菜单。本节开始部分的示例中实现了一个左抽屉菜单MyDrawer，它的源码如下：
+
+class MyDrawer extends StatelessWidget {
+  const MyDrawer({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: MediaQuery.removePadding(
+        context: context,
+        //移除抽屉菜单顶部默认留白
+        removeTop: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(top: 38.0),
+              child: Row(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: ClipOval(
+                      child: Image.asset(
+                        "imgs/avatar.png",
+                        width: 80,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    "Wendux",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )
+                ],
+              ),
+            ),
+            Expanded(
+              child: ListView(
+                children: <Widget>[
+                  ListTile(
+                    leading: const Icon(Icons.add),
+                    title: const Text('Add account'),
+                  ),
+                  ListTile(
+                    leading: const Icon(Icons.settings),
+                    title: const Text('Manage accounts'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+抽屉菜单通常将Drawer组件作为根节点，它实现了Material风格的菜单面板，MediaQuery.removePadding可以移除Drawer默认的一些留白（比如Drawer默认顶部会留和手机状态栏等高的留白），读者可以尝试传递不同的参数来看看实际效果。抽屉菜单页由顶部和底部组成，顶部由用户头像和昵称组成，底部是一个菜单列表，用ListView实现，关于ListView我们将在后面“可滚动组件”一节详细介绍。
+
+FloatingActionButton
+FloatingActionButton是Material设计规范中的一种特殊Button，通常悬浮在页面的某一个位置作为某种常用动作的快捷入口，如本节示例中页面右下角的"➕"号按钮。我们可以通过Scaffold的floatingActionButton属性来设置一个FloatingActionButton，同时通过floatingActionButtonLocation属性来指定其在页面中悬浮的位置，这个比较简单，不再赘述
+
+
+底部Tab导航栏
+我们可以通过Scaffold的bottomNavigationBar属性来设置底部导航，如本节开始示例所示，我们通过Material组件库提供的BottomNavigationBar和BottomNavigationBarItem两种组件来实现Material风格的底部导航栏。可以看到上面的实现代码非常简单，所以不再赘述，但是如果我们想实现如图5-21所示效果的底部导航栏应该怎么做呢
+
+
+Material组件库中提供了一个BottomAppBar 组件，它可以和FloatingActionButton配合实现这种“打洞”效果，源码如下：
+
+bottomNavigationBar: BottomAppBar(
+  color: Colors.white,
+  shape: CircularNotchedRectangle(), // 底部导航栏打一个圆形的洞
+  child: Row(
+    children: [
+      IconButton(icon: Icon(Icons.home)),
+      SizedBox(), //中间位置空出
+      IconButton(icon: Icon(Icons.business)),
+    ],
+    mainAxisAlignment: MainAxisAlignment.spaceAround, //均分底部导航栏横向空间
+  ),
+)
+
+可以看到，上面代码中没有控制打洞位置的属性，实际上，打洞的位置取决于FloatingActionButton的位置，上面FloatingActionButton的位置为：
+
+floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+所以打洞位置在底部导航栏的正中间。
+
+BottomAppBar的shape属性决定洞的外形，CircularNotchedRectangle实现了一个圆形的外形，我们也可以自定义外形，比如，Flutter Gallery示例中就有一个“钻石”形状的示例，读者感兴趣可以自行查看。
+
+#5.7.6 页面 body
+最后就是页面的 Body 部分了，Scaffold 有一个 body 属性，接收一个 Widget，我们可以传任意的 Widget ，在下一章中，我们会介绍 TabBarView，它是一个可以进行页面切换的组件，在多 Tab 的 App 中，一般都会将 TabBarView 作为 Scaffold 的 Body。
+
 ```
+![5-12](https://book.flutterchina.club/assets/img/5-21.9b16ea45.png)
 
 
  
