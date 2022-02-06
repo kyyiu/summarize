@@ -2853,7 +2853,12 @@ BottomAppBar的shape属性决定洞的外形，CircularNotchedRectangle实现了
 最后就是页面的 Body 部分了，Scaffold 有一个 body 属性，接收一个 Widget，我们可以传任意的 Widget ，在下一章中，我们会介绍 TabBarView，它是一个可以进行页面切换的组件，在多 Tab 的 App 中，一般都会将 TabBarView 作为 Scaffold 的 Body。
 
 ```
-![5-12](https://book.flutterchina.club/assets/img/5-21.9b16ea45.png)
+![5-12](https://book.flutterchina.club/assets/img/5-21.9b16ea45.png)    
+
+
+## 可滚动组件     
+---      
+
 
 
  
