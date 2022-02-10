@@ -1,20 +1,30 @@
-function PriorityQueue(){
+function PriorityQueue(orderBy){
 	function QueueElement(element,priority){
 		this.element = element
 		this.priority = priority
 	}
 	
+	// 堆
 	this.items = []
+	// 默认小根堆
+	this.isBigRoot = orderBy || 0
+	
+	PriorityQueue.prototype.compareFunc = function(a, b) {
+		return this.isBigRoot ? (a - b < 0) : (a - b >= 0)
+	}
 	
 	PriorityQueue.prototype.enqueue = function (element,priority){
+		priority = priority || element
 		var qu = new QueueElement(element,priority)
+		// 堆为空直接
 		if(this.items.length==0){
 			this.items.push(qu)
 		}else{
 			var added = false
 			for(var i=0;i<this.items.length;i++){
-				//priority越小,越优先
-				if(qu.priority<this.items[i].priority){
+				//priority越小,越优先,小根堆  qu.priority<this.items[i].priority
+				// qu.priority>this.items[i].priority 生成大根堆
+				if(this.compareFunc(qu.priority, this.items[i].priority)){
 					// splice() 方法向/从数组中添加/删除项目，然后返回被删除的项目。
 					// arrayObject.splice(index,howmany,item1,.....,itemX)
 					// index	必需。整数，规定添加/删除项目的位置，使用负数可从数组结尾处规定位置。
@@ -58,12 +68,9 @@ function PriorityQueue(){
 	}
 }
 
-var pr = new PriorityQueue()
-
-
-pr.enqueue('a',100)
-pr.enqueue('b',30)
-pr.enqueue('c',100)
-pr.enqueue('d',110)
+var pr = new PriorityQueue(1)
+for(const ele of [0,7,3,8]) {
+  pr.enqueue(ele, ele)	
+}
 
 console.log(pr.toString())
