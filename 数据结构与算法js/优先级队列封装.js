@@ -74,3 +74,48 @@ for(const ele of [0,7,3,8]) {
 }
 
 console.log(pr.toString())
+
+
+// 可修改已经存在的节点的堆
+function heap2() {
+
+	function Node(node, weight) {
+		this.node = node
+		this.weight = weight
+	}
+
+	this.nodes = []
+	this.nodeIdxMap = new Map()
+	this.weightMap = new Map()
+	this.len = 0
+
+	heap2.prototype.isEmpty = function() {
+		return !this.size 
+	}
+
+	// 进来过node
+	heap2.prototype.becameNodes = function(node) {
+		return this.nodeIdxMap.has(node)
+
+	}
+
+	// 在nodes中有的node
+	heap2.prototype.isInHeap = function(node) {
+		return this.nodeIdxMap.has(node) && this.nodeIdxMap[node] !== -1
+	} 
+
+	heap2.prototype.addOrUpdateOrIgnore = function(node, weight) {
+		// 在heap中的node更新
+		if(this.isInHeap(node)) {
+			this.weightMap.set(node, Math.min(this.weightMap[node], weight))
+			insertHeapify(node, this.nodeIdxMap[node])
+		}
+		// 不在heap中的添加
+		if(!this.becameNodes(node)) {
+			this.nodes[this.size] = node
+			this.nodeIdxMap.set(node, size)
+			this.weightMap.set(node, weight)
+			insertHeapify(node, size++)
+		}
+	}
+}
