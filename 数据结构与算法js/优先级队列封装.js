@@ -119,3 +119,33 @@ function heap2() {
 		}
 	}
 }
+
+
+// 某个数现在处在index位置，往上继续移动
+function heapInsert(arr, index) {
+	// 当前的数大于父位置的数，则两者交换位置，index来到父位置，继续
+	// 直到index位置的数不再比父位置大，或者来到头位置
+	while(arr[index] > arr[Math.floor((index-1)/2)]) {
+		swap(arr, index, Math.floor((index-1)/2));
+		index = Math.floor((index-1) /2)
+	}
+}
+
+// 某个数在index位置，能否往下移动
+function heapify(arr, index, heapSize) {
+	let left = index*2+1 // 左孩子下标
+	while(left < heapSize) { // 从index位置出发左下方还有孩子的时候
+		// 两个孩子中，谁的值大，把下标给bigger
+		// left +1 <heapSize  有右孩子
+		// arr[left+1] > arr[left] 右孩子大于左孩子 
+		let bigger = left +1 <heapSize && arr[left+1] > arr[left] ? left+1 : left
+		// 父亲和孩子之间，谁的值大，把下标给bigger
+		bigger = arr[bigger] > arr[index] ? bigger : index
+		if (bigger == index) {
+			break
+		}
+		swap(arr, bigger, index)
+		index = bigger
+		left = index*2+1
+	}
+}

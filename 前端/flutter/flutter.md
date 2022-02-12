@@ -2858,6 +2858,94 @@ BottomAppBar的shape属性决定洞的外形，CircularNotchedRectangle实现了
 
 ## 可滚动组件     
 ---      
+Flutter 中有两种布局模型：
+基于 RenderBox 的盒模型布局。      
+基于 Sliver ( RenderSliver ) 按需加载列表布局。   
+通常可滚动组件的子组件可能会非常多、占用的总高度也会非常大；如果要一次性将子组件全部构建出将会非常昂贵！为此，Flutter中提出一个Sliver（中文为“薄片”的意思）概念，Sliver 可以包含一个或多个子组件。Sliver 的主要作用是配合：加载子组件并确定每一个子组件的布局和绘制信息，如果 Sliver 可以包含多个子组件时，通常会实现按需加载模型。         
+
+只有当 Sliver 出现在视口中时才会去构建它，这种模型也称为“基于Sliver的列表按需加载模型”。可滚动组件中有很多都支持基于Sliver的按需加载模型，如ListView、GridView，但是也有不支持该模型的，如SingleChildScrollView。           
+
+Flutter 中的可滚动主要由三个角色组成：Scrollable、Viewport 和 Sliver：
+
+Scrollable ：用于处理滑动手势，确定滑动偏移，滑动偏移变化时构建 Viewport 。
+Viewport：显示的视窗，即列表的可视区域；
+Sliver：视窗里显示的元素。       
+
+
+1. Scrollable 监听到用户滑动行为后，根据最新的滑动偏移构建 Viewport 。
+2. Viewport 将当前视口信息和配置信息通过 SliverConstraints 传递给 Sliver。
+3. Sliver 中对子组件（RenderBox）按需进行构建和布局，然后确认自身的位置、绘制等信息，保存在 geometry 中（一个 SliverGeometry 类型的对象）。      
+
+```dart
+用于处理滑动手势，确定滑动偏移，滑动偏移变化时构建 Viewport，我们看一下其关键的属性：
+
+Scrollable({
+  ...
+  this.axisDirection = AxisDirection.down,
+  this.controller,
+  this.physics,
+  required this.viewportBuilder, //后面介绍
+})
+
+axisDirection 滚动方向。
+
+physics：此属性接受一个ScrollPhysics类型的对象，它决定可滚动组件如何响应用户操作，比如用户滑动完抬起手指后，继续执行动画；或者滑动到边界时，如何显示。默认情况下，Flutter会根据具体平台分别使用不同的ScrollPhysics对象，应用不同的显示效果，如当滑动到边界时，继续拖动的话，在 iOS 上会出现弹性效果，而在 Android 上会出现微光效果。如果你想在所有平台下使用同一种效果，可以显式指定一个固定的ScrollPhysics，Flutter SDK中包含了两个ScrollPhysics的子类，他们可以直接使用：
+
+ClampingScrollPhysics：列表滑动到边界时将不能继续滑动，通常在Android 中 配合 GlowingOverscrollIndicator（实现微光效果的组件） 使用。
+BouncingScrollPhysics：iOS 下弹性效果。
+
+controller：此属性接受一个ScrollController对象。ScrollController的主要作用是控制滚动位置和监听滚动事件。默认情况下，Widget树中会有一个默认的PrimaryScrollController，如果子树中的可滚动组件没有显式的指定controller，并且primary属性值为true时（默认就为true），可滚动组件会使用这个默认的PrimaryScrollController。这种机制带来的好处是父组件可以控制子树中可滚动组件的滚动行为，例如，Scaffold正是使用这种机制在iOS中实现了点击导航栏回到顶部的功能。我们将在本章后面“滚动控制”一节详细介绍ScrollController。
+
+viewportBuilder：构建 Viewport 的回调。当用户滑动时，Scrollable 会调用此回调构建新的 Viewport，同时传递一个 ViewportOffset 类型的 offset 参数，该参数描述 Viewport 应该显示那一部分内容。注意重新构建 Viewport 并不是一个昂贵的操作，应为 Viewport 本身也是 Widget，只是配置信息，Viewport 变化时对应的 RenderViewport 会更新信息，并不会随着 Widget 进行重新构建。
+```      
+
+```dart
+Viewport 比较简单，用于渲染当前视口中需要显示 Sliver。
+
+Viewport({
+  Key? key,
+  this.axisDirection = AxisDirection.down,
+  this.crossAxisDirection,
+  this.anchor = 0.0,
+  required ViewportOffset offset, // 用户的滚动偏移
+  // 类型为Key，表示从什么地方开始绘制，默认是第一个元素
+  this.center,
+  this.cacheExtent, // 预渲染区域
+  //该参数用于配合解释cacheExtent的含义，也可以为主轴长度的乘数
+  this.cacheExtentStyle = CacheExtentStyle.pixel, 
+  this.clipBehavior = Clip.hardEdge,
+  List<Widget> slivers = const <Widget>[], // 需要显示的 Sliver 列表
+})
+
+offset：该参数为Scrollabel 构建 Viewport 时传入，它描述了 Viewport 应该显示那一部分内容。
+
+cacheExtent 和 cacheExtentStyle：CacheExtentStyle 是一个枚举，有 pixel 和 viewport 两个取值。当 cacheExtentStyle 值为 pixel 时，cacheExtent 的值为预渲染区域的具体像素长度；当值为 viewport 时，cacheExtent 的值是一个乘数，表示有几个 viewport 的长度，最终的预渲染区域的像素长度为：cacheExtent * viewport 的积， 这在每一个列表项都占满整个 Viewport 时比较实用，这时 cacheExtent 的值就表示前后各缓存几个页面。
+```
+
+
+```dart
+ListView({
+  ...  
+  //可滚动widget公共参数
+  Axis scrollDirection = Axis.vertical,
+  bool reverse = false,
+  ScrollController? controller,
+  bool? primary,
+  ScrollPhysics? physics,
+  EdgeInsetsGeometry? padding,
+  
+  //ListView各个构造函数的共同参数  
+  double? itemExtent,
+  Widget? prototypeItem, //列表项原型，后面解释
+  bool shrinkWrap = false,
+  bool addAutomaticKeepAlives = true,
+  bool addRepaintBoundaries = true,
+  double? cacheExtent, // 预渲染区域长度
+    
+  //子widget列表
+  List<Widget> children = const <Widget>[],
+})
+```
 
 
 
