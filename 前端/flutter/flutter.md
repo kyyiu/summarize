@@ -3350,6 +3350,142 @@ extentBefore：滑出ViewPort顶部的长度；此示例中相当于顶部滑出
 extentInside：ViewPort内部长度；此示例中屏幕显示的列表部分的长度。
 extentAfter：列表中未滑入ViewPort部分的长度；此示例中列表底部未显示到屏幕范围部分的长度。
 atEdge：是否滑到了可滚动组件的边界（此示例中相当于列表顶或底部）。
+```     
+
+
+###  AnimatedList      
+```dart
+AnimatedList 是一个 StatefulWidget，它对应的 State 类型为 AnimatedListState，添加和删除元素的方法位于 AnimatedListState 中：
+
+void insertItem(int index, { Duration duration = _kDuration });
+
+void removeItem(int index, AnimatedListRemovedItemBuilder builder, { Duration duration = _kDuration }) ;
+```        
+
+# 删除增加列表项      
+```dart
+初始的时候有5个列表项，先点击了 + 号按钮，会添加一个 6，添加过程执行渐显动画。然后点击了 4 后面的删除按钮，删除的时候执行了一个渐隐+收缩的合成动画。
+
+class AnimatedListRoute extends StatefulWidget {
+  const AnimatedListRoute({Key? key}) : super(key: key);
+
+  @override
+  _AnimatedListRouteState createState() => _AnimatedListRouteState();
+}
+
+  class _AnimatedListRouteState extends State<AnimatedListRoute> {
+    var data = <String>[];
+    int counter = 5;
+
+    final globalKey = GlobalKey<AnimatedListState>();
+
+    @override
+    void initState() {
+      for (var i = 0; i< counter; i++) {
+        data.add('${i + 1}');
+      }
+      super.initState();
+    }
+
+    @override
+    Widget build(BuilContext context) {
+      return Stack(
+        children: [
+          AnimatedList(
+            Key: globalKey,
+            initialItemCount: data.length,
+            itemBuilder: (
+              BuildContext context,
+              int index,
+              Animation<double> animation,
+            ) {
+              // 添加列表项时会执行渐显动画
+              return FadeTransition(
+                opacity: animation,
+                child: buildItem(context, index),
+
+              );
+            },
+          ),
+          buildAddBtn(),
+        ],
+      );
+    }
+  
+
+    // 创建一个+按钮，点击后会向列表插入一项
+    Widget buildAddBtn() {
+      return Positioned(
+        child: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: () {
+            //添加一个列表项
+            data.add('${++counter}');
+            //告诉列表项有新添加的列表项
+            globalKey,currentState!.insertItem(data.length - 1);
+            print('添加 $counter');
+          },
+        ),
+        bottom: 30,
+        left: 0,
+        right: 0,
+      );
+    }
+
+    // 构建列表项
+    Widget buildItem(context, index) {
+      String char = data[index]
+      reutnr ListTitle(
+        // 数字不会重复，所以作为key
+        key: ValueKey(char),
+        title: Text(char),
+        trailing: IconButton(
+          icon: Icon(Icons.delete),
+          //点击时删除
+          onPressed: () => onDelete(context, index),
+        ),
+      );
+    }
+
+    void onDelete(context, index) {
+      // ToDO
+    }
+  
+  
+  }
+
+
+
+  删除的时候需要我们通过AnimatedListState 的 removeItem 方法来应用删除动画，具体逻辑在 onDelete 中：
+
+
+  setState(() {
+    globalKey.currentState!.removeItem(
+      index,
+      (context, animation) {
+        // 删除过程执行的是反向动画，animation.value 会从1变为0
+        var item = buildItem(context, index);
+        print('删除 ${data[index]}');
+        data.removeAt(index);
+        // 删除动画是一个合成动画 渐隐 + 缩小列表项告诉
+        return FadeTransition(
+          opacity: CurveAnimation(
+            parent: animation,
+            //让透明度变化的更快一些
+            curve: const Interval(0.5, 1.0),
+          ),
+          // 不断缩小列表项的高度
+          child: SizeTransition(
+            sizeFactor: animation,
+            axisAlignment: 0.0,
+            child: item,
+          ),
+        );
+      },
+      duration: Duration(milliseconds: 200), // 动画时间为200ms
+    );
+  });
+  代码很简单，但我们需要注意，我们的数据是单独在 data 中维护的，调用 AnimatedListState 的插入和移除方法知识相当于一个通知：在什么位置执行插入或移除动画，仍然是数据驱动的（响应式并非命令式）。
 ```
 
 
