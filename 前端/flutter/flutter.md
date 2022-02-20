@@ -3489,10 +3489,483 @@ class AnimatedListRoute extends StatefulWidget {
 ```
 
 
+## GridView      
+```dart
+  GridView({
+    Key? key,
+    Axis scrollDirection = Axis.vertical,
+    bool reverse = false,
+    ScrollController? controller,
+    bool? primary,
+    ScrollPhysics? physics,
+    bool shrinkWrap = false,
+    EdgeInsetsGeometry? padding,
+    required this.gridDelegate,  //下面解释
+    bool addAutomaticKeepAlives = true,
+    bool addRepaintBoundaries = true,
+    double? cacheExtent, 
+    List<Widget> children = const <Widget>[],
+    ...
+  })
+
+  gridDelegate参数，类型是SliverGridDelegate，它的作用是控制GridView子组件如何排列(layout)。
+
+SliverGridDelegate是一个抽象类，定义了GridView Layout相关接口，子类需要通过实现它们来实现具体的布局算法。Flutter中提供了两个SliverGridDelegate的子类SliverGridDelegateWithFixedCrossAxisCount和SliverGridDelegateWithMaxCrossAxisExtent
+
+
+SliverGridDelegateWithFixedCrossAxisCount
+该子类实现了一个横轴为固定数量子元素的layout算法，其构造函数为：
+
+SliverGridDelegateWithFixedCrossAxisCount({
+  @required double crossAxisCount, 
+  double mainAxisSpacing = 0.0,
+  double crossAxisSpacing = 0.0,
+  double childAspectRatio = 1.0,
+})
+crossAxisCount：横轴子元素的数量。此属性值确定后子元素在横轴的长度就确定了，即ViewPort横轴长度除以crossAxisCount的商。
+mainAxisSpacing：主轴方向的间距。
+crossAxisSpacing：横轴方向子元素的间距。
+childAspectRatio：子元素在横轴长度和主轴长度的比例。由于crossAxisCount指定后，子元素横轴长度就确定了，然后通过此参数值就可以确定子元素在主轴的长度。
+子元素的大小是通过crossAxisCount和childAspectRatio两个参数共同决定的。注意，这里的子元素指的是子组件的最大显示空间，注意确保子组件的实际大小不要超出子元素的空间。
+
+SliverGridDelegateWithMaxCrossAxisExtent
+该子类实现了一个横轴子元素为固定最大长度的layout算法，其构造函数为：
+
+SliverGridDelegateWithMaxCrossAxisExtent({
+  double maxCrossAxisExtent,
+  double mainAxisSpacing = 0.0,
+  double crossAxisSpacing = 0.0,
+  double childAspectRatio = 1.0,
+})
+maxCrossAxisExtent为子元素在横轴上的最大长度，之所以是“最大”长度，是因为横轴方向每个子元素的长度仍然是等分的，举个例子，如果ViewPort的横轴长度是450，那么当maxCrossAxisExtent的值在区间[450/4，450/3)内的话，子元素最终实际长度都为112.5，而childAspectRatio所指的子元素横轴和主轴的长度比为最终的长度比。其它参数和SliverGridDelegateWithFixedCrossAxisCount相同。 ???
+
+
+GridView.count构造函数内部使用了SliverGridDelegateWithFixedCrossAxisCount，我们通过它可以快速的创建横轴固定数量子元素的GridView，我们可以通过以下代码实现和上面例子相同的效果等：
+
+GridView.count( 
+  crossAxisCount: 3,
+  childAspectRatio: 1.0,
+  children: <Widget>[
+    Icon(Icons.ac_unit),
+    Icon(Icons.airport_shuttle),
+    Icon(Icons.all_inclusive),
+    Icon(Icons.beach_access),
+    Icon(Icons.cake),
+    Icon(Icons.free_breakfast),
+  ],
+);
+
+
+GridView.extent构造函数内部使用了SliverGridDelegateWithMaxCrossAxisExtent，我们通过它可以快速的创建纵轴子元素为固定最大长度的的GridView，上面的示例代码等价于：
+
+GridView.extent(
+   maxCrossAxisExtent: 120.0,
+   childAspectRatio: 2.0,
+   children: <Widget>[
+     Icon(Icons.ac_unit),
+     Icon(Icons.airport_shuttle),
+     Icon(Icons.all_inclusive),
+     Icon(Icons.beach_access),
+     Icon(Icons.cake),
+     Icon(Icons.free_breakfast),
+   ],
+ );
+
+ 上面我们介绍的GridView都需要一个widget数组作为其子元素，这些方式都会提前将所有子widget都构建好，所以只适用于子widget数量比较少时，当子widget比较多时，我们可以通过GridView.builder来动态创建子widget。GridView.builder 必须指定的参数有两个：
+
+GridView.builder(
+ ...
+ required SliverGridDelegate gridDelegate, 
+ required IndexedWidgetBuilder itemBuilder,
+)
+其中itemBuilder为子widget构建器
+```
+
+
+## PageView与页面缓存    
+```dart
+如果要实现页面切换和 Tab 布局，我们可以使用 PageView 组件。需要注意，PageView 是一个非常重要的组件，因为在移动端开发中很常用，比如大多数 App 都包含 Tab 换页效果、图片轮动以及抖音上下滑页切换视频功能等等，这些都可以通过 PageView 轻松实现。
+
+PageView({
+  Key? key,
+  this.scrollDirection = Axis.horizontal, // 滑动方向
+  this.reverse = false,
+  PageController? controller,
+  this.physics,
+  List<Widget> children = const <Widget>[],
+  this.onPageChanged,
+  
+  //每次滑动是否强制切换整个页面，如果为false，则会根据实际的滑动距离显示页面
+  this.pageSnapping = true,
+  //主要是配合辅助功能用的，后面解释
+  this.allowImplicitScrolling = false,
+  //后面解释
+  this.padEnds = true,
+})
+```
+
+
+#  Tab 切换的实例，为了突出重点，我们让每个 Tab 页都只显示一个数字
+```dart
+// Tab 页面 
+class Page extends StatefulWidget {
+  const Page({
+    Key? key,
+    required this.text
+  }) : super(key: key);
+
+  final String text;
+
+  @override
+  _PageState createState() => _PageState();
+}
+
+class _PageState extends State<Page> {
+  @override
+  Widget build(BuildContext context) {
+    print("build ${widget.text}");
+    return Center(child: Text("${widget.text}", textScaleFactor: 5));
+  }
+}
+
+我们创建一个 PageView：
+@override
+Widget build(BuildContext context) {
+  var children = <Widget>[];
+  // 生成 6 个 Tab 页
+  for (int i = 0; i < 6; ++i) {
+    children.add( Page( text: '$i'));
+  }
+
+  return PageView(
+    // scrollDirection: Axis.vertical, // 滑动方向为垂直方向
+    children: children,
+  );
+}
+如果将 PageView 的滑动方向指定为垂直方向（上面代码中注释部分），则会变为上下滑动切换页面。
+
+每当页面切换时都会触发新 Page 页的 build，比如我们从第一页滑到第二页，然后再滑回第一页时控制台打印如下：
+
+flutter: build 0
+flutter: build 1
+flutter: build 0
+
+ageView 默认并没有缓存功能，一旦页面滑出屏幕它就会被销毁，这和我们前面讲过的 ListView/GridView 不一样，在创建 ListView/GridView 时我们可以手动指定 ViewPort 之外多大范围内的组件需要预渲染和缓存（通过 cacheExtent 指定），只有当组件滑出屏幕后又滑出预渲染区域，组件才会被销毁，但是不幸的是 PageView 并没有 cacheExtent 参数
+```
+
+
+## 可滚动组件子项缓存 KeepAlive
+在可滚动组件中缓存指定子项的通用方案
+介绍 ListView 时，有一个addAutomaticKeepAlives 属性我们并没有介绍，如果addAutomaticKeepAlives 为 true，则 ListView 会为每一个列表项添加一个 AutomaticKeepAlive 父组件。虽然 PageView 的默认构造函数和 PageView.builder 构造函数中没有该参数，但它们最终都会生成一个 SliverChildDelegate 来负责列表项的按需加载，而在 SliverChildDelegate 中每当列表项构建完成后，SliverChildDelegate 都会为其添加一个 AutomaticKeepAlive 父组件
+
+
+```dart
+AutomaticKeepAlive 的组件的主要作用是将列表项的根 RenderObject 的 keepAlive 按需自动标记 为 true 或 false。为了方便叙述，我们可以认为根 RenderObject 对应的组件就是列表项的根 Widget，代表整个列表项组件，同时我们将列表组件的 Viewport区域 + cacheExtent（预渲染区域）称为加载区域 ：
+
+1当 keepAlive 标记为 false 时，如果列表项滑出加载区域时，列表组件将会被销毁。
+2当 keepAlive 标记为 true 时，当列表项滑出加载区域后，Viewport 会将列表组件缓存起来；当列表项进入加载区域时，Viewport 从先从缓存中查找是否已经缓存，如果有则直接复用，如果没有则重新创建列表项。
+
+那么 AutomaticKeepAlive 什么时候会将列表项的 keepAlive 标记为 true 或 false 呢？答案是开发者说了算！Flutter 中实现了一套类似 C/S 的机制，AutomaticKeepAlive 就类似一个 Server，它的子组件可以是 Client，这样子组件想改变是否需要缓存的状态时就向 AutomaticKeepAlive 发一个通知消息（KeepAliveNotification），AutomaticKeepAlive 收到消息后会去更改 keepAlive 的状态，如果有必要同时做一些资源清理的工作（比如 keepAlive 从 true 变为 false 时，要释放缓存）。
+
+我们基于上一节 PageView 示例，实现页面缓存，根据上面的描述实现思路就很简单了：让Page 页变成一个 AutomaticKeepAlive Client 即可。为了便于开发者实现，Flutter 提供了一个 AutomaticKeepAliveClientMixin ，我们只需要让 PageState 混入这个 mixin，且同时添加一些必要操作即可：
+
+class _PageState extends State<Page> with AutomaticKeepAliveClientMixin {
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context); // 必须调用
+    return Center(child: Text("${widget.text}", textScaleFactor: 5));
+  }
+
+  @override
+  bool get wantKeepAlive => true; // 是否需要缓存
+}
+
+
+我们只需要提供一个 wantKeepAlive，它会表示 AutomaticKeepAlive 是否需要缓存当前列表项；另外我们必须在 build 方法中调用一下 super.build(context)，该方法实现在 AutomaticKeepAliveClientMixin 中，功能就是根据当前 wantKeepAlive 的值给 AutomaticKeepAlive 发送消息，AutomaticKeepAlive 收到消息后就会开始工作
+
+每个 Page 页只会 build 一次，缓存成功了。需要注意，如果我们采用 PageView.custom 构建页面时没有给列表项包装 AutomaticKeepAlive 父组件，则上述方案不能正常工作，因为此时Client 发出消息后，找不到 Server，404 了
+```
+
+## TabBarView
+TabBarView 是 Material 组件库中提供了 Tab 布局组件，通常和 TabBar 配合使用
+```dart
+ TabBarView({
+  Key? key,
+  required this.children, // tab 页
+  this.controller, // TabController
+  this.physics,
+  this.dragStartBehavior = DragStartBehavior.start,
+}) 
+TabController 用于监听和控制 TabBarView 的页面切换，通常和 TabBar 联动。如果没有指定，则会在组件树中向上查找并使用最近的一个 DefaultTabController
+
+TabBar 有很多配置参数，通过这些参数我们可以定义 TabBar 的样式，很多属性都是在配置 indicator 和 label，拿上图来举例，Label 是每个Tab 的文本，indicator 指 下面的白色下划线
+
+const TabBar({
+  Key? key,
+  required this.tabs, // 具体的 Tabs，需要我们创建
+  this.controller,
+  this.isScrollable = false, // 是否可以滑动
+  this.padding,
+  this.indicatorColor,// 指示器颜色，默认是高度为2的一条下划线
+  this.automaticIndicatorColorAdjustment = true,
+  this.indicatorWeight = 2.0,// 指示器高度
+  this.indicatorPadding = EdgeInsets.zero, //指示器padding
+  this.indicator, // 指示器
+  this.indicatorSize, // 指示器长度，有两个可选值，一个tab的长度，一个是label长度
+  this.labelColor, 
+  this.labelStyle,
+  this.labelPadding,
+  this.unselectedLabelColor,
+  this.unselectedLabelStyle,
+  this.mouseCursor,
+  this.onTap,
+  ...
+}) 
+
+TabBar 通常位于 AppBar 的底部，它也可以接收一个 TabController ，如果需要和 TabBarView 联动， TabBar 和 TabBarView 使用同一个 TabController 即可，注意，联动时 TabBar 和 TabBarView 的孩子数量需要一致。如果没有指定 controller，则会在组件树中向上查找并使用最近的一个 DefaultTabController 。另外我们需要创建需要的 tab 并通过 tabs 传给 TabBar， tab 可以是任何 Widget，不过Material 组件库中已经实现了一个 Tab 组件，我们一般都会直接使用它：
+
+const Tab({
+  Key? key,
+  this.text, //文本
+  this.icon, // 图标
+  this.iconMargin = const EdgeInsets.only(bottom: 10.0),
+  this.height,
+  this.child, // 自定义 widget
+})
+注意，text 和 child 是互斥的，不能同时制定
 
 
 
- 
+```
+
+
+
+# tab例子     
+```dart
+class TabViewRoute1 extends StatefulWidget {
+  @override
+  _TabViewRoute1State createState() => _TabViewRoute1State();
+}
+
+class _TabViewRoute1State extends State<TabViewRoute1>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  List tabs = ["新闻", "历史", "图片"];
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: tabs.length, vsync: this);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("App Name"),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: tabs.map((e) => Tab(text: e)).toList(),
+        ),
+      ),
+      body: TabBarView( //构建
+        controller: _tabController,
+        children: tabs.map((e) {
+          return KeepAliveWrapper(
+            child: Container(
+              alignment: Alignment.center,
+              child: Text(e, textScaleFactor: 5),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+  
+  @override
+  void dispose() {
+    // 释放资源
+    _tabController.dispose();
+    super.dispose();
+  }
+}
+
+滑动页面时顶部的 Tab 也会跟着动，点击顶部 Tab 时页面也会跟着切换。为了实现 TabBar 和 TabBarView 的联动，我们显式创建了一个 TabController，由于 TabController 又需要一个 TickerProvider （vsync 参数）， 我们又混入了 SingleTickerProviderStateMixin；由于 TabController 中会执行动画，持有一些资源，所以我们在页面销毁时必须得释放资源（dispose）。综上，我们发现创建 TabController 的过程还是比较复杂，实战中，如果需要 TabBar 和 TabBarView 联动，通常会创建一个 DefaultTabController 作为它们共同的父级组件，这样它们在执行时就会从组件树向上查找，都会使用我们指定的这个 DefaultTabController。我们修改后的实现如下：
+
+class TabViewRoute2 extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    List tabs = ["新闻", "历史", "图片"];
+    return DefaultTabController(
+      length: tabs.length,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("App Name"),
+          bottom: TabBar(
+            tabs: tabs.map((e) => Tab(text: e)).toList(),
+          ),
+        ),
+        body: TabBarView( //构建
+          children: tabs.map((e) {
+            return KeepAliveWrapper(
+              child: Container(
+                alignment: Alignment.center,
+                child: Text(e, textScaleFactor: 5),
+              ),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+}
+
+可以看到我们无需去手动管理 Controller 的生命周期，也不需要提供 SingleTickerProviderStateMixin，同时也没有其它的状态需要管理，也就不需要用 StatefulWidget 了，这样简单很多。
+```
+
+
+## Sliver 布局协议
+```dart
+Sliver 的布局协议如下：
+
+Viewport 将当前布局和配置信息通过 SliverConstraints 传递给 Sliver。
+Sliver 确定自身的位置、绘制等信息，保存在 geometry 中（一个 SliverGeometry 类型的对象）。
+Viewport 读取 geometry 中的信息来对 Sliver 进行布局和绘制。
+可以看到，这个过程有两个重要的对象 SliverConstraints 和 SliverGeometry ，我们先看看 SliverConstraints 的定义：
+
+Sliver布局模型和盒布局模型
+两者布局流程基本相同：父组件告诉子组件约束信息 > 子组件根据父组件的约束确定自生大小 > 父组件获得子组件大小调整其位置。不同是：
+
+父组件传递个子组件的约束信息不同。盒模型传递的是 BoxConstraints，而 Sliver 传递的是 SliverConstraints。
+描述子组件布局信息的对象不同。盒模型的布局信息通过 Size 和 offset描述 ，而 Sliver的是通过 SliverGeometry 描述。
+布局的起点不同。Sliver布局的起点一般是Viewport ，而盒模型布局的起点可以是任意的组件。
+SliverConstraints 和 SliverGeometry 属性比较多，只看的话它们的含义并不好理解，下面我们将通过两个例子，通过实践来理解
+```
+
+
+##  SliverFlexibleHeader
+```dart
+我们实现一个类似旧版本微信朋友圈顶部头图的功能：即默认情况下顶部图片只显示一部分，当用户向下拽时图片的剩余部分会逐渐显示。
+
+我们的思路是实现一个 Sliver，将它作为 CustomScrollView 的第一孩子，然后根据用户的滑动来动态调整 Sliver 的布局和显示。下面我们来实现一个 SliverFlexibleHeader，它会结合 CustomScrollView 实现上述效果。
+
+@override
+Widget build(BuildContext context) {
+  return CustomScrollView(
+    //为了能使CustomScrollView拉到顶部时还能继续往下拉，必须让 physics 支持弹性效果
+    physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+    slivers: [
+      //我们需要实现的 SliverFlexibleHeader 组件
+      SliverFlexibleHeader(
+        visibleExtent: 200,, // 初始状态在列表中占用的布局高度
+        // 为了能根据下拉状态变化来定制显示的布局，我们通过一个 builder 来动态构建布局。
+        builder: (context, availableHeight, direction) {
+          return GestureDetector(
+            onTap: () => print('tap'), //测试是否可以响应事件
+            child: Image(
+              image: AssetImage("imgs/avatar.png"),
+              width: 50.0,
+              height: availableHeight,
+              alignment: Alignment.bottomCenter,
+              fit: BoxFit.cover,
+            ),
+          );
+        },
+      ),
+      // 构建一个list
+      buildSliverList(30),
+    ],
+  );
+}
+
+重点是实现 SliverFlexibleHeader，由于涉及到 Sliver 布局，通过现有组件很难组合实现我们想要的功能，所以我们通过定制 RenderObject 的方式来实现它。为了能根据下拉位置的变化来动态调整，SliverFlexibleHeader 中我们通过一个 builder 来动态构建布局，当下拉位置发生变化时，builder 就会被回调。
+
+为了清晰起见，我们先实现一个接收固定 widget 的 _SliverFlexibleHeader 组件，组件定义代码如下：
+
+class _SliverFlexibleHeader extends SingleChildRenderObjectWidget {
+  const _SliverFlexibleHeader({
+    Key? key,
+    required Widget child,
+    this.visibleExtent = 0,
+  }) : super(key: key, child: child);
+  final double visibleExtent;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) {
+   return _FlexibleHeaderRenderSliver(visibleExtent);
+  }
+
+  @override
+  void updateRenderObject(
+      BuildContext context, _FlexibleHeaderRenderSliver renderObject) {
+    renderObject..visibleExtent = visibleExtent;
+  }
+}
+这里我们继承的既不是 StatelessWidget，也不是 StatefulWidget，这是因为这两个组件主要的作用是组合 Widget，而我们要自定义 RenderObject，则需要继承 RenderObjectWidget，考虑到_SliverFlexibleHeader 有一个子节点，我们可以直接继承 SingleChildRenderObjectWidget 类，这样我们可以省去一些和布局无关的代码，比如绘制和事件的点击测试，这些功能 SingleChildRenderObjectWidget 中已经帮我们处理了。
+
+面我们实现 _CustomHeaderRenderSliver，核心代码就在 performLayout 中，读者可参考注释：
+
+class _FlexibleHeaderRenderSliver extends RenderSliverSingleBoxAdapter {
+    _FlexibleHeaderRenderSliver(double visibleExtent)
+      : _visibleExtent = visibleExtent;
+  
+  double _lastOverScroll = 0;
+  double _lastScrollOffset = 0;
+  late double _visibleExtent = 0;
+
+
+  set visibleExtent(double value) {
+    // 可视长度发生变化，更新状态并重新布局
+    if (_visibleExtent != value) {
+      _lastOverScroll = 0;
+      _visibleExtent = value;
+      markNeedsLayout();
+    }
+  }
+
+  @override
+  void performLayout() {
+    // 滑动距离大于_visibleExtent时则表示子节点已经在屏幕之外了
+    if (child == null || (constraints.scrollOffset > _visibleExtent)) {
+      geometry = SliverGeometry(scrollExtent: _visibleExtent);
+      return;
+    }
+
+    // 测试overlap,下拉过程中overlap会一直变化.
+    double overScroll = constraints.overlap < 0 ? constraints.overlap.abs() : 0;
+    var scrollOffset = constraints.scrollOffset;
+
+    // 在Viewport中顶部的可视空间为该 Sliver 可绘制的最大区域。
+    // 1. 如果Sliver已经滑出可视区域则 constraints.scrollOffset 会大于 _visibleExtent，
+    //    这种情况我们在一开始就判断过了。
+    // 2. 如果我们下拉超出了边界，此时 overScroll>0，scrollOffset 值为0，所以最终的绘制区域为
+    //    _visibleExtent + overScroll.
+    double paintExtent = _visibleExtent + overScroll - constraints.scrollOffset;
+    // 绘制高度不超过最大可绘制空间
+    paintExtent = min(paintExtent, constraints.remainingPaintExtent);
+
+    //对子组件进行布局，关于 layout 详细过程我们将在本书后面布局原理相关章节详细介绍，现在只需知道
+    //子组件通过 LayoutBuilder可以拿到这里我们传递的约束对象（ExtraInfoBoxConstraints）
+    child!.layout(
+      constraints.asBoxConstraints(maxExtent: paintExtent),
+      parentUsesSize: false,
+    );
+
+    //最大为_visibleExtent，最小为 0
+    double layoutExtent = min(_visibleExtent, paintExtent);
+
+    //设置geometry，Viewport 在布局时会用到
+    geometry = SliverGeometry(
+      scrollExtent: layoutExtent,
+      paintOrigin: -overScroll,
+      paintExtent: paintExtent,
+      maxPaintExtent: paintExtent,
+      layoutExtent: layoutExtent,
+    );
+  }
+}
+```
 
 
 
