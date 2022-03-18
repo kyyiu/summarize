@@ -54,6 +54,8 @@ List.isNotEmpty
 List.reversed  // 对数组倒序排序是一个集合，可以使用toList转换为数组
 print(List.reversed.toList());
 
+map方法之后会变成元组，需要使用toList变回list
+
 5. Maps      
 var p = {
     "name": "a"
