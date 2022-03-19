@@ -130,4 +130,25 @@ auto关键字下的尺寸渲染规则
 
 # background-origin    
 默认值是padding-content     
-即图像是从paddingbox左上角开始渲染的
+即图像是从paddingbox左上角开始渲染的    
+
+
+# 不同设备的适配和响应   
+1. @media规则     
+```    
+媒体查询修饰符: only not
+媒体类型: screen print all
+媒体条件: and not or
+媒体特性: max-width
+```
+
+```
+小知识:    
+only修饰符现在本身没有任何效果，主要是早期的浏览器会忽视无法识别的媒体条件和媒体特性比如会把screen and (color)识别成screen,这样容易产生样式问题；于是为了不让浏览器识别新的查询语句，就设计了only放在媒体类型前面，这样老浏览器就不会解析了，因为only是非法的   
+```   
+
+
+# 滤镜      
+---    
+filter属性让元素自身应用滤镜效果
+backdrop-filter让元素所在区域后面内容应用滤镜效果，需要当前元素是半透明或者全透明
