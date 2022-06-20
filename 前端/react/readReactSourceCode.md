@@ -200,6 +200,11 @@ test('my program', () => {
 ├── fixtures        # 包含一些给贡献者准备的小型 React 测试项目
 ├── packages        # 包含元数据（比如 package.json）和 React 仓库中所有 package 的源码（子目录 src）
 ├── scripts         # 各种工具链的脚本，比如git、jest、eslint等
+
+关于.new 和 .old 文件
+使用 new 还是 old 是通过 ReactFeatureFlags文件 中的 enableNewReconciler 控制的，默认是 false
+.new 是react团队尝试的新特性
+.old 是稳定版本内容
 ```
 ##### packages目录(主要)     
 1.  react文件夹    
@@ -459,6 +464,32 @@ function foo() {
 }
 foo(1,2,3,4,5) //[Arguments] { '0': 1, '1': 2, '2': 3, '3': 4, '4': 5 }, 类数组对象
 ```
+
+
+
+# fiberRoot / rootFiber 和 工作原理
+```
+首次执行ReactDOM.render会创建fiberRootNode（源码中叫fiberRoot）和rootFiber。其中fiberRootNode是整个应用的根节点，rootFiber是<App/>所在组件树的根节点。
+之所以要区分fiberRootNode与rootFiber，是因为在应用中我们可以多次调用ReactDOM.render渲染不同的组件树，他们会拥有不同的rootFiber。但是整个应用的根节点只有一个，那就是fiberRootNode。
+
+fiberRootNode的current会指向当前页面上已渲染内容对应Fiber树，即current Fiber树。
+
+由于是首屏渲染，页面中还没有挂载任何DOM，所以fiberRootNode.current指向的rootFiber没有任何子Fiber节点（即current Fiber树为空）。
+接下来进入render阶段，根据组件返回的JSX在内存中依次创建Fiber节点并连接在一起构建Fiber树，被称为workInProgress Fiber树。（下图中右侧为内存中构建的树，左侧为页面显示的树）
+在构建workInProgress Fiber树时会尝试复用current Fiber树中已有的Fiber节点内的属性，在首屏渲染时只有rootFiber存在对应的current fiber（即rootFiber.alternate）。
+
+构建完的workInProgress Fiber树在commit阶段渲染到页面
+fiberRootNode的current指针指向workInProgress Fiber树使其变为current Fiber 树。
+
+update时
+会开启一次新的render阶段并构建一棵新的workInProgress Fiber 树。
+和mount时一样，workInProgress fiber的创建可以复用current Fiber树对应的节点数据。
+workInProgress Fiber 树在render阶段完成构建后进入commit阶段渲染到页面上。渲染完毕后，workInProgress Fiber 树变为current Fiber 树。
+
+记忆方法：fiberRoot 是Fiber的根，即应用根节点, rootFiber 读音类似入口Fiber， 即入口根节点(比如<APP>)
+```
+
+-----
 ####  Fiber    
 ---      
 1. 作为架构来说:    
@@ -470,6 +501,306 @@ foo(1,2,3,4,5) //[Arguments] { '0': 1, '1': 2, '2': 3, '3': 4, '4': 5 }, 类数�
 
 文件位置: react-17.0.2/packages/react-reconciler/src/ReactFiber 这里有两个，一个是.new一个是.old
 
+
+# 大概流程   
+------
+##  render阶段    
+```javascript
+render阶段开始于performSyncWorkOnRoot或performConcurrentWorkOnRoot方法的调用。这取决于本次更新是同步更新还是异步更新。
+
+我们现在还不需要学习这两个方法，只需要知道在这两个方法中会调用如下两个方法：
+
+// performSyncWorkOnRoot会调用该方法
+function workLoopSync() {
+  while (workInProgress !== null) {
+    performUnitOfWork(workInProgress);
+  }
+}
+
+// performConcurrentWorkOnRoot会调用该方法
+function workLoopConcurrent() {
+  while (workInProgress !== null && !shouldYield()) {
+    performUnitOfWork(workInProgress);
+  }
+}
+可以看到，他们唯一的区别是是否调用shouldYield。如果当前浏览器帧没有剩余时间，shouldYield会中止循环，直到浏览器有空闲时间后再继续遍历。
+
+workInProgress代表当前已创建的workInProgress fiber。
+
+performUnitOfWork方法会创建下一个Fiber节点并赋值给workInProgress，并将workInProgress与已创建的Fiber节点连接起来构成Fiber树
+
+代码在react-reconciler/src/ReactFiberWorkLoop文件中
+
+performUnitOfWork的工作可以分为两部分,“递和归", 因为是通过遍历来实现的可中断更新所以不是传统上所说的递归, 只是一种类似的行为
+首先从rootFiber开始向下深度优先遍历。为遍历到的每个Fiber节点调用beginWork方法(react-reconciler/src/ReactFiberBeginWork)。
+该方法会根据传入的Fiber节点创建子Fiber节点，并将这两个Fiber节点连接起来。
+当遍历到叶子节点（即没有子组件的组件）时就会进入“归”阶段
+
+在“归”阶段会调用completeWork (react-reconciler/src/ReactFiberCompleteWork)处理Fiber节点。
+当某个Fiber节点执行完completeWork，如果其存在兄弟Fiber节点（即fiber.sibling !== null），会进入其兄弟Fiber的“递”阶段。
+如果不存在兄弟Fiber，会进入父级Fiber的“归”阶段。
+“递”和“归”阶段会交错执行直到“归”到rootFiber。至此，render阶段的工作就结束了
+```
+
+```javascript
+// 例子
+class R extends React.Component {
+
+  render() {
+    return (
+      <div className="f1">
+        <div className="f2">
+          <span className="son1">哈哈哈</span>
+        </div>
+        <div className="f3"></div>
+        <span className="f4">略略略</span>
+      </div>
+    )
+  }
+}
+function App() {
+  return <R></R>
+}
+ReactDOM.createRoot(root).render(<App />);
+// 第一次创建时的流程如render1图所示
+
+简单来说就是对beginWork的节点深度优先遍历，遍历过程中重复beginWork，直到最后
+然后从最后开始执行completeWork,直到回到根节点,
+抽象地说就是，从一个只有进口没有出口的迷宫，往里面走，看到一个可以进去的路口就往里面走，碰壁后往回走，一直重复，直到回到起点
+```
+![render](./react源码学习/img/render/render.png)
+<strong><center>render1图片</center></strong>
+
+### beginWork 
+```javascript
+// beginWork的工作是传入当前Fiber节点，创建子Fiber节点
+通过 current === null 来区分组件是处于mount还是update
+update时：如果current存在，在满足一定条件时可以复用current节点，这样就能克隆current.child作为workInProgress.child，而不需要新建workInProgress.child。
+满足如下情况时didReceiveUpdate === false（即可以直接复用前一次更新的子Fiber，不需要新建子Fiber）
+oldProps === newProps && workInProgress.type === current.type，即props与fiber.type不变
+!includesSomeLane(renderLanes, updateLanes)，即当前Fiber节点优先级不够
+
+
+mount时：除fiberRootNode以外，current === null。会根据fiber.tag不同，创建不同类型的子Fiber节点
+当不满足优化路径时，我们就进入第二部分，新建子Fiber。
+我们可以看到，根据fiber.tag不同，进入不同类型Fiber的创建逻辑。 (react-reconciler/src/ReactWorkTags)
+最终会进入reconcileChildren (react-reconciler/src/ReactFiberBeginWork)方法, 或者直接使用mountChildFibers, reconcileChildFibers方法。
+这个方法里面
+使用 mountChildFibers 进行挂载
+使用 reconcileChildFibers 进行更新
+对于mount的组件，他会创建新的子Fiber节点
+对于update的组件，他会将当前组件与该组件在上次更新时对应的Fiber节点比较（也就是俗称的Diff算法），将比较的结果生成新Fiber节点
+
+mountChildFibers与reconcileChildFibers这两个方法的逻辑基本一致。唯一的区别是：reconcileChildFibers会为生成的Fiber节点带上effectTag属性，而mountChildFibers不会。
+
+最终他会生成新的子Fiber节点并赋值给workInProgress.child，作为本次beginWork返回值, 并作为下次performUnitOfWork执行时workInProgress的传参
+
+render阶段的工作是在内存中进行，当工作结束后会通知Renderer需要执行的DOM操作。要执行DOM操作的具体类型就保存在fiber.effectTag中。 (react-reconciler/src/ReactSideEffectTags, 17.0.2 在ReactFiberFlags文件中)
+通过二进制表示effectTag，可以方便的使用位操作为fiber.effectTag赋值多个effect。
+
+
+如果要通知Renderer将Fiber节点对应的DOM节点插入页面中，需要满足两个条件：
+1. fiber.stateNode存在，即Fiber节点中保存了对应的DOM节点
+2. (fiber.effectTag & Placement) !== 0，即Fiber节点存在Placement effectTag
+我们知道，mount时，fiber.stateNode === null，且在reconcileChildren中调用的mountChildFibers不会为Fiber节点赋值effectTag。那么首屏渲染如何完成呢？
+针对第一个问题，fiber.stateNode会在completeWork中创建
+第二个问题的答案十分巧妙：假设mountChildFibers也会赋值effectTag，那么可以预见mount时整棵Fiber树所有节点都会有Placement effectTag。那么commit阶段在执行DOM操作时每个节点都会执行一次插入操作，这样大量的DOM操作是极低效的。
+为了解决这个问题，在mount时只有rootFiber会赋值Placement effectTag，在commit阶段只会执行一次插入操作。
+
+beginWork的流程如图2所示
+```
+![图2](./react%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0//img/render/beginWork.png)
+
+
+### completeWork     
+```javascript
+组件执行beginWork后会创建子Fiber节点，节点上可能存在effectTag
+
+类似beginWork，completeWork也是针对不同fiber.tag调用不同的处理逻辑。
+
+重点关注页面渲染所必须的HostComponent（即原生DOM组件对应的Fiber节点）
+和beginWork一样，我们根据current === null ?判断是mount还是update。
+同时针对HostComponent，判断update时我们还需要考虑workInProgress.stateNode != null ?（即该Fiber节点是否存在对应的DOM节点）
+
+当update时，Fiber节点已经存在对应DOM节点，所以不需要生成DOM节点。需要做的主要是处理props，比如：
+onClick、onChange等回调函数的注册
+处理style prop
+处理DANGEROUSLY_SET_INNER_HTML prop
+处理children prop
+最主要的逻辑是调用updateHostComponent方法。
+在updateHostComponent内部，被处理完的props会被赋值给workInProgress.updateQueue，并最终会在commit阶段被渲染在页面上。
+workInProgress.updateQueue = (updatePayload: any);
+其中updatePayload为数组形式，他的偶数索引的值为变化的prop key，奇数索引的值为变化的prop value。
+
+mount时的主要逻辑包括三个：
+为Fiber节点生成对应的DOM节点
+将子孙DOM节点插入刚生成的DOM节点中
+与update逻辑中的updateHostComponent类似的处理props的过程
+
+
+mount时只会在rootFiber存在Placement effectTag。那么commit阶段是如何通过一次插入DOM操作（对应一个Placement effectTag）将整棵DOM树插入页面的呢？
+原因就在于completeWork中的appendAllChildren方法。
+由于completeWork属于“归”阶段调用的函数，每次调用appendAllChildren时都会将已生成的子孙DOM节点插入当前生成的DOM节点下。那么当“归”到rootFiber时，我们已经有一个构建好的离屏DOM树
+
+作为DOM操作的依据，commit阶段需要找到所有有effectTag的Fiber节点并依次执行effectTag对应操作。难道需要在commit阶段再遍历一次Fiber树寻找effectTag !== null的Fiber节点么？
+为了解决这个问题，在completeWork的上层函数completeUnitOfWork中，每个执行完completeWork且存在effectTag的Fiber节点会被保存在一条被称为effectList的单向链表中。
+effectList中第一个Fiber节点保存在fiber.firstEffect，最后一个元素保存在fiber.lastEffect。
+类似appendAllChildren，在“归”阶段，所有有effectTag的Fiber节点都会被追加在effectList中，最终形成一条以rootFiber.firstEffect为起点的单向链表。
+                       nextEffect         nextEffect
+rootFiber.firstEffect -----------> fiber -----------> fiber
+这样，在commit阶段只需要遍历effectList就能执行所有effect了
+completeUnitOfWork函数 (src\react\v17.0.2\react-reconciler\src\ReactFiberWorkLoop) 中查看
+
+render阶段全部工作完成。在performSyncWorkOnRoot函数中fiberRootNode被传递给commitRoot方法，开启commit阶段工作流程。
+commitRoot(root);
+
+
+completeWork 阶段流程如图3
+```
+![图3](./react%E6%BA%90%E7%A0%81%E5%AD%A6%E4%B9%A0/img/render/completeWork.png)
+
+## commit阶段 （Renderer）
+```javascript
+commitRoot方法是commit阶段工作的起点。fiberRootNode会作为传参。
+
+在rootFiber.firstEffect上保存了一条需要执行副作用的Fiber节点的单向链表effectList，这些Fiber节点的updateQueue中保存了变化的props。
+这些副作用对应的DOM操作在commit阶段执行。
+除此之外，一些生命周期钩子（比如componentDidXXX）、hook（比如useEffect）需要在commit阶段执行。
+commit阶段的主要工作（即Renderer的工作流程）分为三部分：
+before mutation阶段（执行DOM操作前）
+mutation阶段（执行DOM操作）
+layout阶段（执行DOM操作后）
+(src\react\v17.0.2\react-reconciler\src\ReactFiberWorkLoopp)看到commit阶段的完整代码
+在before mutation阶段之前和layout阶段之后还有一些额外工作，涉及到比如useEffect的触发、优先级相关的重置、ref的绑定/解绑。
+```
+### before mutation
+```javascript
+before mutation之前主要做一些变量赋值，状态重置的工作。
+
+before mutation阶段的代码很短，整个过程就是遍历effectList并调用commitBeforeMutationEffects函数处理。
+
+beforeMutation阶段的主函数commitBeforeMutationEffects
+整体可以分为三部分：
+1. 处理DOM节点渲染/删除后的 autoFocus、blur 逻辑。
+2. 调用getSnapshotBeforeUpdate生命周期钩子。
+  commitBeforeMutationEffectOnFiber是commitBeforeMutationLifeCycles的别名。
+  在该方法内会调用getSnapshotBeforeUpdate (src\react\v17.0.2\react-reconciler\src\ReactFiberCommitWork)。
+  从Reactv16开始，componentWillXXX钩子前增加了UNSAFE_前缀。
+  究其原因，是因为Stack Reconciler重构为Fiber Reconciler后，render阶段的任务可能中断/重新开始，对应的组件在render阶段的生命周期钩子（即componentWillXXX）可能触发多次。
+  这种行为和Reactv15不一致，所以标记为UNSAFE_。
+  为此，React提供了替代的生命周期钩子getSnapshotBeforeUpdate。
+  我们可以看见，getSnapshotBeforeUpdate是在commit阶段内的before mutation阶段调用的，由于commit阶段是同步的，所以不会遇到多次调用的问题
+3. 调度useEffect。
+  scheduleCallback方法由Scheduler模块提供，用于以某个优先级异步调度一个回调函数。
+
+  在flushPassiveEffects方法内部会从全局变量rootWithPendingPassiveEffects获取effectList。
+
+  effectList中保存了需要执行副作用的Fiber节点。其中副作用包括
+  插入DOM节点（Placement）
+  更新DOM节点（Update）
+  删除DOM节点（Deletion）
+  除此外，当一个FunctionComponent含有useEffect或useLayoutEffect，他对应的Fiber节点也会被赋值effectTag。
+  hook相关的effectTag (src\react\v17.0.2\react-reconciler\src\ReactHookEffectTags.js)
+  在flushPassiveEffects方法内部会遍历rootWithPendingPassiveEffects（即effectList）执行effect回调函数。
+  如果在此时直接执行，rootWithPendingPassiveEffects === null。
+  那么rootWithPendingPassiveEffects会在何时赋值呢？
+  layout之后的代码片段中会根据rootDoesHavePassiveEffects === true?决定是否赋值rootWithPendingPassiveEffects。
+  const rootDidHavePassiveEffects = rootDoesHavePassiveEffects;
+  if (rootDoesHavePassiveEffects) {
+    rootDoesHavePassiveEffects = false;
+    rootWithPendingPassiveEffects = root;
+    pendingPassiveEffectsLanes = lanes;
+    pendingPassiveEffectsRenderPriority = renderPriorityLevel;
+  }
+  所以整个useEffect异步调用分为三步：
+  before mutation阶段在scheduleCallback中调度flushPassiveEffects
+  layout阶段之后将effectList赋值给rootWithPendingPassiveEffects
+  scheduleCallback触发flushPassiveEffects，flushPassiveEffects内部遍历rootWithPendingPassiveEffects
+
+  与 componentDidMount、componentDidUpdate 不同的是，在浏览器完成布局与绘制之后，传给 useEffect 的函数会延迟调用。这使得它适用于许多常见的副作用场景，
+  比如设置订阅和事件处理等情况，因此不应在函数中执行阻塞浏览器更新屏幕的操作。
+
+  可见，useEffect异步执行的原因主要是防止同步执行时阻塞浏览器渲染
+```
+
+### mutation
+```javascript
+类似before mutation阶段，mutation阶段也是遍历effectList，执行函数。这里执行的是commitMutationEffects
+
+commitMutationEffects会遍历effectList，对每个Fiber节点执行如下三个操作：
+
+根据ContentReset effectTag重置文字节点
+更新ref
+根据effectTag分别处理，其中effectTag包括(Placement | Update | Deletion | Hydrating)
+我们关注步骤三中的Placement | Update | Deletion。Hydrating作为服务端渲染相关,暂不关注
+
+Placement effect
+当Fiber节点含有Placement effectTag，意味着该Fiber节点对应的DOM节点需要插入到页面中。
+调用的方法为commitPlacement
+
+该方法所做的工作分为三步：
+1. 获取父级DOM节点。其中finishedWork为传入的Fiber节点。
+const parentFiber = getHostParentFiber(finishedWork);
+// 父级DOM节点
+const parentStateNode = parentFiber.stateNode;
+2. 获取Fiber节点的DOM兄弟节点
+const before = getHostSibling(finishedWork);
+3. 根据DOM兄弟节点是否存在决定调用parentNode.insertBefore或parentNode.appendChild执行DOM插入操作
+// parentStateNode是否是rootFiber
+if (isContainer) {
+  insertOrAppendPlacementNodeIntoContainer(finishedWork, before, parent);
+} else {
+  insertOrAppendPlacementNode(finishedWork, before, parent);
+}
+
+值得注意的是，getHostSibling（获取兄弟DOM节点）的执行很耗时，当在同一个父Fiber节点下依次执行多个插入操作，getHostSibling算法的复杂度为指数级。
+这是由于Fiber节点不只包括HostComponent，所以Fiber树和渲染的DOM树节点并不是一一对应的。要从Fiber节点找到DOM节点很可能跨层级遍历。
+function getHostSibling(fiber: Fiber): ?Instance {
+  // We're going to search forward into the tree until we find a sibling host
+  // node. Unfortunately, if multiple insertions are done in a row we have to
+  // search past them. This leads to exponential search for the next sibling.
+  // TODO: Find a more efficient way to do this.
+  let node: Fiber = fiber;
+  siblings: while (true) {
+    // If we didn't find anything, let's try the next sibling.
+    while (node.sibling === null) {
+      if (node.return === null || isHostParent(node.return)) {
+        // If we pop out of the root or hit the parent the fiber we are the
+        // last sibling.
+        return null;
+      }
+      node = node.return;
+    }
+    node.sibling.return = node.return;
+    node = node.sibling;
+    while (
+      node.tag !== HostComponent &&
+      node.tag !== HostText &&
+      node.tag !== DehydratedFragment
+    ) {
+      // If it is not host node and, we might have a host node inside it.
+      // Try to search down until we find one.
+      if (node.flags & Placement) {
+        // If we don't have a child, try the siblings instead.
+        continue siblings;
+      }
+      // If we don't have a child, try the siblings instead.
+      // We also skip portals because they are not part of this host tree.
+      if (node.child === null || node.tag === HostPortal) {
+        continue siblings;
+      } else {
+        node.child.return = node;
+        node = node.child;
+      }
+    }
+    // Check if this host node is stable or about to be placed.
+    if (!(node.flags & Placement)) {
+      // Found it!
+      return node.stateNode;
+    }
+  }
+}
+```
 
 #### diff多节点(新旧对比都没有遍历完时),快速判断需要移动几个节点
 在旧节点里面存在的情况下
