@@ -802,6 +802,103 @@ function getHostSibling(fiber: Fiber): ?Instance {
 }
 ```
 
+```javascript
+Update effect
+当Fiber节点含有Update effectTag，意味着该Fiber节点需要更新。调用的方法为commitWork，他会根据Fiber.tag分别处理。
+主要关注FunctionComponent和HostComponent
+当fiber.tag为FunctionComponent，会调用commitHookEffectListUnmount。该方法会遍历effectList，执行所有useLayoutEffect hook的销毁函数
+
+当fiber.tag为HostComponent，会调用commitUpdate。
+最终会在updateDOMProperties中将render阶段 completeWork 中为Fiber节点赋值的updateQueue对应的内容渲染在页面上。
+for (let i = 0; i < updatePayload.length; i += 2) {
+  const propKey = updatePayload[i];
+  const propValue = updatePayload[i + 1];
+
+  // 处理 style
+  if (propKey === STYLE) {
+    setValueForStyles(domElement, propValue);
+  // 处理 DANGEROUSLY_SET_INNER_HTML
+  } else if (propKey === DANGEROUSLY_SET_INNER_HTML) {
+    setInnerHTML(domElement, propValue);
+  // 处理 children
+  } else if (propKey === CHILDREN) {
+    setTextContent(domElement, propValue);
+  } else {
+  // 处理剩余 props
+    setValueForProperty(domElement, propKey, propValue, isCustomComponentTag);
+  }
+}
+
+当Fiber节点含有Deletion effectTag，意味着该Fiber节点对应的DOM节点需要从页面中删除。调用的方法为commitDeletion。
+该方法会执行如下操作：
+递归调用Fiber节点及其子孙Fiber节点中fiber.tag为ClassComponent的componentWillUnmount 生命周期钩子，从页面移除Fiber节点对应DOM节点
+解绑ref
+调度useEffect的销毁函数
+
+```
+
+### layout阶段
+```javascript
+该阶段的代码都是在DOM渲染完成（mutation阶段完成）后执行的。
+该阶段触发的生命周期钩子和hook可以直接访问到已经改变后的DOM，即该阶段是可以参与DOM layout的阶段
+
+layout阶段也是遍历effectList，执行函数。
+具体执行的函数是commitLayoutEffects。
+
+commitLayoutEffects一共做了两件事：
+commitLayoutEffectOnFiber（调用生命周期钩子和hook相关操作）
+commitAttachRef（赋值 ref）
+
+commitLayoutEffectOnFiber方法会根据fiber.tag对不同类型的节点分别处理。
+commitLayoutEffectOnFiber为别名，方法原名为commitLifeCycles
+
+对于ClassComponent，他会通过current === null?区分是mount还是update，调用componentDidMount 或 componentDidUpdate
+触发状态更新的this.setState如果赋值了第二个参数回调函数，也会在此时调用。
+this.setState({ xxx: 1 }, () => {
+  console.log("update");
+});
+
+对于FunctionComponent及相关类型，他会调用useLayoutEffect hook的回调函数，调度useEffect的销毁与回调函数
+相关类型指特殊处理后的FunctionComponent，比如ForwardRef、React.memo包裹的FunctionComponent
+
+switch (finishedWork.tag) {
+  // 以下都是FunctionComponent及相关类型
+  case FunctionComponent:
+  case ForwardRef:
+  case SimpleMemoComponent:
+  case Block: {
+    // 执行useLayoutEffect的回调函数
+    commitHookEffectListMount(HookLayout | HookHasEffect, finishedWork);
+    // 调度useEffect的销毁函数与回调函数
+    schedulePassiveEffects(finishedWork);
+    return;
+  }
+}
+useLayoutEffect hook从上一次更新的销毁函数调用到本次更新的回调函数调用是同步执行的。
+
+而useEffect则需要先调度，在Layout阶段完成后再异步执行。
+
+这就是useLayoutEffect与useEffect的区别。
+
+对于HostRoot，即rootFiber，如果赋值了第三个参数回调函数，也会在此时调用。
+ReactDOM.render(<App />, document.querySelector("#root"), function() {
+  console.log("i am mount~");
+});
+
+
+commitLayoutEffects会做的第二件事是commitAttachRef 功能就是获取DOM实例，更新ref
+
+至此，整个layout阶段就结束了。
+
+current Fiber树切换
+root.current = finishedWork;
+workInProgress Fiber树在commit阶段完成渲染后会变为current Fiber树。这行代码的作用就是切换fiberRootNode指向的current Fiber树。
+那么这行代码为什么在这里呢？（在mutation阶段结束后，layout阶段开始前。）
+我们知道componentWillUnmount会在mutation阶段执行。此时current Fiber树还指向前一次更新的Fiber树，在生命周期钩子内获取的DOM还是更新前的。
+componentDidMount和componentDidUpdate会在layout阶段执行。此时current Fiber树已经指向更新后的Fiber树，在生命周期钩子内获取的DOM就是更新后的。
+
+简单的说就是在这里切换可以使得对应生命周期中能处理预期中的真实结构
+```
 #### diff多节点(新旧对比都没有遍历完时),快速判断需要移动几个节点
 在旧节点里面存在的情况下
 找到开始降序时的峰值，后边出现比他小的就是需要移动的节点
