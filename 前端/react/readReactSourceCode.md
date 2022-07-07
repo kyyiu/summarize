@@ -740,6 +740,7 @@ Placement effect
 
 该方法所做的工作分为三步：
 1. 获取父级DOM节点。其中finishedWork为传入的Fiber节点。
+(\v17.0.2\react-reconciler\src\ReactFiberCommitWork.old.js) 中查看
 const parentFiber = getHostParentFiber(finishedWork);
 // 父级DOM节点
 const parentStateNode = parentFiber.stateNode;
@@ -755,6 +756,7 @@ if (isContainer) {
 
 值得注意的是，getHostSibling（获取兄弟DOM节点）的执行很耗时，当在同一个父Fiber节点下依次执行多个插入操作，getHostSibling算法的复杂度为指数级。
 这是由于Fiber节点不只包括HostComponent，所以Fiber树和渲染的DOM树节点并不是一一对应的。要从Fiber节点找到DOM节点很可能跨层级遍历。
+before节点是为了在插入节点时Fiber树的顺序不会因为映射到DOM上而改变，子节点必须插入在before节点的前面
 function getHostSibling(fiber: Fiber): ?Instance {
   // We're going to search forward into the tree until we find a sibling host
   // node. Unfortunately, if multiple insertions are done in a row we have to
@@ -800,6 +802,8 @@ function getHostSibling(fiber: Fiber): ?Instance {
     }
   }
 }
+
+首先查看目标节点的兄弟节点是否为null，假如为null那么继续判断父节点是否为DOM节点（parent），是就直接插入（返回null值），否则继续向上寻找，当兄弟节点不为null时，判断是否为DOM节点，如果不是DOM节点，就判断是否为需要插入的节点，是的话直接continue继续寻找，不是的话寻找其子节点，没有子节点同样continue，有的话按照子节点遍历。如果兄弟节点是DOM节点，那就查看是否为需要插入的节点，是的话继续循环，不是的话就找到了before节点。另外，当要插入的节点并非DOM节点时，就需要寻找它所有的DOM子节点，注意，这里只插入所有分支的第一层子节点即可，因为这是自底向上的插入方式，底部DOM节点已经插入过其父节点。最终通过parent以及before节点完成了DOM节点的插入。
 ```
 
 ```javascript
