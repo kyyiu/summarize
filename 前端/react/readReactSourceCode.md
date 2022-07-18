@@ -933,6 +933,121 @@ Diff的入口函数reconcileChildFibers出发，该函数会根据newChild（即
 当newChild类型为object、number、string，代表同级只有一个节点
 当newChild类型为Array，同级有多个节点
 ```
+
+# 单节点diff
+```javascript
+以类型object为例，会进入reconcileSingleElement
+  const isObject = typeof newChild === 'object' && newChild !== null;
+
+  if (isObject) {
+    // 对象类型，可能是 REACT_ELEMENT_TYPE 或 REACT_PORTAL_TYPE
+    switch (newChild.$$typeof) {
+      case REACT_ELEMENT_TYPE:
+        // 调用 reconcileSingleElement 处理
+      // ...其他case
+    }
+  }
+
+判断DOM节点是否可以复用是如何实现的
+function reconcileSingleElement(
+  returnFiber: Fiber,
+  currentFirstChild: Fiber | null,
+  element: ReactElement
+): Fiber {
+  const key = element.key;
+  let child = currentFirstChild;
+  
+  // 首先判断是否存在对应DOM节点
+  while (child !== null) {
+    // 上一次更新存在DOM节点，接下来判断是否可复用
+
+    // 首先比较key是否相同
+    if (child.key === key) {
+
+      // key相同，接下来比较type是否相同
+
+      switch (child.tag) {
+        // ...省略case
+        
+        default: {
+          if (child.elementType === element.type) {
+            // type相同则表示可以复用
+            // 返回复用的fiber
+            return existing;
+          }
+          
+          // type不同则跳出switch
+          break;
+        }
+      }
+      // 代码执行到这里代表：key相同但是type不同
+      // 将该fiber及其兄弟fiber标记为删除
+      deleteRemainingChildren(returnFiber, child);
+      break;
+    } else {
+      // key不同，将该fiber标记为删除
+      deleteChild(returnFiber, child);
+    }
+    child = child.sibling;
+  }
+
+  // 创建新Fiber，并返回 ...省略
+}
+```
+
+# 多节点diff
+```javascript
+情况1：节点更新
+情况2：节点新增或减少
+情况3：节点位置变化
+
+Diff算法的整体逻辑会经历两轮遍历：
+第一轮遍历：处理更新的节点。
+第二轮遍历：处理剩下的不属于更新的节点。
+
+第一轮遍历步骤如下：
+1. let i = 0，遍历newChildren，将newChildren[i]与oldFiber比较，判断DOM节点是否可复用。
+
+2. 如果可复用，i++，继续比较newChildren[i]与oldFiber.sibling，可以复用则继续遍历。
+
+3. 如果不可复用，分两种情况：
+key不同导致不可复用，立即跳出整个遍历，第一轮遍历结束。
+key相同type不同导致不可复用，会将oldFiber标记为DELETION，并继续遍历
+
+4. 如果newChildren遍历完（即i === newChildren.length - 1）或者oldFiber遍历完（即oldFiber.sibling === null），跳出遍历，第一轮遍历结束。
+
+第二轮遍历
+1. newChildren与oldFiber同时遍历完
+那就是最理想的情况：只需在第一轮遍历进行组件更新。此时Diff结束
+2. newChildren没遍历完，oldFiber遍历完
+已有的DOM节点都复用了，这时还有新加入的节点，意味着本次更新有新节点插入，我们只需要遍历剩下的newChildren为生成的workInProgress fiber依次标记Placement
+3. newChildren遍历完，oldFiber没遍历完
+意味着本次更新比之前的节点数量少，有节点被删除了。所以需要遍历剩下的oldFiber，依次标记Deletion
+4. newChildren与oldFiber都没遍历完
+这意味着有节点在这次更新中改变了位置
+
+处理移动的节点
+由于有节点改变了位置，所以不能再用位置索引i对比前后的节点，那么如何才能将同一个节点在两次更新中对应上呢？
+
+我们需要使用key。
+
+为了快速的找到key对应的oldFiber，我们将所有还未处理的oldFiber存入以key为key，oldFiber为value的Map中。
+const existingChildren = mapRemainingChildren(returnFiber, oldFiber);
+接下来遍历剩余的newChildren，通过newChildren[i].key就能在existingChildren中找到key相同的oldFiber
+
+标记节点是否移动
+既然我们的目标是寻找移动的节点，那么我们需要明确：节点是否移动是以什么为参照物？
+
+我们的参照物是：最后一个可复用的节点在oldFiber中的位置索引（用变量lastPlacedIndex表示）。
+
+由于本次更新中节点是按newChildren的顺序排列。在遍历newChildren过程中，每个遍历到的可复用节点一定是当前遍历到的所有可复用节点中最靠右的那个，即一定在lastPlacedIndex对应的可复用的节点在本次更新中位置的后面。
+
+那么我们只需要比较遍历到的可复用节点在上次更新时是否也在lastPlacedIndex对应的oldFiber后面，就能知道两次更新中这两个节点的相对位置改变没有。
+
+我们用变量oldIndex表示遍历到的可复用节点在oldFiber中的位置索引。如果oldIndex < lastPlacedIndex，代表本次更新该节点需要向右移动。
+
+lastPlacedIndex初始为0，每遍历一个可复用的节点，如果oldIndex >= lastPlacedIndex，则lastPlacedIndex = oldIndex。
+```
 #### diff多节点(新旧对比都没有遍历完时),快速判断需要移动几个节点
 在旧节点里面存在的情况下
 找到开始降序时的峰值，后边出现比他小的就是需要移动的节点
