@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>观察者模式</title>
+    <style>
+        .introduce {
+            white-space: pre-line;
+        }
+    </style>
+</head>
+<body>
+    <div class="introduce">
+        观察者模式:
+        定义一种依赖关系，解决主体对象和观察者之间功能的耦合
+    </div>
+    <div>
+        <div class="msg_num">0</div>
+        <ul id="msg">
+            
+        </ul>
+        <button class="submit"></button>
+    </div>
+
+    <script>
+        // 观察者有三个方法和一个容器
+        const Observer = (function() {
+            const __msg = {}
+            return {
+                // 注册信息
+                regist: function(type, fn) {
+                    if(typeof __msg[type] === "undefined") {
+                        __msg[type] = [fn]
+                    } else {
+                        __msg[type].push(fn)
+                    }
+                },
+                // 发布信息
+                fire: function(type, args) {
+                    if(!__msg[type]) return
+                    let events = {
+                        type: type,
+                        args: args || {}
+                    },
+                    i = 0,
+                    len = __msg[type].length
+                    for(;i<len;i++) {
+                        __msg[type][i].call(this, events)
+                    }
+                }, 
+                // 移除信息
+                remove: function(type, fn) {
+                    if(__msg[type] instanceof Array) {
+                        const len = __msg[type].length - 1
+                        for(;len>=0;len--) {
+                            __msg[type][i] === fn && __msg[type].splice(i,1)
+                        }
+                    }
+                }
+            }
+        })();
+        // Observer.regist('test', function(e) {
+        //     console.log(e.type, e.args.msg);
+        // })
+        // Observer.fire('test', {msg: '参数'})
+
+        // 开发1
+        (function() {
+            console.log('hh');
+            function addMsg(e) {
+                const txt = e.args.txt
+                const ul = document.getElementById('msg')
+                const li = document.createElement('li')
+                const span = document.createElement('span')
+                span.innerHTML = '删除'
+                li.innerHTML = txt
+                span.onclick = function() {
+                    ul.removeChild(li)
+                    Observer.fire('removeMsg', {num: -1})
+                }
+                li.appendChild(span)
+                ul.appendChild(li)
+
+            }
+            console.log('hh');
+            Observer.regist('addMsg', addMsg)
+        })();
+
+        // 开发2
+        (function(){
+            function changeMsg(e) {
+                const num = e.args.num
+                document.querySelector('.msg_num').innerHTML = parseInt(document.querySelector('.msg_num').innerHTML) + num
+            }
+            Observer.regist('addMsg', changeMsg)
+            Observer.regist('removeMsg', changeMsg)
+        })();
+        // 开发3
+        (function(){
+            document.querySelector('.submit').onclick = function() {
+                const txt = Math.random()
+                Observer.fire('addMsg', {
+                    txt: txt,
+                    num: 1
+                })
+            }
+        })();
+    </script>
+</body>
+</html>
