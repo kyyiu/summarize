@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>访问者模式: 
+        针对于对象结构中的元素，定义在不改变该对象的前提下访问结构中元素的新方法
+    </div>
+    <script>
+        /**
+         * 方法和 call() 或 apply() 一起使用时，可应用在类似数组的对象上。push 方法根据 length 属性来决定从哪里开始插入给定的值。如果 length 不能被转成一个数值，则插入的元素索引为 0，包括 length 不存在时。当 length 不存在时，将会创建它。
+         * c参考 https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Array/push
+         * /
+        const Visitor = (function(){
+            return {
+                splice: function() {
+                    // splice方法参数，从原参数的第二个参数开始算起
+                    const args = Array.prototype.splice.call(arguments, 1)
+                    // 对第一个参数对象执行splice方法
+                    return Array.prototype.splice.apply(arguments[0], args)
+                },
+                push: function() {
+                    // 强化类数组对象，是他拥有length属性
+                    const len = arguments[0].length || 0
+                    // 添加的数据从原参数的第二个参数算起
+                    const args = this.splice(arguments, 1)
+                    // 矫正length属性
+                    arguments[0].length = len + arguments.length - 1
+                    // 对第一个参数对象执行push
+                    return Array.prototype.push.apply(arguments[0], args)
+                },
+                pop: function() {
+                    // 对第一个参数对象执行pop方法
+                    return Array.prototype.pop.call(arguments[0])
+                }
+            }
+        })();
+        const a = new Object()
+        console.log(Visitor.push(a, 1,2,3));
+        console.log(a);
+    </script>
+</body>
+</html>
