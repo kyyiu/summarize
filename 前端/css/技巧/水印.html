@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .water {
+            width: 256px; height: 192px;
+            position: relative;
+        }
+        .water::before {
+            content: '水印';
+            position: absolute;
+            mix-blend-mode: overlay;
+            text-shadow: 10ch 2em, -10ch 2em, 10ch -2em, -10ch -2em, 0 -5em, 0 5em;
+            transform: rotate(-30deg);
+            left: calc(50% - 5ch);
+            top: 90px;
+        }
+    </style>
+</head>
+<body>
+    <div class="water">
+        <img src="../111.jpg" alt="">
+    </div>
+</body>
+</html>
