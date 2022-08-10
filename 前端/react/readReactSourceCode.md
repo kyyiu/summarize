@@ -1058,8 +1058,381 @@ lastPlacedIndex初始为0，每遍历一个可复用的节点，如果oldIndex >
 在同步更新中，理应优先更新的Fiber只能等前面的更新完成后才能更新，类似git commit操作
 在调度模式中，优先级高的会被先更新，后续的更新会在这个基础上，跟在后面继续根据优先级更新,类似git的rebase操作     
 
+# 状态更新
+```javascript
+render阶段开始于performSyncWorkOnRoot或performConcurrentWorkOnRoot方法的调用。这取决于本次更新是同步更新还是异步更新。
+commit阶段开始于commitRoot方法的调用。其中rootFiber会作为传参。
+我们已经知道，render阶段完成后会进入commit阶段。让我们继续补全从触发状态更新到render阶段的路径。
+
+创建Update对象
+在React中，有如下方法可以触发状态更新（排除SSR相关）：
+ReactDOM.render
+this.setState
+this.forceUpdate
+useState
+useReducer
+这些方法调用的场景各不相同，他们是如何接入同一套状态更新机制呢？
+
+答案是：每次状态更新都会创建一个保存更新状态相关内容的对象，我们叫他Update。在render阶段的beginWork中会根据Update计算新的state。
+
+从fiber到root
+现在触发状态更新的fiber上已经包含Update对象。
+我们知道，render阶段是从rootFiber开始向下遍历。那么如何从触发状态更新的fiber得到rootFiber呢？
+答案是：调用markUpdateLaneFromFiberToRoot方法。
+你可以从这里 (react-reconciler\src\ReactFiberWorkLoop.old.js)看到markUpdateLaneFromFiberToRoot的源码
+该方法做的工作可以概括为：从触发状态更新的fiber一直向上遍历到rootFiber，并返回rootFiber。
+由于不同更新优先级不尽相同，所以过程中还会更新遍历到的fiber的优先级。这对于我们当前属于超纲内容。
+
+调度更新
+现在我们拥有一个rootFiber，该rootFiber对应的Fiber树中某个Fiber节点包含一个Update。
+接下来通知Scheduler根据更新的优先级，决定以同步还是异步的方式调度本次更新。
+这里调用的方法是ensureRootIsScheduled。
+以下是ensureRootIsScheduled最核心的一段代码：
+
+if (newCallbackPriority === SyncLanePriority) {
+  // 任务已经过期，需要同步执行render阶段
+  newCallbackNode = scheduleSyncCallback(
+    performSyncWorkOnRoot.bind(null, root)
+  );
+} else {
+  // 根据任务优先级异步执行render阶段
+  var schedulerPriorityLevel = lanePriorityToSchedulerPriority(
+    newCallbackPriority
+  );
+  newCallbackNode = scheduleCallback(
+    schedulerPriorityLevel,
+    performConcurrentWorkOnRoot.bind(null, root)
+  );
+}
+
+其中，scheduleCallback和scheduleSyncCallback会调用Scheduler提供的调度方法根据优先级调度回调函数执行。
+可以看到，这里调度的回调函数为：
+performSyncWorkOnRoot.bind(null, root);
+performConcurrentWorkOnRoot.bind(null, root);
+即render阶段的入口函数。
+
+至此，状态更新就和我们所熟知的render阶段连接上了.
+
+状态更新的整个调用路径的关键节点：
+
+触发状态更新（根据场景调用不同方法）
+    |
+    |
+    v
+创建Update对象
+    |
+    |
+    v
+从fiber到root（`markUpdateLaneFromFiberToRoot`）
+    |
+    |
+    v
+调度更新（`ensureRootIsScheduled`）
+    |
+    |
+    v
+render阶段（`performSyncWorkOnRoot` 或 `performConcurrentWorkOnRoot`）
+    |
+    |
+    v
+commit阶段（`commitRoot`）
+```
+
+# 同步更新的React
+```javascript
+我们可以将更新机制类比代码版本控制。
+在没有代码版本控制前，我们在代码中逐步叠加功能。一切看起来井然有序，直到我们遇到了一个紧急线上bug（D）
+A->B->C->D
+为了修复这个bug，我们需要首先将之前的代码（ABC）提交。
+在React中，所有通过ReactDOM.render创建的应用都是通过类似的方式更新状态。
+即没有优先级概念，高优更新（D）需要排在其他更新后面执行
+```
+# 并发更新的React
+```javascript
+当有了代码版本控制，有紧急线上bug需要修复时，我们暂存当前分支的修改，在master分支修复bug并紧急上线。
+master->D
+A->B->C
+bug修复上线后通过git rebase命令和开发分支连接上。开发分支基于修复bug的版本继续开发。
+D->A->B->C
+在React中，通过ReactDOM.createBlockingRoot和ReactDOM.createRoot创建的应用会采用并发的方式更新状态。
+高优更新（红色节点）中断正在进行中的低优更新（蓝色节点），先完成render - commit流程。
+待高优更新完成后，低优更新基于高优更新的结果重新更新
+```
+# Update
+```javascript
+首先，我们将可以触发更新的方法所隶属的组件分类：
+
+ReactDOM.render —— HostRoot
+this.setState —— ClassComponent
+this.forceUpdate —— ClassComponent
+useState —— FunctionComponent
+useReducer —— FunctionComponent
+可以看到，一共三种组件（HostRoot | ClassComponent | FunctionComponent）可以触发更新。
+由于不同类型组件工作方式不同，所以存在两种不同结构的Update，其中ClassComponent与HostRoot共用一套Update结构，FunctionComponent单独使用一种Update结构。
+虽然他们的结构不同，但是他们工作机制与工作流程大体相同。
 
 
+Update的结构
+ClassComponent与HostRoot（即rootFiber.tag对应类型）共用同一种Update结构。
+对应的结构如下：
+const update: Update<*> = {
+  eventTime,
+  lane,
+  suspenseConfig,
+  tag: UpdateState,
+  payload: null,
+  callback: null,
+
+  next: null,
+};
+Update由createUpdate方法返回
+字段意义如下：
+eventTime：任务时间，通过performance.now()获取的毫秒数。由于该字段在未来会重构，当前我们不需要理解他。
+lane：优先级相关字段。当前还不需要掌握他，只需要知道不同Update优先级可能是不同的。
+你可以将lane类比心智模型中需求的紧急程度。
+suspenseConfig：Suspense相关，暂不关注。
+tag：更新的类型，包括UpdateState | ReplaceState | ForceUpdate | CaptureUpdate。
+payload：更新挂载的数据，不同类型组件挂载的数据不同。对于ClassComponent，payload为this.setState的第一个传参。对于HostRoot，payload为ReactDOM.render的第一个传参。
+callback：更新的回调函数。即在commit 阶段的 layout 子阶段一节中提到的回调函数。
+next：与其他Update连接形成链表
+
+
+Update与Fiber的联系
+我们发现，Update存在一个连接其他Update形成链表的字段next。联系React中另一种以链表形式组成的结构Fiber，他们之间有什么关联么？
+答案是肯定的。
+从双缓存机制一节我们知道，Fiber节点组成Fiber树，页面中最多同时存在两棵Fiber树：
+代表当前页面状态的current Fiber树
+代表正在render阶段的workInProgress Fiber树
+类似Fiber节点组成Fiber树，Fiber节点上的多个Update会组成链表并被包含在fiber.updateQueue中。
+什么情况下一个Fiber节点会存在多个Update？
+你可能疑惑为什么一个Fiber节点会存在多个Update。这其实是很常见的情况。
+在这里介绍一种最简单的情况：
+
+onClick() {
+  this.setState({
+    a: 1
+  })
+
+  this.setState({
+    b: 2
+  })
+}
+在一个ClassComponent中触发this.onClick方法，方法内部调用了两次this.setState。这会在该fiber中产生两个Update。
+Fiber节点最多同时存在两个updateQueue：
+current fiber保存的updateQueue即current updateQueue
+workInProgress fiber保存的updateQueue即workInProgress updateQueue
+在commit阶段完成页面渲染后，workInProgress Fiber树变为current Fiber树，workInProgress Fiber树内Fiber节点的updateQueue就变成current updateQueue
+
+
+updateQueue
+updateQueue有三种类型，其中针对HostComponent的类型我们在completeWork一节介绍过。
+剩下两种类型和Update的两种类型对应。
+ClassComponent与HostRoot使用的UpdateQueue结构如下：
+
+const queue: UpdateQueue<State> = {
+    baseState: fiber.memoizedState,
+    firstBaseUpdate: null,
+    lastBaseUpdate: null,
+    shared: {
+      pending: null,
+    },
+    effects: null,
+  };
+UpdateQueue由initializeUpdateQueue方法返回
+字段说明如下：
+baseState：本次更新前该Fiber节点的state，Update基于该state计算更新后的state。
+你可以将baseState类比心智模型中的master分支。
+firstBaseUpdate与lastBaseUpdate：本次更新前该Fiber节点已保存的Update。以链表形式存在，链表头为firstBaseUpdate，链表尾为lastBaseUpdate。之所以在更新产生前该Fiber节点内就存在Update，是由于某些Update优先级较低所以在上次render阶段由Update计算state时被跳过。
+你可以将baseUpdate类比心智模型中执行git rebase基于的commit（节点D）。
+shared.pending：触发更新时，产生的Update会保存在shared.pending中形成单向环状链表。当由Update计算state时这个环会被剪开并连接在lastBaseUpdate后面。
+你可以将shared.pending类比心智模型中本次需要提交的commit（节点ABC）。
+effects：数组。保存update.callback !== null的Update
+
+例子
+updateQueue相关代码逻辑涉及到大量链表操作，比较难懂。在此我们举例对updateQueue的工作流程讲解下。
+假设有一个fiber刚经历commit阶段完成渲染。
+该fiber上有两个由于优先级过低所以在上次的render阶段并没有处理的Update。他们会成为下次更新的baseUpdate。
+我们称其为u1和u2，其中u1.next === u2。
+fiber.updateQueue.firstBaseUpdate === u1;
+fiber.updateQueue.lastBaseUpdate === u2;
+u1.next === u2;
+我们用-->表示链表的指向：
+fiber.updateQueue.baseUpdate: u1 --> u2
+现在我们在fiber上触发两次状态更新，这会先后产生两个新的Update，我们称为u3和u4。
+每个 update 都会通过 enqueueUpdate 方法插入到 updateQueue 队列上
+当插入u3后：
+fiber.updateQueue.shared.pending === u3;
+u3.next === u3;
+shared.pending的环状链表，用图表示为：
+fiber.updateQueue.shared.pending:   u3 ─────┐ 
+                                     ^      |                                    
+                                     └──────┘
+接着插入u4之后：
+fiber.updateQueue.shared.pending === u4;
+u4.next === u3;
+u3.next === u4;
+shared.pending是环状链表，用图表示为：
+fiber.updateQueue.shared.pending:   u4 ──> u3
+                                     ^      |                                    
+                                     └──────┘
+shared.pending 会保证始终指向最后一个插入的update
+更新调度完成后进入render阶段。
+此时shared.pending的环被剪开并连接在updateQueue.lastBaseUpdate后面：
+fiber.updateQueue.baseUpdate: u1 --> u2 --> u3 --> u4
+接下来遍历updateQueue.baseUpdate链表，以fiber.updateQueue.baseState为初始state，依次与遍历到的每个Update计算并产生新的state（该操作类比Array.prototype.reduce）。
+在遍历时如果有优先级低的Update会被跳过。
+当遍历完成后获得的state，就是该Fiber节点在本次更新的state（源码中叫做memoizedState）。
+render阶段的Update操作由processUpdateQueue完成
+state的变化在render阶段产生与上次更新不同的JSX对象，通过Diff算法产生effectTag，在commit阶段渲染在页面上。
+渲染完成后workInProgress Fiber树变为current Fiber树，整个更新流程结束
+```
+
+# 优先级
+```javascript
+在React理念一节我们聊到React将人机交互研究的结果整合到真实的UI中。具体到React运行上这是什么意思呢？
+状态更新由用户交互产生，用户心里对交互执行顺序有个预期。React根据人机交互研究的结果中用户对交互的预期顺序为交互产生的状态更新赋予不同优先级。
+具体如下：
+生命周期方法：同步执行。
+受控的用户输入：比如输入框内输入文字，同步执行。
+交互事件：比如动画，高优先级执行。
+其他：比如数据请求，低优先级执行。
+
+如何调度优先级
+我们在新的React结构一节讲到，React通过Scheduler调度任务。
+具体到代码，每当需要调度任务时，React会调用Scheduler提供的方法runWithPriority。
+该方法接收一个优先级常量与一个回调函数作为参数。回调函数会以优先级高低为顺序排列在一个定时器中并在合适的时间触发。
+对于更新来讲，传递的回调函数一般为状态更新流程概览一节讲到的render阶段的入口函数。
+你可以在==unstable_runWithPriority== 这里 (packages/scheduler/src/Scheduler)看到runWithPriority方法的定义。在这里 (react\v17.0.2\scheduler\src\SchedulerPriorities.js)看到Scheduler对优先级常量的定义。
+
+
+如何保证状态正确
+现在我们基本掌握了updateQueue的工作流程。还有两个疑问：
+render阶段可能被中断。如何保证updateQueue中保存的Update不丢失？
+有时候当前状态需要依赖前一个状态。如何在支持跳过低优先级状态的同时保证状态依赖的连续性？
+我们分别讲解下。
+#如何保证Update不丢失
+在上一节例子中我们讲到，在render阶段，shared.pending的环被剪开并连接在updateQueue.lastBaseUpdate后面。
+实际上shared.pending会被同时连接在workInProgress updateQueue.lastBaseUpdate与current updateQueue.lastBaseUpdate后面。
+具体代码见这里(/react-reconciler/src/ReactUpdateQueue 的 let pendingQueue = queue.shared.pending;)
+当render阶段被中断后重新开始时，会基于current updateQueue克隆出workInProgress updateQueue。由于current updateQueue.lastBaseUpdate已经保存了上一次的Update，所以不会丢失。
+当commit阶段完成渲染，由于workInProgress updateQueue.lastBaseUpdate中保存了上一次的Update，所以 workInProgress Fiber树变成current Fiber树后也不会造成Update丢失。
+#如何保证状态依赖的连续性
+当某个Update由于优先级低而被跳过时，保存在baseUpdate中的不仅是该Update，还包括链表中该Update之后的所有Update。
+
+考虑如下例子：
+baseState: ''
+shared.pending: A1 --> B2 --> C1 --> D2
+其中字母代表该Update要在页面插入的字母，数字代表优先级，值越低优先级越高。
+
+第一次render，优先级为1。
+baseState: ''
+baseUpdate: null
+render阶段使用的Update: [A1, C1]
+memoizedState: 'AC'
+其中B2由于优先级为2，低于当前优先级，所以他及其后面的所有Update会被保存在baseUpdate中作为下次更新的Update（即B2 C1 D2）。
+这么做是为了保持状态的前后依赖顺序。
+
+第二次render，优先级为2。
+baseState: 'A'
+baseUpdate: B2 --> C1 --> D2
+render阶段使用的Update: [B2, C1, D2]
+memoizedState: 'ABCD'
+注意这里baseState并不是上一次更新的memoizedState。这是由于B2被跳过了。
+即当有Update被跳过时，下次更新的baseState !== 上次更新的memoizedState。
+跳过B2的逻辑见这里(/react-reconciler/src/ReactUpdateQueue  里面的 if (!isSubsetOfLanes(renderLanes, updateLane)))
+通过以上例子我们可以发现，React保证最终的状态一定和用户触发的交互一致，但是中间过程状态可能由于设备不同而不同。
+```
+
+# react 模式
+```javascript
+legacy -- ReactDOM.render(<App />, rootNode)
+blocking -- ReactDOM.createBlockingRoot(rootNode).render(<App />)
+concurrent -- ReactDOM.createRoot(rootNode).render(<App />)
+```
+
+# this.setState
+```javascript
+this.setState内会调用this.updater.enqueueSetState方法。
+
+Component.prototype.setState = function (partialState, callback) {
+  if (!(typeof partialState === 'object' || typeof partialState === 'function' || partialState == null)) {
+    {
+      throw Error( "setState(...): takes an object of state variables to update or a function which returns an object of state variables." );
+    }
+  }
+  this.updater.enqueueSetState(this, partialState, callback, 'setState');
+};
+
+(在packages/react/src/ReactBaseClasses可以看到这段)
+
+
+在enqueueSetState方法中就是我们熟悉的从创建update到调度update的流程了。
+enqueueSetState(inst, payload, callback) {
+  // 通过组件实例获取对应fiber
+  const fiber = getInstance(inst);
+
+  const eventTime = requestEventTime();
+  const suspenseConfig = requestCurrentSuspenseConfig();
+
+  // 获取优先级
+  const lane = requestUpdateLane(fiber, suspenseConfig);
+
+  // 创建update
+  const update = createUpdate(eventTime, lane, suspenseConfig);
+
+  update.payload = payload;
+
+  // 赋值回调函数
+  if (callback !== undefined && callback !== null) {
+    update.callback = callback;
+  }
+
+  // 将update插入updateQueue
+  enqueueUpdate(fiber, update);
+  // 调度update
+  scheduleUpdateOnFiber(fiber, lane, eventTime);
+}
+这里值得注意的是对于ClassComponent，update.payload为this.setState的第一个传参（即要改变的state）
+
+this.forceUpdate
+在this.updater上，除了enqueueSetState外，还存在enqueueForceUpdate，当我们调用this.forceUpdate时会调用他。
+可以看到，除了赋值update.tag = ForceUpdate;以及没有payload外，其他逻辑与this.setState一致。
+enqueueForceUpdate(inst, callback) {
+    const fiber = getInstance(inst);
+    const eventTime = requestEventTime();
+    const suspenseConfig = requestCurrentSuspenseConfig();
+    const lane = requestUpdateLane(fiber, suspenseConfig);
+
+    const update = createUpdate(eventTime, lane, suspenseConfig);
+
+    // 赋值tag为ForceUpdate
+    update.tag = ForceUpdate;
+
+    if (callback !== undefined && callback !== null) {
+      update.callback = callback;
+    }
+
+    enqueueUpdate(fiber, update);
+    scheduleUpdateOnFiber(fiber, lane, eventTime);
+  },
+};
+那么赋值update.tag = ForceUpdate;有何作用呢？
+在判断ClassComponent是否需要更新时有两个条件需要满足：
+ const shouldUpdate =
+  checkHasForceUpdateAfterProcessing() ||
+  checkShouldComponentUpdate(
+    workInProgress,
+    ctor,
+    oldProps,
+    newProps,
+    oldState,
+    newState,
+    nextContext,
+  );
+checkHasForceUpdateAfterProcessing：内部会判断本次更新的Update是否为ForceUpdate。即如果本次更新的Update中存在tag为ForceUpdate，则返回true。
+checkShouldComponentUpdate：内部会调用shouldComponentUpdate方法。以及当该ClassComponent为PureComponent时会浅比较state与props。
+所以，当某次更新含有tag为ForceUpdate的Update，那么当前ClassComponent不会受其他性能优化手段（shouldComponentUpdate|PureComponent）影响，一定会更新
+```
 
 # 简单hooks实现-useState         
 ---      
