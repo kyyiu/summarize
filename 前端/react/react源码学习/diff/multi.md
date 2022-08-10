@@ -268,6 +268,12 @@ const existingChildren = mapRemainingChildren(returnFiber, oldFiber);
 
 `lastPlacedIndex`初始为`0`，每遍历一个可复用的节点，如果`oldFiber >=  lastPlacedIndex`，则`lastPlacedIndex = oldFiber`。
 
+假设我们只看newChildren，oldFiber中并没有可复用的情况下，接下来的动作就是依次生成遍历到的newChildren
+有可复用的oldFiber,则一定是遍历的过程中遇到的newChildren,遍历是有明显的顺序关系的，所以最后一个可复用的节点
+就是这个oldFiber。（如果是第一次，可以理解为把lastPlacedIndex = oldIndex）
+对于第n次则需要比较lastPlacedIndex和oldIndex
+oldIndex是这个oldFiber在之前的位置，oldIndex < lastPlacedIndex就表示即将会渲染到lastPlacedIndex的后面，所以需要标记这个oldFiber后移，而对于所有小于lastPlacedIndex的节点不用关心，因为是遍历newChildren而进行的更新.
+
 单纯文字表达比较晦涩，这里我们提供两个Demo，你可以对照着理解。
 
 ## Demo1
