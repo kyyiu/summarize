@@ -1350,6 +1350,39 @@ blocking -- ReactDOM.createBlockingRoot(rootNode).render(<App />)
 concurrent -- ReactDOM.createRoot(rootNode).render(<App />)
 ```
 
+# ReactDOM.render的流程
+创建fiberRootNode、rootFiber、updateQueue（`legacyCreateRootFromDOMContainer`）
+
+    |
+    |
+    v
+
+创建Update对象（`updateContainer`）
+
+    |
+    |
+    v
+
+从fiber到root（`markUpdateLaneFromFiberToRoot`）
+
+    |
+    |
+    v
+
+调度更新（`ensureRootIsScheduled`）
+
+    |
+    |
+    v
+
+render阶段（`performSyncWorkOnRoot` 或 `performConcurrentWorkOnRoot`）
+
+    |
+    |
+    v
+
+commit阶段（`commitRoot`）
+
 # this.setState
 ```javascript
 this.setState内会调用this.updater.enqueueSetState方法。
