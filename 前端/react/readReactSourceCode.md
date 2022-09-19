@@ -1875,7 +1875,7 @@ function App() {
 
 
 声明阶段
-当FunctionComponent进入render阶段的beginWork时，会调用renderWithHooks  方法。
+当FunctionComponent进入render阶段的beginWork时，会调用renderWithHooks(src\react\v17.0.2\react-reconciler\src\ReactFiberHooks.old.js)  方法。
 
 该方法内部会执行FunctionComponent对应函数（即fiber.type）。
 function useState(initialState) {
@@ -1886,7 +1886,7 @@ function useReducer(reducer, initialArg, init) {
   var dispatcher = resolveDispatcher();
   return dispatcher.useReducer(reducer, initialArg, init);
 }
-在不同场景下，同一个Hook会调用不同处理函数
+在不同场景下，同一个Hook会调用不同处理函数 (react\v17.0.2\react-reconciler\src\ReactFiberHooks.old.js 下查看dispatcher的hook定义)
 
 mount时
 mount时，useReducer会调用mountReducer，useState会调用mountState。
