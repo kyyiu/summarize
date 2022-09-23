@@ -14,7 +14,8 @@
 			<h1 :style="[styleObj1 , styleObj2]">hello</h1>
 		</div>
 		<script type="text/javascript">
-			var vm = new Vue({
+			setTimeout(() => {
+				var vm = new Vue({
 				el: '#app',
 				data:{
 					styleObj1: {color:'red','font-weight':200},
@@ -22,6 +23,7 @@
 				},
 				methods:{}
 			})
+			}, 5000)
 		</script>
 	</body>
 </html>
