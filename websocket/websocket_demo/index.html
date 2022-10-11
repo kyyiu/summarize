@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <button type="button" id="btn" >按钮</button>
+  <input type="text" name="" id="demo" value="" />
+  <div id="res">接收到的服务器端消息显示区域</div>
+  <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+  <script type="text/javascript"> 
+    // 打开一个 web socket，设定websocket服务器地址和端口
+    var ws = new WebSocket("ws://127.0.0.1:2222");
+  
+    //开启连接open后客户端处理方法
+    ws.onopen = function()
+    {
+      // Web Socket 已连接上，在页面中显示消息
+      document.getElementById('res').innerHTML="当前客户端已经连接到websocket服务器";
+       
+    };
+    // 点击按钮时给websocket服务器端发送消息
+    $('#btn').click(function(){
+      var value = $('#demo').val();
+      ws.send(value);
+    })
+    // 接收消息后客户端处理方法
+    ws.onmessage = function (evt) 
+    { 
+      console.log(evt.data);
+      $('#res').text(evt.data);
+    };
+    
+    // 关闭websocket
+    ws.onclose = function()
+    { 
+      // 关闭 websocket
+      alert("连接已关闭..."); 
+    };
+  
+  </script>
+</body>
+</html>
