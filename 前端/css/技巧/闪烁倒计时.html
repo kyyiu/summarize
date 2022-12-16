@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .time {
+      font-weight: bold;
+      font-size: 42px;
+      color: rgb(57, 57, 57);
+      animation: d 1s linear backwards infinite;
+      -webkit-mask: linear-gradient(0deg,red 50%, transparent);
+      mask: linear-gradient(0deg,red 50%, transparent);
+    }
+
+    @keyframes d {
+      0% {
+        color: #fff;
+      }
+      25% {
+        color: rgb(200, 200, 200);
+      }
+      50% {
+        color: rgb(150, 150, 150);
+      }
+      75% {
+        color: rgb(100, 100, 100)
+      }
+    }
+
+    .t {
+      height: 100px;
+      background: linear-gradient(0deg,red 50%, transparent);;
+    }
+  </style>
+</head>
+<body>
+  <div class="time">
+    12:10:34
+  </div>
+  <div class="t"></div>
+</body>
+</html>
