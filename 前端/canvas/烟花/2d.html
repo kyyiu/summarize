@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <canvas id="cv"></canvas>
+    <script>
+        const canvas = document.querySelector('#cv')
+        canvas.width = window.innerWidth
+        canvas.height = window.innerHeight
+        const ctx = canvas.getContext('2d')
+        // 黑色背景
+        ctx.fillStyle = 'black'
+        ctx.fillRect(0,0,canvas.width, canvas.height)
+        
+        // 烟花配置
+        const firePathList = []
+        const fireworksList = []
+        // 烟花升起数量
+        const path = 20
+        const pos = {
+            x: canvas.width/2,
+            y: canvas.height / 2
+        }
+        // 烟花炸开数量
+        const fire = 160
+
+        for(let i = 0;i<path; i++) {
+            const pathObj = {
+                x: Math.random()*fire/2 -fire/4+pos.x,
+                y: Math.random()*fire*2+canvas.height,
+                size: Math.random()+0.5,
+                fill: '#fd1',
+                vx: Math.random() - 0.5,
+                vy: -(Math.random() + 4),
+                ax: Math.random()*0.02-0.01,
+                far: Math.random()*fire+(pos.y-fire)
+            }
+            pathObj.base={
+                x: pathObj.x,
+                y: pathObj.y,
+                vx: pathObj.vx
+            }
+            firePathList.push(pathObj)
+        }
+
+        function getColor() {
+            const r = Math.floor(Math.random() * 256)
+            const g = Math.floor(Math.random() * 256)
+            const b = Math.floor(Math.random() * 256)
+            const color = `rgb(${r},${g},${b})`
+            return color
+        }
+
+        function setList() {
+            for(let i =0;i<firePathList.length;i++) {
+                let pathItem = firePathList[i]
+                if (pathItem.y <= pathItem.far) {
+                    let color = getColor()
+                    // 炸开烟花
+                    for(let j = 0; j < path*5;j++) {
+                        const fireItem = {
+                            x: pathItem.x,
+                            y:pathItem.y,
+                            size: Math.random() +1.5,
+                            fill: color,
+                            vx: Math.random() * 5-2.5,
+                            vy: Math.random() * -5 + 1.5,
+                            ay: 0.05,
+                            alpha: 1,
+                            life: Math.round(Math.random()*fire/2)+fire/2
+                        }
+                        fireItem.base = {
+                            life: fireItem.life,
+                            size: fireItem.size
+                        }
+                        fireworksList.push(fireItem)
+                    }
+                    pathItem.y = pathItem.base.y
+                    pathItem.x = pathItem.base.x
+                    pathItem.vx = pathItem.base.vx
+                    pathItem.ax = Math.random() * 0.02 - 0.01
+                }
+                pathItem.x += pathItem.vx
+                pathItem.y += pathItem.vy
+                pathItem.vx += pathItem.ax
+            }
+
+            for(let i = fireworksList.length-1; i>=0;i--) {
+                const fireItem = fireworksList[i]
+                if (fireItem) {
+                    fireItem.x += fireItem.vx
+                    fireItem.y += fireItem.vy
+                    fireItem.vy += fireItem.ay
+                    fireItem.alpha = fireItem.life/fireItem.base.life
+                    fireItem.size = fireItem.alpha * fireItem.base.size
+                    fireItem.alpha = fireItem.alpha > 0.6 ? 1 : fireItem.alpha
+                    fireItem.life--
+                    if (fireItem.life <= 0) {
+                        fireworksList.splice(i, 1)
+                    }
+                }
+            }
+        }
+
+        function setFire() {
+            ctx.globalCompositeOpration = 'source-over'
+            ctx.globaAlpha = 0.18
+            ctx.fillStyle = 'black'
+            ctx.fillRect(0,0, canvas.width, canvas.height)
+            ctx.globalCompositeOpration = 'screen'
+            ctx.globaAlpha = 1
+            //  升起烟花
+            for(let i = 0;i<fireworksList.length;i++) {
+                let fireItem = fireworksList[i]
+                ctx.globaAlpha = fireItem.alpha
+                ctx.beginPath()
+                ctx.arc(fireItem.x, fireItem.y, fireItem.size, 0, Math.PI*2)
+                ctx.closePath()
+                ctx.fillStyle = fireItem.fill
+                ctx.fill()
+            }
+
+            for(let i = 0; i< firePathList.length; i++) {
+                const pathItem = firePathList[i]
+                ctx.beginPath()
+                ctx.arc(pathItem.x, pathItem.y, pathItem.size, 0 , Math.PI*2)
+                ctx.closePath()
+                ctx.fillStyle = pathItem.fill
+                ctx.fill()
+            }
+        }
+
+        (function ani() {
+            requestAnimationFrame(ani)
+            setList()
+            setFire()
+        })()
+    </script>
+</body>
+</html>
