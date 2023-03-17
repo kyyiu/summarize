@@ -18,7 +18,12 @@ var sortArray = function(nums) {
     }
 
     function position(arr, left, right) {
-        const piv = arr[Math.floor(left + (right-left)/2)]
+        // 中间取样
+        const ran = Math.floor(left + (right-left)/2)
+        // 随机取样
+        // const ran = Math.floor(left +(Math.random()*(right-left+1)))
+        const piv = arr[ran]
+        debugger
         let i = left
         let j = right
         while(i<=j) {
@@ -57,3 +62,5 @@ var sortArray = function(nums) {
     // }
     // return sortArray(left).concat([sign], sortArray(right))
 };
+
+console.log(sortArray([1,3,2,1,3,2,2]));
