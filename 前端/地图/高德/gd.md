@@ -11,7 +11,8 @@ https://lbs.amap.com/
 相关文档: https://lbs.amap.com/api/javascript-api-v2/guide/abc/load
 npm i @amap/amap-jsapi-loader --save 
 ```
-
+# POI
+是“Point of Interest”的缩写,可以翻译成“信息点”,每个POI包含四方面信息,名称、类别、经度纬度、附近的酒店饭店商铺等信息。我们可以叫它为“导航地图信息”,导航地图数据是整个导航产业的基石
 
 # 遇到的问题
 
