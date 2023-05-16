@@ -114,3 +114,11 @@ Ethereum Request for comments
 ```
 https://aave.com/
 ```
+
+# NFT
+
+```
+Non-Fungible-Token
+不可替代货币
+可以理解为艺术品
+```
