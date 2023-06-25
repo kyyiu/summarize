@@ -409,3 +409,22 @@ style scoped
 上面代码将会被编译成
 .a[data-v-f3f3eg9] .b
 有些像sass之类的预处理器无法准确解析>>>.这种情况下可以使用/deep/操作符而取而代之，这是>>>的别名，同样可以正常工作
+
+
+:first-child与:first-of-type的区别
+:first-child 匹配的是某父元素的第一个子元素，可以说是结构上的第一个子元素。
+:first-of-type 匹配的是某父元素下相同类型子元素中的第一个，比如 p:first-of-type，就是指所有类型为p的子元素中的第一个。这里不再限制是第一个子元素了，只要是该类型元素的第一个就行了。
+例子
+<div>
+	<p>p1</p>
+	<h1>h1</h1>
+	<span>s1</span>
+	<span>s2</span>
+</div>
+p:first-child  匹配到的是p元素,因为p元素是div的第一个子元素；
+h1:first-child  匹配不到任何元素，因为在这里h1是div的第二个子元素，而不是第一个；
+span:first-child  匹配不到任何元素，因为在这里两个span元素都不是div的第一个子元素；
+================
+p:first-of-type  匹配到的是p元素,因为p是div的所有类型为p的子元素中的第一个；
+h1:first-of-type  匹配到的是h1元素，因为h1是div的所有类型为h1的子元素中的第一个；
+span:first-of-type  匹配到的是第三个子元素span。这里div有两个为span的子元素，匹配到的是它们中的第一个。
