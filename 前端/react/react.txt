@@ -947,3 +947,46 @@ module.exports = override(
  2.npm install less-loader@5.0.0
  less版本也可能过高可以试一下less@2.7.2
 看到绿色的按钮则成功配置了以上内容
+
+
+
+
+注意事项
+# state 更新不是即时的
+```
+eg: 
+const [s, setS] = useState(0)
+setS(s+1)
+setS(s+1)
+setS(s+1)
+最终s还是渲染为1
+因为react中是基于函数式编程不变值的思想
+fiber数据结构中有s的初始状态即0，这里的更新就是基于0进行处理的
+我们可以使用函数的方式获取最新的值
+setS(p => p+1) // 这里p是0
+setS(p => p+1) // 这里p是1
+最后就会渲染为2
+```
+
+# 条件渲染 和钩子函数
+```
+eg:
+function({a}) {
+	if (a) {
+		return 'a'
+	}
+	const [x, setX] = useState()
+	return 'b'
+}
+钩子函数是根据执行顺序处理的，
+如果出现如上情况
+第一次渲染到了b
+但是第二次渲染只到了a
+渲染就会出现问题
+
+可以修改为
+function({a}) {
+	const [x, setX] = useState()
+	return a ? 'a' : 'b'
+}
+```
