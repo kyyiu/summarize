@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #10202b;
+    }
+    .tabs input {
+      visibility: hidden;
+      display: none;
+    }
+    .btn {
+      position: relative;
+      display: flex;
+      gap: 80px;
+      padding: 30px 40px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      background: #182a3c;
+      overflow: hidden;
+      border-radius: 20px;
+    }
+    .btn label {
+      width: 20%;
+      font-size: 1.75em;
+      -webkit-text-stroke: 1px #fff;
+      color: transparent;
+      opacity: 0.3;
+      cursor: pointer;
+      transition: 0.5s;
+    }
+    .btn label:hover {
+      opacity: 1;
+      filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 20px #fff);
+    }
+    .tabs input:nth-child(1):checked ~ .btn label:nth-child(1),
+    .tabs input:nth-child(2):checked ~ .btn label:nth-child(2),
+    .tabs input:nth-child(3):checked ~ .btn label:nth-child(3),
+    .tabs input:nth-child(4):checked ~ .btn label:nth-child(4),
+    .tabs input:nth-child(5):checked ~ .btn label:nth-child(5) {
+      color: #fff;
+      opacity: 1;
+      filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 20px #fff);
+    }
+    .underline {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 21%;
+      height: 5px;
+      transition: 0.5s;
+    }
+    .underline::before {
+      content: "";
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 100%;
+      background-color: #fff;
+      filter: drop-shadow(0 0 10px #fff) drop-shadow(0 0 20px #fff) drop-shadow(0 0 30px #fff) drop-shadow(0 0 50px #fff);
+    }
+    .tabs input:nth-child(1):checked ~ .btn .underline {
+      left: 0;
+    }
+    .tabs input:nth-child(2):checked ~ .btn .underline {
+      left: 20%;
+    }
+    .tabs input:nth-child(3):checked ~ .btn .underline {
+      left: 40%;
+    }
+    .tabs input:nth-child(4):checked ~ .btn .underline {
+      left: 60%;
+    }
+    .tabs input:nth-child(5):checked ~ .btn .underline {
+      left: 80%;
+    }
+  </style>
+</head>
+<body>
+  <div class="tabs">
+    <input type="radio" id="home" name="tabsMenu"/>
+    <input type="radio" id="profile" name="tabsMenu"/>
+    <input type="radio" id="likes" name="tabsMenu"/>
+    <input type="radio" id="settings" name="tabsMenu"/>
+    <input type="radio" id="notifications" name="tabsMenu"/>
+    <div class="btn">
+      <label for="home">
+        <i class="fa-solid fa-house"></i>
+      </label>
+      <label for="profile">
+        <i class="fa-solid fa-user"></i>
+      </label>
+      <label for="likes">
+        <i class="fa-solid fa-heart"></i>
+      </label>
+      <label for="settings">
+        <i class="fa-solid fa-gear"></i>
+      </label>
+      <label for="notifications">
+        <i class="fa-solid fa-bell"></i>
+      </label>
+      <div class="underline"></div>
+    </div>
+  </div>
+</body>
+</html>
