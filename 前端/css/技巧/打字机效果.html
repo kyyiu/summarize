@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    .wrapper {
+      height: 100vh;
+      display: grid;
+      place-items: center;
+    }
+    .cn, .en {
+      /* 1ch一个字节的宽度, 一个中文是2个ch，一个英文是1个ch */
+      width: 12ch; 
+      animation: grow 2s steps(6), blink .5s step-end infinite alternate;
+      white-space: nowrap;
+      overflow: hidden;
+      border-right: 3px solid #000;
+      font-family: monospace; /* 每个字节等宽的字体 */
+      font-size: 6em;
+      color: #000;
+    }
+    .en {
+      animation: grow 2s steps(12), blink .5s step-end infinite alternate;
+    }
+    @keyframes grow {
+      from {
+        width: 0;
+      }      
+    }
+    @keyframes blink {
+      50% {
+        border-color: transparent;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="cn">你好世界！！</div>
+    <div class="en">hello world!</div>
+  </div>
+</body>
+</html>
