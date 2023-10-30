@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    .content {
+      width: 100%;
+      height: 1200px;
+      padding: 300px 0 0 500px;
+      background-color: #000;
+      color: #fff;
+    }
+    .mflow-box {
+      width: 200px;
+      height: 120px;
+      border-radius: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .mflow-box::before {
+      content: "";
+      width: calc(100% - 6px);
+      height: calc(100% - 6px);
+      background-color: #000;
+      border-radius: 20px;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      z-index: 2;
+    }
+    .mflow-box::after {
+      content: "";
+      width: 300%;
+      height: 300%;
+      background-image: conic-gradient(#eeeeee22, #fc97e9, #02eded, #adf674,#f0c237, #eeeeee22 30%);
+      border-radius: 20px;
+      position: absolute;
+      top: -100%;
+      left: -100%;
+      z-index: 1;
+      animation: rotate 5s linear infinite;
+    }
+    @keyframes rotate {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+    .mflow-box span {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 100%;
+      font-size: 28px;
+      text-align: center;
+      line-height: 110px;
+      color: skyblue;
+      z-index: 3;
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <div class="mflow-box">
+      <span>我是文字</span>
+    </div>
+  </div>
+</body>
+</html>
