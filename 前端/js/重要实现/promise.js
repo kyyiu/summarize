@@ -119,6 +119,8 @@ p.then(data=> {
     console.log('执行res', data);
 }, err=>{
     console.log('执行rej', err)
+    // return err 正常情况，返回一个值将再次被res包裹
+    // throw new Error('错误') // 异常情况， 进入下一个then的异常处理
 }).then(data=>{
     console.log('执行第二个res',data)
 }, err=>{
