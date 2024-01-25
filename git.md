@@ -126,3 +126,22 @@ $ git rebase master
 变基操作的实质是丢弃一些现有的提交，然后相应地新建一些内容一样但实际上不同的提交。 如果你已经将提交推送至某个仓库，而其他人也已经从该仓库拉取提交并进行了后续工作，此时，如果你用 git rebase 命令重新整理了提交并再次推送，你的同伴因此将不得不再次将他们手头的工作与你的提交进行整合，如果接下来你还要拉取并整合他们修改过的提交，事情就会变得一团糟。
 ```
 
+
+# 问题和解决
+## ssh: connect to host github.com port 22: Connection timed out
+```
+.ssh文件夹下新建config文件
+内容如下
+Host github.com
+User git
+Hostname ssh.github.com
+PreferredAuthentications publickey
+IdentityFile ~/.ssh/id_rsa
+Port 443
+
+然后测试命令
+ssh -T git@github.com
+第一次需要手动输入yes
+如果出现即成功
+Hi xxx! You've successfully authenticated, but GitHub does not provide shell access.
+```
