@@ -106,3 +106,34 @@ pc端缩放
 3.vw适配
 vw和vh是两个相对单位
 vw=布局视口宽度的1%
+
+
+响应式布局
+假设原始设计图下
+rem 100px
+视窗变了重新计算
+(function(){
+    const computed=()=>{
+        let html = document.documentElement
+        // 获取设备宽度
+        let deviceW=document.documentElement.clientWidth
+        const designW = 750
+        const next = (deviceW*199)/designW
+        if (deviceW>=dsignW) {
+            html.styles.fontSize = '100px'
+        }
+        html.styles.fontSize = next+'px'
+        // 一般还会给页面设置最大宽度，超过就不再让rem变大，让内容居中，两边空出来即可
+    }
+    computed()
+    window.addEventLister('resize', computed)
+})()
+
+响应式布局相关的三方包
+lib-flexible 设置rem和px换算比例
+    根据设备宽度变化自动计算
+    html.style.fontSize=设备宽度/10+'px'
+    750设计稿 1rem = 75px
+    375 1rem = 37.5px
+postcss-pxtorem
+    把px单位，按照当时的换算比例，自动转换为rem
