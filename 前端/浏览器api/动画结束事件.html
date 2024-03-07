@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        @keyframes percent {
+            from {
+                transform: translateX(-100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .previewLoadingPercent {
+            height: 6px;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #0061B9 0%, #22E4FF 100%);
+            animation: percent 2s linear;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="previewLoadingPercent"/>
+    <script>
+        const a = document.querySelector('.previewLoadingPercent')
+        a.onanimationend = () => {
+            alert('完成动画')
+        }
+        // a.addEventListener('animationend', () => {
+        //     alert('完成动画2')
+        // })
+        
+    </script>
+</body>
+</html>
