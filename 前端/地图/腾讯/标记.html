@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>标记</title>
+  </head>
+  <script
+    charset="utf-8"
+    src="https://map.qq.com/api/gljs?v=1.exp&key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77"
+  ></script>
+  <style type="text/css">
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    #container {
+      width: 100%;
+      height: 100%;
+    }
+    .btnContainer {
+      position: absolute;
+      left: 20px;
+      top: 20px;
+      z-index: 10000;
+    }
+
+    .btnContainer button {
+      padding: 10px 14px;
+      box-sizing: border-box;
+      border: none;
+      background-color: #3876ff;
+      border-radius: 2px;
+      color: #fff;
+      font-size: 14px;
+      line-height: 14px;
+      margin-bottom: 10px;
+    }
+    button + button {
+        margin-left: 8px;
+    }
+  </style>
+  <body>
+    <div class="btnContainer">
+      <button class="btn1">marker增加高度</button>
+      <button class="btn2">marker去除高度</button>
+      <button onclick="add()">增加一个标记</button>
+      <button onclick="change()">修改一个标记</button>
+      <button onclick="del()">删除一个标记</button>
+      <button onclick="clearAll()">清空标记</button>
+      <button onclick="addE()">添加事件</button>
+      <button onclick="remove()">解绑标记点击事件</button>
+    </div>
+    <div id="container"></div>
+    <script type="text/javascript">
+      var uid = 1
+      var uidArr = ['marker']
+      var center = new TMap.LatLng(39.98210863924864, 116.31310899739151);
+      var centerHeight = new TMap.LatLng(
+        39.98210863924864,
+        116.31310899739151,
+        134
+      );
+
+      // 初始化地图
+      var map = new TMap.Map("container", {
+        zoom: 17, // 设置地图缩放
+        center: new TMap.LatLng(39.98210863924864, 116.31310899739151), // 设置地图中心点坐标，
+        pitch: 0, // 俯仰度
+        rotation: 0, // 旋转角度
+      });
+
+      // MultiMarker文档地址：https://lbs.qq.com/webApi/javascriptGL/glDoc/glDocMarker
+      var marker = new TMap.MultiMarker({
+        map: map,
+        styles: {
+          // 点标记样式
+          markerStyle: new TMap.MarkerStyle({
+            width: 20, // 样式宽
+            height: 30, // 样式高
+            src: "https://img0.baidu.com/it/u=3628503530,464378779&fm=253&app=120&size=w931&n=0&f=JPEG&fmt=auto?sec=1710003600&t=9466d33c36ab0423d6ea89a7a81d017f",
+            anchor: { x: 100, y: 30 }, // 描点位置
+          }),
+        },
+        geometries: [
+          // 点标记数据数组
+          {
+            // 标记位置(纬度，经度，高度)
+            position: center,
+            id: "marker",
+            styleId: "markerStyle",
+            "properties": {//自定义属性
+                "title": 'marker'
+            }
+          },
+        ],
+      });
+      document.querySelector("button.btn1").onclick = function () {
+        var data = marker.getGeometryById("marker");
+        Object.assign(data, {
+          position: centerHeight,
+        });
+        marker.updateGeometries([data]);
+        map.easeTo(
+          {
+            pitch: 80,
+          },
+          600
+        );
+      };
+      document.querySelector("button.btn2").onclick = function () {
+        var data = marker.getGeometryById("marker");
+        Object.assign(data, {
+          position: center,
+        });
+        marker.updateGeometries([data]);
+      };
+
+      function listenClick(evt) {
+        alert(evt.geometry.properties.title)
+      }
+
+      function getRandomPosition() {
+        return new TMap.LatLng(39.982194923132845 + (Math.random() * 0.001), 116.31184888073153 +( Math.random() * 0.001))
+      }
+      function add() {
+        marker.add([
+            {
+                id: ++uid,
+                position: getRandomPosition(),
+                "properties": {//自定义属性
+                    "title": uid
+                }
+            }
+        ])
+        uidArr.push(uid)
+      }
+      function change() {
+        marker.updateGeometries([
+            {
+                id: uidArr[0],
+                "position": getRandomPosition(),
+            }
+        ])
+      }
+      function del() {
+        marker.remove([uidArr.shift()])
+      }
+      function clearAll() {
+        marker.setGeometries([])
+        
+      }
+      function remove() {
+        marker.off('click', listenClick)
+        alert('解绑完成')
+      }
+      function addE() {
+        marker.on('click', listenClick)
+        alert('绑定完成')
+      }
+    </script>
+  </body>
+</html>

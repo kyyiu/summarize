@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>异步加载</title>
+    <style type="text/css">
+        body, html {
+            width: 100%;
+            height: 100%;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        #container {
+            width: 1600px;
+            height: 800px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body >
+    <!-- 定义地图显示容器 -->
+    <!-- https://lbs.qq.com/webApi/javascriptGL/glGuide/glBasic -->
+    <div id="container"></div>
+    <script>
+        function initMap() {
+            var map = new TMap.Map("container", {
+                pitch: 45,
+                zoom: 12,               
+                center: new TMap.LatLng(30.578994, 104.072745)
+            });
+            console.log("异步加载完成")
+        }
+        function loadScript() {
+            //创建script标签，并设置src属性添加到body中
+            var script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = "https://map.qq.com/api/gljs?v=1.exp&key=OB4BZ-D4W3U-B7VVO-4PJWW-6TKDJ-WPB77&callback=initMap";
+            document.body.appendChild(script);
+        }
+        window.onload = loadScript;
+    </script>
+</body>
+</html>
