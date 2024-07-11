@@ -1,4 +1,10 @@
+
 const information = document.getElementById('info')
+const slider = document.getElementById('slider')
+
+slider.addEventListener('change', (e) => {
+    window.preload.opacity(e.target.valueAsNumber)
+})
 
 const f = async () => {
     const res = await window.preload.sipc()
