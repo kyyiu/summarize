@@ -1,10 +1,12 @@
 
 const information = document.getElementById('info')
 const slider = document.getElementById('slider')
+const sliderVal = document.getElementById('slider_val')
 const back = document.getElementById('back')
 
 slider.addEventListener('change', (e) => {
     window.preload.opacity(e.target.valueAsNumber)
+    sliderVal.innerText = e.target.valueAsNumber
 })
 back.addEventListener('click', () => {
     window.preload.back()

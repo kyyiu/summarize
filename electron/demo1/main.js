@@ -25,9 +25,29 @@ const createWindow = () => {
   });
 
   win.loadFile("index.html");
-  // win.setOpacity(0.15)
+  win.setOpacity(0.15);
   // win.webContents.openDevTools();
   return win;
+};
+
+const initSubView = (mainWindow, stack, url) => {
+  // 子窗口开始
+  const son = new BrowserView();
+  stack.push(son);
+  mainWindow.addBrowserView(son);
+  son.setBounds({
+    x: 0,
+    y: 50,
+    width: mainWindow.getContentSize()[0],
+    height: mainWindow.getContentSize()[1],
+  });
+  // https://www.bilibili.com/
+  son.webContents.loadURL(url);
+  // son.webContents.loadURL("https://www.baidu.com/");
+  son.webContents.setWindowOpenHandler((newWindowInfo) => {
+    initSubView(mainWindow, stack, newWindowInfo.url);
+    return { action: "deny" };
+  });
 };
 
 app.whenReady().then(() => {
@@ -41,36 +61,11 @@ app.whenReady().then(() => {
   ipcMain.on("back", () => {
     if (stack.length > 1) {
       const cur = stack.pop();
-      mainWindow.removeBrowserView(cur)
+      mainWindow.removeBrowserView(cur);
     }
   });
 
-  // 子窗口开始
-  const son = new BrowserView();
-  stack.push(son);
-  mainWindow.addBrowserView(son);
-  son.setBounds({
-    x: 0,
-    y: 50,
-    width: mainWindow.getContentSize()[0],
-    height: mainWindow.getContentSize()[1],
-  });
-  // https://www.bilibili.com/
-  // son.webContents.loadURL("https://www.bilibili.com/");
-  son.webContents.setWindowOpenHandler((newWindowInfo) => {
-    const next = new BrowserView();
-    stack.push(next);
-    mainWindow.addBrowserView(next);
-    next.setBounds({
-      x: 0,
-      y: 50,
-      width: mainWindow.getContentSize()[0],
-      height: mainWindow.getContentSize()[1],
-    });
-    next.webContents.loadURL(newWindowInfo.url);
-    return { action: "deny" };
-  });
-  son.webContents.loadURL("https://www.baidu.com/");
+  initSubView(mainWindow, stack, "https://www.bilibili.com/");
 
   mainWindow.on("resize", () => {
     const size = mainWindow.getContentSize();
