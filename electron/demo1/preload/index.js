@@ -6,4 +6,5 @@ contextBridge.exposeInMainWorld('preload', {
     electron: () => process.versions.electron,
     sipc: () => ipcRenderer.invoke('ipc'),
     opacity: (val) => ipcRenderer.send('setOpacity', val),
+    back: () => ipcRenderer.send('back'),
 })
