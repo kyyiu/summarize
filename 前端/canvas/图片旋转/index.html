@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,user-scalable=no" />
+    <title>360度旋转浏览</title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .loading {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            left: 0;
+            top: 0;
+            background-color: #888888;
+            z-index: 10;
+        }
+
+            .loading img {
+                position: relative;
+                width: 32px;
+                height: 32px;
+                left: 50%;
+                top: 50%;
+                margin-left: -16px;
+                margin-top: -16px;
+            }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading">
+        <img src="img/loading.gif" />
+    </div>
+<canvas id="canvas" width="750" height="750"></canvas>
+<script src="https://cdnjs.gtimg.com/cdnjs/libs/zepto/1.1.4/zepto.min.js"></script>
+<script>
+    function formatZero(num, len) {
+        if(String(num).length > len) return num;
+        return (Array(len).join(0) + num).slice(-len);
+    }
+    var canvas = document.getElementById("canvas"),
+        DPR = window.devicePixelRatio,//获取设备的物理像素比
+        viewW = window.innerWidth,
+        viewH = window.innerHeight,
+        cansW = viewW * DPR,//放大canvas
+        cansH = viewH * DPR,
+        ctx = canvas.getContext("2d"),
+        imgArr = [],//图片数组
+        curDeg = 0,//代表当前显示的图片下标
+        imgTotal = 36,//图片总数
+        imgRatio = (447 / 447), //图片高宽比
+        imgW = viewW * 1.5,//图宽
+        imgH = imgW * imgRatio;//图高
+        imgScale = 1;
+    //重设canvas宽高
+    //显示的宽高
+    canvas.style.width = cansW + "px";
+    canvas.style.height = cansH + "px";
+    //画布宽高
+    canvas.width = cansW;
+    canvas.height = cansH;
+    //loading
+    window.onload = function() {
+        {
+            var baseURL = "img/",
+                imgURL = "",
+                imgObj = null,
+                imgIndex = 1;
+            //loading
+            for (var i = 0; i < imgTotal; i++) {
+                imgURL = baseURL + "00_" + formatZero(i, 2) + ".jpg";
+                imgObj = new Image();
+                imgObj.src = imgURL;
+                //将所有图片对象压入一个数组,方便调用
+                imgArr.push(imgObj);
+                imgObj.onload = function () {
+                    imgIndex++;
+                    if (imgIndex > 35) {
+                        $(".loading").hide();
+                        //默认图
+                        drawImg(0);
+                    }
+                }
+            }
+            //手指触摸起点
+            var startPoint = 0,
+                //滑动多长距离，这里取（canvas宽/图片总数的一半）
+                //数值越大约灵敏
+                distance = cansW / 50;
+            //开始
+            var canvas = document.querySelector('canvas');
+            canvas.addEventListener('mouseenter',
+                function (e) {
+                    startPoint = e.clientX;
+                    //去掉默认事件，iPhone下可去除双击页面默认跳动(翻页)效果
+                    e.preventDefault();
+                },
+                false);
+            canvas.addEventListener('mousemove',
+                function (e) {
+                    var tempPoint = e.clientX;
+                    //向右移动
+                    if ((tempPoint - startPoint) > distance) {
+                        drawImg(curDeg, "right");
+                        //符合距离条件移动后，将记录点设到手指最新位置
+                        startPoint = tempPoint;
+                    } else if ((tempPoint - startPoint) < -distance) {//左
+                        drawImg(curDeg, "left");
+                        startPoint = tempPoint;
+                    }
+                    //禁止移动页面
+                    e.preventDefault();
+                },
+                false);
+            canvas.onmousewheel = canvas.onwheel = function (event) {    //滚轮放大缩小
+
+                event.wheelDelta = event.wheelDelta ? event.wheelDelta : (event.deltalY * (-40));  //获取当前鼠标的滚动情况
+                if (event.wheelDelta > 0) {
+                    imgScale *= 2;
+                } else {
+                    imgScale /= 2;
+                }
+                drawImg(curDeg);   //重新绘制图片
+            };
+        }
+    }
+    //绘图
+    //参数：图片对象下标，移动方向
+    function drawImg(n, type) {
+        if (type == "left") {
+            if (curDeg > 0) {
+                curDeg--;
+            } else {
+                curDeg = 35;
+            }
+        } else if (type == "right") {
+            if (curDeg < 35) {
+                curDeg++;
+            } else {
+                curDeg = 0;
+            }
+        }
+        ctx.clearRect(0, 0, cansW, cansH);
+        //参数：图片对象，X偏移量，Y偏移量，图宽，图高
+        ctx.drawImage(imgArr[n], -(imgW * imgScale - viewW) * 0.5, (viewH - imgH * imgScale) * 0.5, imgW * imgScale, imgH * imgScale);
+    }
+</script>
+</body>
+</html>

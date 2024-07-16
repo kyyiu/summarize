@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      @keyframes rrr {
+        0% {
+          transform: rotate3d(1, 1, 1, 0deg);
+        }
+        33% {
+          transform: rotate3d(1, 1, 1, 110deg);
+        }
+        34% {
+          transform: rotate3d(1, 1, 1, 130deg);
+        }
+        66% {
+          transform: rotate3d(1, 1, 1, 230deg);
+        }
+        67% {
+          transform: rotate3d(1, 1, 1, 250deg);
+        }
+        100% {
+          transform: rotate3d(1, 1, 1, 360deg);
+        }
+      }
+      .pp {
+        animation: rrr 3s infinite linear;
+      }
+    </style>
+  </head>
+  <body>
+    <img class="pp" src="./petal.png" alt="" />
+    <canvas id="canvas" width="300" height="300"></canvas>
+    <canvas id="c"></canvas>
+    <!-- <script>
+        var canvas = document.getElementById('c');
+        var ctx = canvas.getContext('2d');
+        var image = new Image();
+        var angle = 0;
+         
+        image.onload = function() {
+          // 当图片加载完成时，开始旋转
+          setInterval(function() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // 清除画布
+            ctx.save(); // 保存状态
+            ctx.translate(canvas.width / 2, canvas.height / 2); // 将原点移到画布中心
+            ctx.rotate(angle * Math.PI / 180); // 旋转画布
+            ctx.drawImage(image, -image.width / 2, -image.height / 2, image.width, image.height); // 绘制旋转后的图片
+            ctx.restore(); // 恢复状态
+            angle++; // 增加旋转角度
+          }, 10); // 每10毫秒旋转一次
+        };
+         
+        image.src = './petal.png'; // 替换为你的图片路径
+        </script> -->
+    <script>
+      var canvas = document.getElementById("canvas");
+      const ctx = canvas.getContext("2d");
+      var W = canvas.width,
+        H = canvas.height;
+      const img = new Image();
+      img.addEventListener("load", () => requestAnimationFrame(renderLoop), {
+        once: true,
+      });
+      img.src = "https://i.sstatic.net/C7qq2.png?s=256&g=1";
+      function rotateImg(img, axisX, axisY, rotate, centerX, centerY, backCol) {
+        const iw = img.naturalWidth;
+        const ih = img.naturalHeight;
+        const axisLen = Math.hypot(axisX, axisY);
+        const nAx = axisX / axisLen;
+        const nAy = axisY / axisLen;
+        const wScale = Math.cos(rotate);
+        ctx.setTransform(
+          nAy * wScale,
+          -nAx * wScale,
+          nAx,
+          nAy,
+          centerX,
+          centerY
+        );
+        ctx.globalAlpha = 1;
+        ctx.drawImage(img, -iw * 0.5, -ih * 0.5, iw, ih);
+        if (backCol) {
+          ctx.globalAlpha = wScale < 0 ? 1 : 1 - wScale;
+          ctx.fillStyle = backCol;
+          ctx.fillRect(-iw * 0.5, -ih * 0.5, iw, ih);
+        }
+      }
+      function renderLoop(time) {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, W, H);
+
+        rotateImg(
+          img,
+          Math.cos(time / 4200),
+          Math.sin(time / 4200),
+          time / 500,
+          W * 0.5,
+          H * 0.5,
+          "#268C"
+        );
+        requestAnimationFrame(renderLoop);
+      }
+    </script>
+  </body>
+</html>
