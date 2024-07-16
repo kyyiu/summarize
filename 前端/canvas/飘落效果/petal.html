@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+      }
+      html,
+      body {
+        height: 100%;
+        width: 100%;
+      }
+      #canvas {
+        display: block;
+        overflow: hidden;
+        background-color: green;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas" width="300" height="300"></canvas>
+    <script>
+      const ctx = canvas.getContext("2d");
+      let petalArr = [];
+      function handleResize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      handleResize();
+      window.addEventListener("resize", () => {
+        handleResize();
+        for (const p of petalArr) {
+          p.init(canvas.width, canvas.height);
+        }
+      });
+    </script>
+    <script>
+      const randNum = (min, max) => {
+        return Math.random() * (max - min) + min;
+      };
+      const calculateXY = (w, h) => {
+        return new Promise((resolve, reject) => {
+          let x = randNum(-h + 100, w - 100);
+          let y = randNum(-h + 100, h - 100);
+          let b = 60; //这里是加一个偏移量，防止移出可视区后初始化位置时突然在可视区上边缘和做边缘出现。
+          if (w >= h) {
+            let a = w - h;
+            //坐标在canvas区域，移到左上方同canvas大小区域
+            if (x > -b && y > -b) {
+              x = randNum(-h + b, a - b);
+              y = randNum(-h + b, -b);
+            } else if (x > a - b && y < -(h - (x - a) + b)) {
+              //坐标在canvas右上方三角形区域，飘落不经过canvas，移到正上方三角形区域
+              y = randNum(-(h - (x - a) + b), -b);
+            } else if (x < -b && y > h + x - b) {
+              //坐标在canvas左下方三角形区域，飘落不经过canvas，移到正左方三角形区域
+              y = randNum(0, h + x - b);
+            }
+          } else {
+            let a = h - w;
+            if (x > -b && y > -b) {
+              x = randNum(-w + b, -b);
+              y = randNum(-w + b, a - b);
+            } else if (x > -b && y < -(w - x) + b) {
+              y = randNum(-(w - x) + b, -b);
+            } else if (x < -b && y > h - x - b) {
+              y = randNum(a, h - x - b);
+            }
+          }
+          resolve({ x, y });
+        });
+      };
+      class Petal {
+        constructor(cw, ch, img) {
+          this.canvasW = cw;
+          this.canvasH = ch;
+          this.y = randNum(-ch + 100, ch - 100); //这里两个100是防止直接出现在可视区边缘半个直接飘出去了
+          this.x = randNum(-ch + 100, cw - 100);
+          this.size = 0.3 + Math.random() * 0.7;
+          this.w = img.naturalWidth * this.size;
+          this.h = img.naturalHeight * this.size;
+          this.img = img;
+          this.r = Math.random();
+          this.scale = -Math.random();
+          this.toLarge = false;
+          this.speedX = 1 + Math.random() * 0.5 + 0.5;
+          this.speedY = 1 + this.speedX;
+          this.speedScale = Math.random() * 0.007;
+          this.speedR = 0.03 + Math.random() * 0.03;
+          this.axisXLimit = 4200 * Math.random();
+          this.axisYLimit = 4200 * Math.random();
+          this.rotateLimit = 400 + 500 * Math.random();
+        }
+        async init(cw, ch) {
+          let xy = await calculateXY(this.canvasW, this.canvasH);
+          this.x = xy.x;
+          this.y = xy.y;
+          this.r = Math.random();
+          this.scale = -Math.random();
+          this.speedX = 1 + Math.random() * 0.5 + 0.3;
+          this.speedY = 1 + this.speedX;
+          this.speedScale = Math.random() * 0.004;
+          this.speedR = Math.random() * 0.03;
+          this.axisXLimit = 4200 * Math.random();
+          this.axisYLimit = 4200 * Math.random();
+          this.rotateLimit = 400 + 500 * Math.random();
+          this.canvasW = cw || this.canvasW;
+          this.canvasH = ch || this.canvasH;
+        }
+        async rotateImg(time) {
+          let backCol = "#fff";
+          const axisX = Math.cos(time / this.axisXLimit);
+          const axisY = Math.sin(time / this.axisYLimit);
+          const axisLen = Math.hypot(axisX, axisY);
+          const nAx = axisX / axisLen;
+          const nAy = axisY / axisLen;
+          const wScale = Math.cos(time / this.rotateLimit);
+          this.x += this.speedX;
+          this.y += this.speedY;
+          if (this.x >= this.canvasW || this.y >= this.canvasH) {
+            await this.init();
+          }
+          ctx.setTransform(
+            nAy * wScale,
+            -nAx * wScale,
+            nAx,
+            nAy,
+            this.x + this.w / 2,
+            this.y + this.h / 2
+          );
+          ctx.globalAlpha = 1;
+          ctx.drawImage(this.img, -this.w / 2, -this.h / 2, this.w, this.h);
+          //   if (backCol) {
+          //     ctx.globalAlpha = wScale < 0 ? 1 : 1 - wScale;
+          //     ctx.fillStyle = backCol;
+          //     ctx.fillRect(-this.x, -this.y, this.w, this.h);
+          //   }
+        }
+        async move() {
+          this.x += this.speedX;
+          this.y += this.speedY;
+          this.r += this.speedR;
+          if (this.scale >= 1) {
+            this.toLarge = false;
+          } else if (this.scale <= 0) {
+            this.toLarge = true;
+          }
+
+          if (this.toLarge) {
+            this.scale += this.speedScale;
+          } else {
+            this.scale -= this.speedScale;
+          }
+
+          if (this.x >= this.canvasW || this.y >= this.canvasH) {
+            await this.init();
+          }
+        }
+        draw2() {
+          ctx.save(); //保存当前画布状态
+          ctx.translate(this.x + this.w / 2, this.y + this.h / 2); //画布位移
+          ctx.rotate(this.r); //画布旋转
+          ctx.scale(1, this.scale); //画布缩放
+          ctx.drawImage(this.img, -this.w / 2, -this.h / 2, this.w, this.h); //画图
+          ctx.restore(); //画布复位
+        }
+        draw(time) {
+          //方案1
+          ctx.save(); //保存当前画布状态
+          this.rotateImg(time);
+          ctx.restore(); //画布复位
+          // 方案2
+          //   this.move();
+          //   this.draw2();
+        }
+      }
+      const p = new Image();
+
+      function renderLoop(time) {
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (const instance of petalArr) {
+          instance.draw(time);
+        }
+        requestAnimationFrame(renderLoop);
+      }
+      p.onload = () => {
+        petalArr = new Array(60)
+          .fill(0)
+          .map((e) => new Petal(canvas.width, canvas.height, p));
+        requestAnimationFrame(renderLoop);
+      };
+      p.src = "./petal.png";
+    </script>
+  </body>
+</html>
