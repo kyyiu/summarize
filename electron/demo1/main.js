@@ -35,6 +35,7 @@ const initSubView = (mainWindow, stack, url) => {
   const son = new BrowserView();
   stack.push(son);
   mainWindow.addBrowserView(son);
+  mainWindow.webContents.send('getUrl', url)
   son.setBounds({
     x: 0,
     y: 50,
@@ -66,6 +67,7 @@ app.whenReady().then(() => {
   });
 
   initSubView(mainWindow, stack, "https://www.bilibili.com/");
+
 
   mainWindow.on("resize", () => {
     const size = mainWindow.getContentSize();

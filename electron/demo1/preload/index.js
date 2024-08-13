@@ -7,4 +7,7 @@ contextBridge.exposeInMainWorld('preload', {
     sipc: () => ipcRenderer.invoke('ipc'),
     opacity: (val) => ipcRenderer.send('setOpacity', val),
     back: () => ipcRenderer.send('back'),
+    getUrl: (message) => {
+        ipcRenderer.on('getUrl', message);
+    }
 })
