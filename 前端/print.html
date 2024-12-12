@@ -6,6 +6,16 @@
     <link rel="stylesheet" href="./highlight/styles/base16/nova.min.css" />
     <title></title>
     <style>
+       ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+				background-color: #3c4c55;
+			}
+			::-webkit-scrollbar-thumb {
+				background-color: #3c4c55;
+        border-radius: 20px;
+				box-shadow: inset 0 0 0 #3c4c55;
+      }
       html {
         background-color: #3c4c55;
         font-size: 16px;
@@ -17,15 +27,31 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        flex-direction: column;
         margin: 0;
         padding: 0;
         /* background-color: gray; */
         height: 100%;
       }
+      .top,
+      .bottom {
+        flex: 1;
+        min-width: 570px;
+        overflow: auto;
+      }
+      .bottom {
+        
+        background-color: white;
+      }
     </style>
   </head>
   <body>
     <script src="./highlight/highlight.min.js"></script>
+    
+    <div class="top">
+      <pre class="ppp language-javascript"></pre>
+    </div>
+    <div class="bottom"></div>
     <pre class="org" style="display: none;">
       const getList = useCallback(() => {
           const data = genParams();
@@ -34,9 +60,22 @@
               setData(res.data);
           });
       }, [genParams]);
+      const getList = useCallback(() => {
+          const data = genParams();
+          const x = `x`;
+          distributor.GetDealerPage({ ...data }).then(res => {
+              setData(res.data);
+          });
+      }, [genParams]);
+      const getList = useCallback(() => {
+          const data = genParams();
+          const x = `x`;
+          distributor.GetDealerPage({ ...data }).then(res => {
+              setData(res.data);
+          });
+      }, [genParams]);
     </pre>
-    <pre class="ppp language-javascript">
-    </pre>
+
     
     <script>
       const p = document.querySelector(".ppp");
@@ -44,6 +83,7 @@
       const timeGap = 10
       const len = txt.length;
       const h = document.querySelector(".language-javascript")
+      const topContainer = document.querySelector('.top')
       let i = 0;
       
       const print = () => {
@@ -55,7 +95,7 @@
         // hljs.highlightAll()
         h.removeAttribute('data-highlighted')
         hljs.highlightElement(h)
-        document.documentElement.scrollTop = document.documentElement.scrollHeight
+        topContainer.scrollTop = topContainer.scrollHeight
         i += 1;
         setTimeout(print, timeGap);
       };
