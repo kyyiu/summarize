@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./highlight/styles/base16/nova.min.css" />
+    <title></title>
+    <style>
+      html {
+        background-color: #3c4c55;
+        font-size: 16px;
+        font-weight: bold;
+      }
+      html,
+      body,
+      #container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+        /* background-color: gray; */
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <script src="./highlight/highlight.min.js"></script>
+    <pre class="org" style="display: none;">
+      const getList = useCallback(() => {
+          const data = genParams();
+          const x = `x`;
+          distributor.GetDealerPage({ ...data }).then(res => {
+              setData(res.data);
+          });
+      }, [genParams]);
+    </pre>
+    <pre class="ppp language-javascript">
+    </pre>
+    
+    <script>
+      const p = document.querySelector(".ppp");
+      const txt = document.querySelector(".org").innerText;
+      const timeGap = 10
+      const len = txt.length;
+      const h = document.querySelector(".language-javascript")
+      let i = 0;
+      
+      const print = () => {
+        if (i > len) {
+          // hljs.highlightAll()
+          return
+        };
+        p.innerHTML = txt.slice(0, i);
+        // hljs.highlightAll()
+        h.removeAttribute('data-highlighted')
+        hljs.highlightElement(h)
+        document.documentElement.scrollTop = document.documentElement.scrollHeight
+        i += 1;
+        setTimeout(print, timeGap);
+      };
+      setTimeout(print, timeGap);
+    </script>
+  </body>
+</html>
