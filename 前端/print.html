@@ -43,63 +43,229 @@
         
         background-color: white;
       }
+      pre {
+        white-space: pre;
+      }
+      #cv {
+        width: 100%;
+        height: 100%;
+      }
     </style>
   </head>
   <body>
     <script src="./highlight/highlight.min.js"></script>
     
     <div class="top">
-      <pre class="ppp language-javascript"></pre>
+      <pre class="ppp1 language-html"></pre>
+      <pre class="ppp2 language-css"></pre>
+      <pre class="ppp3 language-javascript"></pre>
     </div>
     <div class="bottom"></div>
-    <pre class="org" style="display: none;">
-      const getList = useCallback(() => {
-          const data = genParams();
-          const x = `x`;
-          distributor.GetDealerPage({ ...data }).then(res => {
-              setData(res.data);
-          });
-      }, [genParams]);
-      const getList = useCallback(() => {
-          const data = genParams();
-          const x = `x`;
-          distributor.GetDealerPage({ ...data }).then(res => {
-              setData(res.data);
-          });
-      }, [genParams]);
-      const getList = useCallback(() => {
-          const data = genParams();
-          const x = `x`;
-          distributor.GetDealerPage({ ...data }).then(res => {
-              setData(res.data);
-          });
-      }, [genParams]);
+    <pre class="code1" style="display: none;">
+      <canvas id="cv" width="100%" height="100%"></canvas>
+    </pre>
+    <pre class="code2" style="display: none;">
+      .bottom {
+        background-color: white;
+
+      }
+    </pre>
+    <pre class="ccc" style="display: none;">
+      const canvas = document.querySelector('#cv')
+        canvas.width = window.innerWidth
+        canvas.height = window.innerHeight
+        const ctx = canvas.getContext('2d')
+        // 黑色背景
+        ctx.fillStyle = 'black'
+        ctx.fillRect(0,0,canvas.width, canvas.height)
+        
+        // 烟花配置
+        const $firePathList = []
+        const $fireworksList = []
+        // 烟花升起数量
+        const $path = 20
+        const pos = {
+            x: canvas.width/2,
+            y: canvas.height / 2
+        }
+        // 烟花炸开数量
+        const fire = 160
+
+        for(let i = 0;i<$path; i++) {
+            const pathObj = {
+                x: Math.random()*fire/2 -fire/4+pos.x,
+                y: Math.random()*fire*2+canvas.height,
+                size: Math.random()+0.5,
+                fill: '#fd1',
+                vx: Math.random() - 0.5,
+                vy: -(Math.random() + 4),
+                ax: Math.random()*0.02-0.01,
+                far: Math.random()*fire+(pos.y-fire)
+            }
+            pathObj.base={
+                x: pathObj.x,
+                y: pathObj.y,
+                vx: pathObj.vx
+            }
+            $firePathList.push(pathObj)
+        }
+
+        function getColor() {
+            const r = Math.floor(Math.random() * 256)
+            const g = Math.floor(Math.random() * 256)
+            const b = Math.floor(Math.random() * 256)
+            const color = `rgb(${r},${g},${b})`
+            return color
+        }
+
+        function setList() {
+            for(let i =0;i<$firePathList.length;i++) {
+                let $pathItem = $firePathList[i]
+                if ($pathItem.y <= $pathItem.far) {
+                    let color = getColor()
+                    // 炸开烟花
+                    for(let j = 0; j < $path*5;j++) {
+                        const fireItem = {
+                            x: $pathItem.x,
+                            y:$pathItem.y,
+                            size: Math.random() +1.5,
+                            fill: color,
+                            vx: Math.random() * 5-2.5,
+                            vy: Math.random() * -5 + 1.5,
+                            ay: 0.05,
+                            alpha: 1,
+                            life: Math.round(Math.random()*fire/2)+fire/2
+                        }
+                        fireItem.base = {
+                            life: fireItem.life,
+                            size: fireItem.size
+                        }
+                        $fireworksList.push(fireItem)
+                    }
+                    $pathItem.y = $pathItem.base.y
+                    $pathItem.x = $pathItem.base.x
+                    $pathItem.vx = $pathItem.base.vx
+                    $pathItem.ax = Math.random() * 0.02 - 0.01
+                }
+                $pathItem.x += $pathItem.vx
+                $pathItem.y += $pathItem.vy
+                $pathItem.vx += $pathItem.ax
+            }
+
+            for(let i = $fireworksList.length-1; i>=0;i--) {
+                const fireItem = $fireworksList[i]
+                if (fireItem) {
+                    fireItem.x += fireItem.vx
+                    fireItem.y += fireItem.vy
+                    fireItem.vy += fireItem.ay
+                    fireItem.alpha = fireItem.life/fireItem.base.life
+                    fireItem.size = fireItem.alpha * fireItem.base.size
+                    fireItem.alpha = fireItem.alpha > 0.6 ? 1 : fireItem.alpha
+                    fireItem.life--
+                    if (fireItem.life <= 0) {
+                        $fireworksList.splice(i, 1)
+                    }
+                }
+            }
+        }
+
+        function setFire() {
+            ctx.globalCompositeOpration = 'source-over'
+            ctx.globaAlpha = 0.18
+            ctx.fillStyle = 'black'
+            ctx.fillRect(0,0, canvas.width, canvas.height)
+            ctx.globalCompositeOpration = 'screen'
+            ctx.globaAlpha = 1
+            //  升起烟花
+            for(let i = 0;i<$fireworksList.length;i++) {
+                let fireItem = $fireworksList[i]
+                ctx.globaAlpha = fireItem.alpha
+                ctx.beginPath()
+                ctx.arc(fireItem.x, fireItem.y, fireItem.size, 0, Math.PI*2)
+                ctx.closePath()
+                ctx.fillStyle = fireItem.fill
+                ctx.fill()
+            }
+
+            for(let i = 0; i< $firePathList.length; i++) {
+                const $pathItem = $firePathList[i]
+                ctx.beginPath()
+                ctx.arc($pathItem.x, $pathItem.y, $pathItem.size, 0 , Math.PI*2)
+                ctx.closePath()
+                ctx.fillStyle = $pathItem.fill
+                ctx.fill()
+            }
+        }
+
+        (function ani() {
+            requestAnimationFrame(ani)
+            setList()
+            setFire()
+        })()
     </pre>
 
-    
     <script>
-      const p = document.querySelector(".ppp");
-      const txt = document.querySelector(".org").innerText;
+      const htmlContainer = document.querySelector(".ppp1");
+      const cssContainer = document.querySelector(".ppp2");
+      const scriptContainer = document.querySelector(".ppp3");
+      const htmlTxt = document.querySelector(".code1").innerHTML;
+      const cssTxt = document.querySelector(".code2").innerText;
+      const scriptTxt = document.querySelector(".ccc").innerText;
       const timeGap = 10
-      const len = txt.length;
-      const h = document.querySelector(".language-javascript")
+      const len1 = htmlTxt.length;
+      const len2 = cssTxt.length;
+      const len3 = scriptTxt.length;
+      const htmlEle = document.querySelector(".language-html")
+      const cssEle = document.querySelector(".language-css")
+      const scriptEle = document.querySelector(".language-javascript")
       const topContainer = document.querySelector('.top')
-      let i = 0;
-      
-      const print = () => {
-        if (i > len) {
+      const bottomContainer = document.querySelector('.bottom')
+      let html_i = 0;
+      let css_i = 0;
+      let script_i = 0;
+
+      const printScript = () => {
+        if (script_i > len3) {
+          eval(scriptTxt)
           // hljs.highlightAll()
           return
         };
-        p.innerHTML = txt.slice(0, i);
+        scriptContainer.innerHTML = scriptTxt.slice(0, script_i);
         // hljs.highlightAll()
-        h.removeAttribute('data-highlighted')
-        hljs.highlightElement(h)
+        scriptContainer.removeAttribute('data-highlighted')
+        hljs.highlightElement(scriptContainer)
         topContainer.scrollTop = topContainer.scrollHeight
-        i += 1;
-        setTimeout(print, timeGap);
+        script_i += 1;
+        setTimeout(printScript, timeGap);
+      }
+
+      const printCss = () => {
+        if (css_i > len2) {
+          printScript()
+          return
+        };
+        cssContainer.innerHTML = cssTxt.slice(0, css_i);
+        cssContainer.removeAttribute('data-highlighted')
+        hljs.highlightElement(cssContainer)
+        topContainer.scrollTop = topContainer.scrollHeight
+        css_i += 1;
+        setTimeout(printCss, timeGap);
+      }
+      
+      const printHtml = () => {
+        if (html_i > len1) {
+          bottomContainer.innerHTML = htmlTxt
+          printCss()
+          return
+        };
+        htmlContainer.innerText = htmlTxt.slice(0, html_i);
+        htmlContainer.removeAttribute('data-highlighted')
+        hljs.highlightElement(htmlContainer)
+        topContainer.scrollTop = topContainer.scrollHeight
+        html_i += 1;
+        setTimeout(printHtml, timeGap);
       };
-      setTimeout(print, timeGap);
+      setTimeout(printHtml, timeGap);
     </script>
   </body>
 </html>
