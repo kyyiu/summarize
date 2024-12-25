@@ -2734,10 +2734,25 @@ const getBall = (str) => {
         passedBlue: nums.slice(5)
     }
 }
-
+const r1 = []
+const r2 = []
+const r3 = []
+const r4 = []
+const r5 = []
+const b1 = []
+const b2 = []
 const getPrize = (currentRed, currentBlue) => {
     for (const key of keys) {
         const {passedRed, passedBlue} = getBall(key)
+
+        r1.push(+passedRed[0])
+        r2.push(+passedRed[1])
+        r3.push(+passedRed[2])
+        r4.push(+passedRed[3])
+        r5.push(+passedRed[4])
+        b1.push(+passedBlue[0])
+        b2.push(+passedBlue[1])
+
         let redCount = 0
         let blueCount = 0
         for (const pr of passedRed) {
@@ -2809,6 +2824,102 @@ for (const r of prizeBallCountArr) {
     ele.append(`${idx}: ${num}`)
     prizeEle.appendChild(ele)
 }
+
+var redChart = echarts.init(document.getElementById('red'));
+var blueChart = echarts.init(document.getElementById('blue'));
+var prizeChart = echarts.init(document.getElementById('prize'));
+
+redChart.setOption({
+    // 设置的是标题
+    title: {
+      text: '折线图'
+    },
+    tooltip: {
+      trigger: 'axis'
+    },
+    // 网格间距设置
+    grid: {
+      left: '30px',
+      right: '60px',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: Array(keys.length).fill(0).map((_, i) => i),
+    },
+    yAxis: {
+      type: 'value'
+    },
+    // 数据
+    series: [
+      {
+        name: '1',
+        type: 'line',
+        data: r1
+      },
+      {
+        name: '2',
+        type: 'line',
+        data: r2
+      },
+      {
+        name: '3',
+        type: 'line',
+        data: r3
+      },
+      {
+        name: '4',
+        type: 'line',
+        data: r4
+      },
+      {
+        name: '5',
+        type: 'line',
+    
+        data: r5
+      }
+    ]
+});
+
+blueChart.setOption({
+    // 设置的是标题
+    title: {
+      text: '折线图'
+    },
+    tooltip: {
+      trigger: 'axis'
+    },
+    // 网格间距设置
+    grid: {
+      left: '30px',
+      right: '60px',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: Array(keys.length).fill(0).map((_, i) => i),
+    },
+    yAxis: {
+      type: 'value'
+    },
+    // 数据
+    series: [
+      {
+        name: '1',
+        type: 'line',
+        data: b1
+      },
+      {
+        name: '2',
+        type: 'line',
+        data: b2
+      },
+    ]
+});
 
 
 console.log(data[`$${res.join('#')}`]);
