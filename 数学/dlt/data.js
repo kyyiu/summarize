@@ -1,4 +1,6 @@
 const data = {
+    "$05#12#17#19#35#10#11": 1,
+    "$04#11#23#25#34#05#07": 1, // new
     "$02#05#16#18#22#07#09": 1,
     "$06#09#20#32#35#08#11": 1,
     "$12#18#21#22#31#01#07": 1,
@@ -2741,15 +2743,26 @@ const r4 = []
 const r5 = []
 const b1 = []
 const b2 = []
-const getPrize = (currentRed, currentBlue) => {
-    for (const key of keys) {
+const r1Range = Array(35).fill(0).reduce((res, cur, idx) => ({...res, [`${idx+1}`.padStart(2, 0)]: cur}), {})
+const r2Range = {...r1Range}
+const r3Range = {...r1Range}
+const r4Range = {...r1Range}
+const r5Range = {...r1Range}
+
+const getPrize = (currentRed, currentBlue, ballKeys) => {
+    for (const key of ballKeys) {
         const {passedRed, passedBlue} = getBall(key)
 
         r1.push(+passedRed[0])
+        r1Range[passedRed[0]] += 1
         r2.push(+passedRed[1])
+        r2Range[passedRed[1]] += 1
         r3.push(+passedRed[2])
+        r3Range[passedRed[2]] += 1
         r4.push(+passedRed[3])
+        r4Range[passedRed[3]] += 1
         r5.push(+passedRed[4])
+        r5Range[passedRed[4]] += 1
         b1.push(+passedBlue[0])
         b2.push(+passedBlue[1])
 
@@ -2785,18 +2798,14 @@ const getPrize = (currentRed, currentBlue) => {
         }
     }
 }
-const res = ['22', '24', '30', '31', '34', '03', '10']
+
+const res = ['9', '17', '19', '20', '33', '1', '4']
 
 const red = res.slice(0, 5)
 const blue = res.slice(5)
 
-getPrize(red, blue) 
+getPrize(red, blue, keys)
 
-console.log(
-    redBallCount,
-    BlueBallCount,
-    prizeCount
-);
 const redEle = document.querySelector('.red')
 const redBallCountArr = Object.entries(redBallCount).sort((a, b) => +a[0] - +b[0])
 for (const r of redBallCountArr) {
@@ -2828,6 +2837,30 @@ for (const r of prizeBallCountArr) {
 var redChart = echarts.init(document.getElementById('red'));
 var blueChart = echarts.init(document.getElementById('blue'));
 var prizeChart = echarts.init(document.getElementById('prize'));
+var red1Range = document.getElementById('r1')
+var red2Range = document.getElementById('r2')
+var red3Range = document.getElementById('r3')
+var red4Range = document.getElementById('r4')
+var red5Range = document.getElementById('r5')
+
+const range1CountArr = Object.entries(r1Range).sort((a, b) => +a[0] - +b[0])
+const range2CountArr = Object.entries(r2Range).sort((a, b) => +a[0] - +b[0])
+const range3CountArr = Object.entries(r3Range).sort((a, b) => +a[0] - +b[0])
+const range4CountArr = Object.entries(r4Range).sort((a, b) => +a[0] - +b[0])
+const range5CountArr = Object.entries(r5Range).sort((a, b) => +a[0] - +b[0])
+
+let ridx = 1
+for (const list of [range1CountArr, range2CountArr, range3CountArr, range4CountArr, range5CountArr]) {
+  for (const r of list) {
+    const idx = r[0]
+    const num = r[1]
+    const ele = document.createElement('div')
+    ele.append(`${idx}: ${num}`)
+    eval(`red${ridx}Range.appendChild(ele)`)
+  }
+  ridx += 1
+}
+
 
 redChart.setOption({
     // 设置的是标题
@@ -2922,4 +2955,45 @@ blueChart.setOption({
 });
 
 
-console.log(data[`$${res.join('#')}`]);
+
+const getPrize2 = (currentRed, currentBlue, ballKeys) => {
+  for (const key of ballKeys) {
+      const {passedRed, passedBlue} = getBall(key)
+      let redCount = 0
+      let blueCount = 0
+      for (const pr of passedRed) {
+          if (!redBallCount[pr]) {
+              redBallCount[pr] = 0
+          }
+          redBallCount[pr] += 1
+      }
+      for (const pb of passedBlue) {
+          if (!BlueBallCount[pb]) {
+              BlueBallCount[pb] = 0
+          }
+          BlueBallCount[pb] += 1
+      }
+      for (const cr of currentRed) {
+          if (passedRed.includes(cr)) {
+              redCount += 1
+          }
+      }
+      for (const cb of currentBlue) {
+          if (passedBlue.includes(cb)) {
+              blueCount += 1
+          }
+      }
+      for (let i = 1; i<=9; i++) {
+          const res = eval(`prize${i}(redCount,blueCount)`)
+          if (res) {
+              return i
+          }
+      }
+  }
+}
+console.log('当前的: ', getPrize2(red, blue, ["$05#12#17#19#35#10#11"]));
+// 1: 1 ~ 11 11
+// 2: 2 ~ 22 21
+// 3: 10 ~ 29 20
+// 4: 18 ~ 34 17
+// 5: 25 ~ 35 11
