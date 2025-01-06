@@ -3166,13 +3166,13 @@ const prize6 = (leftCount, rightCount) => {
   return leftCount === 3 || rightCount === 1;
 };
 
-const showCount = 500
+const showCount = 500;
 
 const getKeys = (k) => {
   const all = k.split("#");
   return {
-    left: all[0].split(''),
-    right: all[1]
+    left: all[0].split(""),
+    right: all[1],
   };
 };
 
@@ -3186,7 +3186,7 @@ const positionDic = {
   6: [],
 };
 
-const prize1Keys = Object.keys(data)
+const prize1Keys = Object.keys(data);
 
 const getPrize = (curLeft, curRight, keysInfo) => {
   const prizeCount = {
@@ -3222,6 +3222,8 @@ const getPrize = (curLeft, curRight, keysInfo) => {
   }
   return {
     prizeCount,
+    curLeft,
+    curRight,
   };
 };
 var p1 = echarts.init(document.getElementById("p1"));
@@ -3232,9 +3234,22 @@ var p5 = echarts.init(document.getElementById("p5"));
 var p6 = echarts.init(document.getElementById("p6"));
 var p7 = echarts.init(document.getElementById("p7"));
 
-console.log(getPrize('696428'.split(''), 1, prize1Keys), positionDic);
+const genLeft = () => {
+  return Array(6)
+    .fill(0)
+    .map(() => Math.floor(Math.random() * 10));
+};
+const genRight = () => {
+  return Math.floor(Math.random() * 15);
+};
 
-p1.setOption({
+const randomLeft = genLeft()
+const randomRight = genRight()
+
+console.log(getPrize(randomLeft, randomRight, prize1Keys), positionDic);
+const showMap = true;
+if (showMap) {
+  p1.setOption({
     // 设置的是标题
     title: {
       text: "折线图",
@@ -3264,38 +3279,67 @@ p1.setOption({
       {
         name: "1",
         type: "line",
-        data: positionDic[0].slice(0, showCount),
+        data: [randomLeft[0], ...positionDic[0]].slice(0, showCount),
       },
       {
         name: "2",
         type: "line",
-        data: positionDic[1].slice(0, showCount),
+        data: [randomLeft[1], ...positionDic[1]].slice(0, showCount),
       },
       {
         name: "3",
         type: "line",
-        data: positionDic[2].slice(0, showCount),
+        data: [randomLeft[2], ...positionDic[2]].slice(0, showCount),
       },
       {
         name: "4",
         type: "line",
-        data: positionDic[3].slice(0, showCount),
+        data: [randomLeft[3], ...positionDic[3]].slice(0, showCount),
       },
       {
         name: "5",
         type: "line",
-        data: positionDic[4].slice(0, showCount),
+        data: [randomLeft[4], ...positionDic[4]].slice(0, showCount),
       },
       {
         name: "6",
         type: "line",
-        data: positionDic[5].slice(0, showCount),
-      },
-      {
-        name: "7",
-        type: "line",
-        data: positionDic[6].slice(0, showCount),
+        data: [randomLeft[5], ...positionDic[5]].slice(0, showCount),
       },
     ],
   });
-
+  p2.setOption({
+    // 设置的是标题
+    title: {
+      text: "折线图",
+    },
+    tooltip: {
+      trigger: "axis",
+    },
+    // 网格间距设置
+    grid: {
+      left: "30px",
+      right: "60px",
+      bottom: "3%",
+      containLabel: true,
+    },
+    xAxis: {
+      type: "category",
+      boundaryGap: false,
+      data: Array(showCount)
+        .fill(0)
+        .map((_, i) => i),
+    },
+    yAxis: {
+      type: "value",
+    },
+    // 数据
+    series: [
+      {
+        name: "7",
+        type: "line",
+        data: [randomRight, ...positionDic[6]].slice(0, showCount),
+      },
+    ],
+  });
+}
