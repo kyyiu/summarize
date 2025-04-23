@@ -15,4 +15,8 @@ const genRight = () => {
     return Math.floor(Math.random() * 16) + 1
 }
 
-console.log(genLeft(), genRight());
+const left = genLeft()
+
+console.log(left, genRight());
+console.log('左和', left.reduce((a, b) => Number(a) + Number(b)));
+
