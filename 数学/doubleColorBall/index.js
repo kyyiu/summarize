@@ -1,4 +1,5 @@
 const data = {
+    "02-14-19-24-29-33#13": 1,
     "02-03-07-08-14-28#11": 1,
     "03-12-16-19-20-32#13": 1,
     "07-13-19-23-27-33#12": 1,
@@ -695,6 +696,9 @@ const sampleNum = 100
 const ratio = {}
 // [87, 119]
 const sum = {}
+const total = [0, 0,0,0,0,0, 0]
+const fc = [0, 0,0, 0, 0,0,0]
+const continuous = {}
 
 const sampleData = prizeRes.slice(0, sampleNum).map((item) => {
     const [leftStr, right] = item.split('#')
@@ -702,17 +706,25 @@ const sampleData = prizeRes.slice(0, sampleNum).map((item) => {
     let l = 0
     let m = 0
     let r = 0
-    for (const n of left) {
-        if (+n <= 11) {
-            l+=1
-            continue
+    // for (const n of left) {
+    //     if (+n <= 11) {
+    //         l+=1
+    //         continue
+    //     }
+    //     if (+n > 11 && +n <= 22) {
+    //         m+=1
+    //         continue
+    //     } else {
+    //         r+=1
+    //     }
+    // }
+    for (const idx in left) {
+        const cl = left[idx]
+        if (cl + 1 == left[+idx+1]) {
+            const lastContinuous = continuous[`${cl}_${cl+1}`] || 0
+            continuous[`${cl}_${cl+1}`] = (lastContinuous + 1)
         }
-        if (+n > 11 && +n <= 22) {
-            m+=1
-            continue
-        } else {
-            r+=1
-        }
+        total[idx] += cl
     }
     const sumLeft = left.reduce((a, b) => +a + +b, 0)
     const k = `${l}:${m}:${r}`
@@ -727,9 +739,28 @@ const sampleData = prizeRes.slice(0, sampleNum).map((item) => {
    return  [left, +right, k, sumLeft]
 })
 
-console.log(ratio);
-console.log(sum);
-console.log(sampleData);
+// console.log(ratio);
+// console.log(sum);
+// console.log(sampleData);
+
+const avg = total.map((item, idx) => item / sampleNum)
+
+console.log('连续次数', continuous);
+console.log('总次数', total);
+console.log('平均', avg);
+
+prizeRes.slice(0, sampleNum).forEach((item) => {
+    const [leftStr, right] = item.split('#')
+    const left = leftStr.split('-').map(e => +e) 
+    for (const idx in left) {
+        const cl = left[idx]
+        fc[idx] += Math.pow(avg[idx] - cl, 2)
+    }
+})
+
+console.log('方差', fc);
+
+
 
 const genLeft = () => {
     const dic = {}
@@ -772,5 +803,5 @@ for (let i = sampleData.length - 1; i >= 0; i--) {
  }
 
 console.log(left, right);
-console.log('左和', left.reduce((a, b) => Number(a) + Number(b)));
+console.log('左和', left.reduce((a, b) => Number(a) + Number(b)), data[`03-06-14-22-31-32#11`]);
 
