@@ -699,6 +699,16 @@ const sum = {}
 const total = [0, 0,0,0,0,0, 0]
 const fc = [0, 0,0, 0, 0,0,0]
 const continuous = {}
+const ln = {
+    0: [], // 1~4
+    1: [], // 8~11
+    2: [], // 16~18
+    3: [], // 18~24
+    4: [],// 25 ~ 31
+    5: [] // 32 ~ 33
+}
+
+const rn = []
 
 const sampleData = prizeRes.slice(0, sampleNum).map((item) => {
     const [leftStr, right] = item.split('#')
@@ -720,12 +730,14 @@ const sampleData = prizeRes.slice(0, sampleNum).map((item) => {
     // }
     for (const idx in left) {
         const cl = left[idx]
+        ln[+idx].push(cl)
         if (cl + 1 == left[+idx+1]) {
             const lastContinuous = continuous[`${cl}_${cl+1}`] || 0
             continuous[`${cl}_${cl+1}`] = (lastContinuous + 1)
         }
         total[idx] += cl
     }
+    rn.push(right)
     const sumLeft = left.reduce((a, b) => +a + +b, 0)
     const k = `${l}:${m}:${r}`
     if (!ratio[k]) {
@@ -802,6 +814,6 @@ for (let i = sampleData.length - 1; i >= 0; i--) {
     cur.push(killErrNum)
  }
 
-console.log(left, right);
+console.log(left, right, Object.values(ln).map(e => e.sort((a,b) => a-b)), rn.sort((a, b) => a-b));
 console.log('左和', left.reduce((a, b) => Number(a) + Number(b)), data[`03-06-14-22-31-32#11`]);
 
