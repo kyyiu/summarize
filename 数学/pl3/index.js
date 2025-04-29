@@ -7233,7 +7233,8 @@ const data = {
 "1-9-2-04001":1,
 }
 
-const sampleDataLen = 100;
+const sampleDataLen = 10;
+const newstDateNum = 9;
 const dataSample = Object.keys(data).slice(0, sampleDataLen).map(e => e.split('-'));
 
 
@@ -7335,25 +7336,28 @@ const killNumWay1 = (mid) => {
     // console.log("误杀率:" , killErr/dataSample.length);
 }
 
-const killNumWay2 = () => {
-    let killErr = 0
-    for (let i = dataSample.length-1; i>=0; i--) {
-        const sample = dataSample[i]
-        const leftKill = Math.abs(sample[0] - sample[1])
-        const rightKill = Math.abs(sample[1] - sample[2])
-        const nextSample = dataSample[i-1]
-        if (nextSample?.slice(0,3)?.includes(`${leftKill}`) || nextSample?.slice(0,3)?.includes(`${rightKill}`)) {
-            killErr += 1 
-        }
-    }
-    console.log("误杀率:" , killErr/dataSample.length);
+// 百位误杀率0.1
+const killNumWay2 = (newDate) => {
+  return ((+newDate*3+3)%10)
+    //     const kill = 
+    // let killErr = 0
+    // for (let i = dataSample.length-1; i>=0; i--) {
+    //     const sample = dataSample[i]
+    //     const date = (+sample[3])%10
+    //     const kill = (date*3+3)%10
+    //     if (+sample[0] === kill) {
+    //         killErr += 1
+    //         console.log(sample);
+            
+    //     }
+    // }
+    // console.log("误杀率:" , killErr/dataSample.length);
 }
-console.log(killNumWay2());
 
-
-const getNums = (newestSample) => {
+const getNums = (newestSample, nextSample) => {
     const newest = newestSample || dataSample[0]
     const killAll = killNumWay1(newest[1])
+    const killFirst = killNumWay2(nextSample[3])
     const res = []
     while(res.length < 3) {
         let nums = []
@@ -7361,6 +7365,10 @@ const getNums = (newestSample) => {
             const n = Math.floor( Math.random()*10 )
             if (n === killAll || nums.includes(n)) {
                 continue
+            }
+            // 杀百位
+            if (!res.length && n === killFirst) {
+              continue
             }
             nums.push(n)
         }
@@ -7372,8 +7380,8 @@ const getNums = (newestSample) => {
 const checkRatio = () => {
     let target = 0
     for (let i = dataSample.length-1; i>=0;i--) {
-        const recommendNums = getNums(dataSample[i])
         const nextSample = dataSample[i-1] || []
+        const recommendNums = getNums(dataSample[i], nextSample)
         const f = recommendNums[0].includes(+nextSample[0])
         const s = recommendNums[1].includes(+nextSample[1])
         const l = recommendNums[2].includes(+nextSample[2])
@@ -7384,7 +7392,11 @@ const checkRatio = () => {
     return target / dataSample.length
 }
 // console.log(checkRatio());
+// let r = 0
+// for (let i = 0; i<100; i++) {
+//   r+=checkRatio()
+// }
+// console.log(r/100);
 
-
-// console.log(getNums());
+console.log(getNums(undefined, [undefined, undefined, undefined, newstDateNum]));
 
