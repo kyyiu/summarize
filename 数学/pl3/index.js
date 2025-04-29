@@ -1,7 +1,7 @@
 const data = {
   "8-7-7-25108":1,
 "7-2-6-25107":1,
-"0-7-6-25106":1,
+"0-7-6-25106":1, 
 "0-8-4-25105":1,
 "1-4-4-25104":1,
 "4-7-1-25103":1,
@@ -7398,5 +7398,5 @@ const checkRatio = () => {
 // }
 // console.log(r/100);
 
-console.log(getNums(undefined, [undefined, undefined, undefined, newstDateNum]));
+// console.log(getNums(undefined, [undefined, undefined, undefined, newstDateNum]));
 
