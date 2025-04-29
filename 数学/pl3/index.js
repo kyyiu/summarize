@@ -1,7 +1,7 @@
 const data = {
-  "8-7-7-25108":1,
+"8-7-7-25108":1,
 "7-2-6-25107":1,
-"0-7-6-25106":1, 
+"0-7-6-25106":1,
 "0-8-4-25105":1,
 "1-4-4-25104":1,
 "4-7-1-25103":1,
@@ -7233,7 +7233,7 @@ const data = {
 "1-9-2-04001":1,
 }
 
-const sampleDataLen = 10;
+const sampleDataLen = 10000;
 const newstDateNum = 9;
 const dataSample = Object.keys(data).slice(0, sampleDataLen).map(e => e.split('-'));
 
@@ -7354,16 +7354,32 @@ const killNumWay2 = (newDate) => {
     // console.log("误杀率:" , killErr/dataSample.length);
 }
 
+// 0.25
+const killNumWay3 = (sample) => {
+  return (+sample[0] + +sample[1] + +sample[2])%10
+  // let killErr = 0
+  // for (let i = dataSample.length-1; i>=0; i--) {
+  //     const sample = dataSample[i]
+  //     const nextSample = dataSample[i-1]
+  //     const needKill = (+sample[0] + +sample[1] + +sample[2])%10
+  //     if (nextSample?.slice(0,3)?.includes(`${needKill}`)) {
+  //         killErr += 1 
+  //     }
+  // }
+  // console.log("误杀率:" , killErr/dataSample.length);
+}
+
 const getNums = (newestSample, nextSample) => {
     const newest = newestSample || dataSample[0]
-    const killAll = killNumWay1(newest[1])
+    const killAll_1 = killNumWay1(newest[1])
+    const killAll_2 = killNumWay3(newest)
     const killFirst = killNumWay2(nextSample[3])
     const res = []
     while(res.length < 3) {
         let nums = []
-        while(nums.length < 5) {
+        while(nums.length < 6) {
             const n = Math.floor( Math.random()*10 )
-            if (n === killAll || nums.includes(n)) {
+            if ([killAll_1, killAll_2].includes(n) || nums.includes(n)) {
                 continue
             }
             // 杀百位
@@ -7392,11 +7408,10 @@ const checkRatio = () => {
     return target / dataSample.length
 }
 // console.log(checkRatio());
-// let r = 0
-// for (let i = 0; i<100; i++) {
-//   r+=checkRatio()
-// }
-// console.log(r/100);
+let r = 0
+for (let i = 0; i<100; i++) {
+  r+=checkRatio()
+}
+console.log(r/100);
 
 // console.log(getNums(undefined, [undefined, undefined, undefined, newstDateNum]));
-
