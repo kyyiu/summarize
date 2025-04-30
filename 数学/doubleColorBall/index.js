@@ -3444,6 +3444,56 @@ console.log(showTime);
 
 console.log(showSameTime);
 
+for(let i = 0; i <= 20; i++) {
+    const cur = sampleData[i]
+    const left = cur[0]
+    let s = 0
+    for (const n of left) {
+        s+=showTime[n] 
+    }
+    console.log(s - 3600);
+    
+}
+
+const rec = []
+
+function combination(arr, k) {
+    let result = [];
+    function helper(temp, start) {
+      if (temp.length === k) {
+        const numSum = temp.reduce((a, b) => a + b, 0)
+        const com = temp.slice().map(e => showTime[e])
+        const sum = com[0] + com[1] + com[2] + com[3] + com[4] + com[5]
+        const judgeNum = sum-3600
+        let l600 = 0
+        let b600 = 0
+        for (const n of temp) {
+            if (showTime[n] < 600) {
+                l600 += 1
+            } else {
+                b600 += 1
+            }
+        }
+        
+        if (20 <= judgeNum && judgeNum>=-100 && numSum>=95 && numSum<=108 && (l600 === b600)) {
+            rec.push(temp.slice())
+        }
+        result.push(temp.slice()); // 将结果存储到 result 数组中
+        return;
+      }
+      for (let i = start; i < arr.length; i++) {
+        temp.push(arr[i]);
+        helper(temp, i + 1);
+        temp.pop();
+      }
+    }
+    helper([], 0);
+    return result;
+  }
+
+combination(Array(33).fill(0).map((e, idx) => idx + 1), 6)
+console.log(rec);
+
 // 95 ~ 112  99 106 ~ 108
 // 95 96 111 112
 console.log('左和', left.reduce((a, b) => Number(a) + Number(b)), data[`03-06-14-22-31-32#11`]);
