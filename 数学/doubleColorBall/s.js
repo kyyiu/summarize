@@ -34,7 +34,7 @@ const killRed = () => {
           });
       } catch (err) {}
 }
-
+let writting = false
 const updateData = () => {
     try {
         const write = fs.createWriteStream('./data.json')
@@ -44,11 +44,11 @@ const updateData = () => {
         //     crlfDelay: Infinity
         // });
         write.write(`{\n`)
+        let curN = []
         https
           .get("https://datachart.500.com/ssq/history/newinc/history.php?start=1&end=55047", (res) => {
             let list = [];
             res.on("data", (chunk) => {
-                let curN = []
               chunk
                 .toString()
                 .replace(
@@ -78,7 +78,7 @@ const updateData = () => {
         console.error(err);
     }
 }
-killRed()
+updateData()
 // rl.on('line', (line) => {
 //     const num = line.replace('<td class="t_cfont2">', '').replace('<td class="t_cfont4">', '').replace('</td>', '').trim()
 //     if (num && !isNaN(+num)) {
