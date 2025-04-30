@@ -64,8 +64,8 @@ const sampleData = prizeRes.slice(0, sampleNum).map((item) => {
    return  [left, +right, k, sumLeft]
 })
 
-// console.log(ratio);
-// console.log(sum);
+console.log(ratio);
+console.log(sum);
 // console.log(sampleData);
 
 const avg = total.map((item, idx) => item / sampleNum)
@@ -128,5 +128,7 @@ for (let i = sampleData.length - 1; i >= 0; i--) {
  }
 
 console.log(left, right, Object.values(ln).map(e => e.sort((a,b) => a-b)), rn.sort((a, b) => a-b));
+// 95 ~ 112  99 106 ~ 108
+// 95 96 111 112
 console.log('左和', left.reduce((a, b) => Number(a) + Number(b)), data[`03-06-14-22-31-32#11`]);
 
