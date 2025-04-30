@@ -3298,7 +3298,7 @@ const data = {
 
 const prizeRes = Object.keys(data)
 
-const sampleNum = 10
+const sampleNum = 10000
 // 2：2：2 
 // 2：3：1
 const ratio = {}
@@ -3315,6 +3315,10 @@ const ln = {
     4: [],// 25 ~ 31
     5: [] // 32 ~ 33
 }
+const showTime = Array(33).fill(0).reduce((res, cur, idx) => ({
+    ...res,
+   [idx + 1]: cur
+}) , {})
 const showSameTime = Array(33).fill(0).map(e => Array(33).fill(0).reduce((res, cur, idx) => ({
     ...res,
    [idx + 1]: cur
@@ -3344,6 +3348,7 @@ const sampleData = prizeRes.slice(0, sampleNum).map((item) => {
     //     }
     // }
     for (const n of left) {
+        showTime[n] += 1
         for (const n2 of left) {
             showSameTime[n][n2] += 1
         }
@@ -3435,6 +3440,8 @@ for (let i = sampleData.length - 1; i >= 0; i--) {
  }
 
 console.log(left, right, Object.values(ln).map(e => e.sort((a,b) => a-b)), rn.sort((a, b) => a-b));
+console.log(showTime);
+
 console.log(showSameTime);
 
 // 95 ~ 112  99 106 ~ 108
