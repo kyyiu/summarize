@@ -1,4 +1,8 @@
 const data = {
+  "0-2-9-25113":1,
+  "4-8-3-25112":1,
+  "5-8-8-25111":1,
+  "1-1-6-25110":1,
   "6-1-9-25109":1,
   "8-7-7-25108":1,
   "7-2-6-25107":1,
@@ -7179,8 +7183,8 @@ const data = {
   "3-1-7-04002":1,
   "1-9-2-04001":1
   }
-const sampleDataLen = 10000;
-const newstDateNum = 0;
+const sampleDataLen = 50;
+const newstDateNum = 4;
 const dataSample = Object.keys(data).slice(0, sampleDataLen).map(e => e.split('-'));
 
 
@@ -7225,6 +7229,8 @@ const firstFc = {}
 const secondFc = {}
 const lastFc = {}
 const combine = {}
+const numshowTime = {}
+const numSum = {}
 
 const numBetween4Ratio = () => {
     for (const sample of dataSample) {
@@ -7237,6 +7243,11 @@ const numBetween4Ratio = () => {
         secondFc[num2] += 1
         lastFc[num3] = lastFc[num3] || 0
         lastFc[num3] += 1
+        numshowTime[num1] = (numshowTime[num1] || 0) + 1
+        numshowTime[num2] = (numshowTime[num2] || 0) + 1
+        numshowTime[num3] = (numshowTime[num3] || 0) + 1
+        const sumNum = sample.slice(0, 3).reduce((r, c) => (+r+(+c)),0)
+        numSum[sumNum] = (numSum[sumNum] || 0) + 1
         const key = `${Number(num1>4)}-${Number(num2 > 4)}-${Number(num3 > 4)}`
         const combineKey = `${num1}-${num2}-${num3}`
         combine[combineKey] = combine[combineKey] || 0
@@ -7247,12 +7258,14 @@ const numBetween4Ratio = () => {
         ratio4[key] = ratioVal + 1
     }
 }
-// numBetween4Ratio()
-// console.log(ratio4);
-// console.log(firstFc);
-// console.log(secondFc);
-// console.log(lastFc);
-// console.log(combine);
+numBetween4Ratio()
+console.log(ratio4);
+console.log(firstFc);
+console.log(secondFc);
+console.log(lastFc);
+console.log(combine);
+console.log(numshowTime);
+console.log(numSum);
 
 
 // 0.2
@@ -7314,7 +7327,7 @@ const killNumWay3 = (sample) => {
   // }
   // console.log("误杀率:" , killErr/dataSample.length);
 }
-
+let loopCount = 0
 const getNums = (newestSample, nextSample) => {
     const newest = newestSample || dataSample[0]
     const killAll_1 = killNumWay1(newest[1])
@@ -7336,7 +7349,25 @@ const getNums = (newestSample, nextSample) => {
         }
         res.push(nums)
     }
-    return res
+    let c = 0
+    for (const n1 of res[0]) {
+      for (const n2 of res[1]) {
+        for (const n3 of res[2]) {
+          if (((n1 + n2 + n3) < 5) || ((n1 + n2 + n3) >23)) {
+            c+=1
+          }
+        }
+      }
+    }
+    if (loopCount >4){
+      loopCount = 0
+      return [[],[],[]]
+    }
+    if (c >= 40) {
+      loopCount+=1
+      return getNums(newestSample, nextSample)
+    }
+    return res.map(e => e.sort((a,b)=>(a-b)))
 }
 
 const checkRatio = () => {
@@ -7354,128 +7385,11 @@ const checkRatio = () => {
     return target / dataSample.length
 }
 // console.log(checkRatio());
-// let r = 0
-// for (let i = 0; i<100; i++) {
-//   r+=checkRatio()
-// }
-// console.log(r/100);
+let r = 0
+for (let i = 0; i<1000; i++) {
+  r+=checkRatio()
+}
+console.log(r/100);
 
 // console.log(getNums(undefined, [undefined, undefined, undefined, newstDateNum]));
-
-
-// 示例使用
-const testArray = [
-  // [4,3,2]
-  // [5,3,4]
-  [6,7,2],
-  [9,4,8],
-  [1,7,1],
-  [1,9,2],
-  // [4,7,1],
-  // [1,4,4],
-  // [0,8,4],
-  // [0,7,6],
-  // [7,2,6],
-  // [8,7,7],
-  // [6,1,9]
-].flat(Infinity)
-// 1 3 11
-
-const testA2 = [[1,7,4],
-[9,9,7],
-[9,1,1],
-[2,3,3]].flat(Infinity)
-
-
-
-const dic = {
-  0: {},
-  1: {},
-  2: {},
-  3: {},
-  4: {},
-  5: {},
-  6: {},
-  7: {},
-  8: {},
-  9: {},
-}
-
-function combination(arr, k) {
-  let result = [];
-  function helper(temp, idx, start) {
-    if (temp.length === k) {
-      const numSum = temp.slice().sort((a, b) => a - b)
-      const key = idx.join('-')
-      const rest = numSum.reduce((a, b) => a + b, 0) % 10
-      dic[rest][key] = temp.slice()
-      result.push(temp.slice()); // 将结果存储到 result 数组中
-      return;
-    }
-    for (let i = start; i < arr.length; i++) {
-      temp.push(arr[i]);
-      idx.push(i)
-      helper(temp, idx,i + 1);
-      temp.pop();
-      idx.pop();
-    }
-  }
-  helper([], [], 0);
-  return result;
-}
-
-
-for (let i = 2; i<=4; i++) {
-  combination(testArray, i)
-}
-
-const anl = Object.values(dic)
-const allCom = anl.reduce((a, b) => ({...a, ...b}))
-const col = []
-
-for (const a of anl) {
-  let same = 0
-  const sameCom = []
-  for (const k in a) {
-    const idxs1 = k.split('-').map(n => +n+3).join("-")
-    for (const k2 in a) {
-      const idxs2 = k2.split('-').map(n => +n+3).join("-")
-      const rest1 = allCom[idxs1]?.reduce((a, b) => a + b, 0) % 10
-      const rest2 = allCom[idxs2]?.reduce((a, b) => a + b, 0) % 10
-      if (rest1 === rest2) {
-        same+=1
-        sameCom.push(k2)
-      }
-    }
-    if (same) {
-      sameCom.push(k)
-    }
-  }
-  col.push([... new Set(sameCom)])
-}
-
-const rx = {}
-for (const k in col) {
-  const coms = col[k]
-  for (const idx of coms) {
-    const rest1 = idx.split('-').map(e => testA2[e]).reduce((a, b) => a + b, 0)
-    const r1 = rest1%10
-    for (const idx2 of coms) {
-      const rest2 = idx2.split('-').map(e => testA2[e]).reduce((a, b) => a + b, 0)
-      
-      const r2 = rest2%10
-      if (r1===r2) {
-        if (!rx[r2]){
-          rx[r2] = {}
-        }
-        
-        if (!rx[r2][idx2]) {
-          rx[r2][idx2] = idx2.split('-').map(e => testA2[+e])
-        }
-      }
-    }
-  }
-}
-// TODO: 遍历，找出同时在余数中出现的组合, 如0有 a，b； 1中同时也有a,b, 则有共性
-console.log(rx);
-
+// 4~23
