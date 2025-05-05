@@ -1,4 +1,5 @@
 const data = {
+  "1-9-2-25114": 1,
   "0-2-9-25113":1,
   "4-8-3-25112":1,
   "5-8-8-25111":1,
@@ -7183,7 +7184,7 @@ const data = {
   "3-1-7-04002":1,
   "1-9-2-04001":1
   }
-const sampleDataLen = 50;
+const sampleDataLen = 100;
 const newstDateNum = 4;
 const dataSample = Object.keys(data).slice(0, sampleDataLen).map(e => e.split('-'));
 
@@ -7330,15 +7331,15 @@ const killNumWay3 = (sample) => {
 let loopCount = 0
 const getNums = (newestSample, nextSample) => {
     const newest = newestSample || dataSample[0]
-    const killAll_1 = killNumWay1(newest[1])
-    const killAll_2 = killNumWay3(newest)
+    // const killAll_1 = killNumWay1(newest[1])
+    // const killAll_2 = killNumWay3(newest)
     const killFirst = killNumWay2(nextSample[3])
     const res = []
     while(res.length < 3) {
         let nums = []
-        while(nums.length < 6) {
+        while(nums.length < 5) {
             const n = Math.floor( Math.random()*10 )
-            if ([killAll_1, killAll_2].includes(n) || nums.includes(n)) {
+            if (nums.includes(n)) {
                 continue
             }
             // 杀百位
@@ -7353,7 +7354,7 @@ const getNums = (newestSample, nextSample) => {
     for (const n1 of res[0]) {
       for (const n2 of res[1]) {
         for (const n3 of res[2]) {
-          if (((n1 + n2 + n3) < 5) || ((n1 + n2 + n3) >23)) {
+          if (((n1 + n2 + n3) < 4) || ((n1 + n2 + n3) >23)) {
             c+=1
           }
         }
@@ -7363,7 +7364,8 @@ const getNums = (newestSample, nextSample) => {
       loopCount = 0
       return [[],[],[]]
     }
-    if (c >= 40) {
+    // 16
+    if (c >= 16) {
       loopCount+=1
       return getNums(newestSample, nextSample)
     }
@@ -7385,11 +7387,11 @@ const checkRatio = () => {
     return target / dataSample.length
 }
 // console.log(checkRatio());
-let r = 0
-for (let i = 0; i<1000; i++) {
-  r+=checkRatio()
-}
-console.log(r/100);
+// let r = 0
+// for (let i = 0; i<100; i++) {
+//   r+=checkRatio()
+// }
+// console.log(r/100);
 
-// console.log(getNums(undefined, [undefined, undefined, undefined, newstDateNum]));
+console.log(getNums(undefined, [undefined, undefined, undefined, newstDateNum]));
 // 4~23
