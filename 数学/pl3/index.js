@@ -7184,8 +7184,13 @@ const data = {
   "3-1-7-04002":1,
   "1-9-2-04001":1
   }
+const killRc = [
+  [1,2],
+  [8,2,0],
+  [1,9,3]
+]
 const sampleDataLen = 100;
-const newstDateNum = 4;
+const newstDateNum = 5;
 const dataSample = Object.keys(data).slice(0, sampleDataLen).map(e => e.split('-'));
 
 
@@ -7329,7 +7334,7 @@ const killNumWay3 = (sample) => {
   // console.log("误杀率:" , killErr/dataSample.length);
 }
 let loopCount = 0
-const getNums = (newestSample, nextSample) => {
+const getNums = (newestSample, nextSample, isCheck) => {
     const newest = newestSample || dataSample[0]
     // const killAll_1 = killNumWay1(newest[1])
     // const killAll_2 = killNumWay3(newest)
@@ -7345,6 +7350,17 @@ const getNums = (newestSample, nextSample) => {
             // 杀百位
             if (!res.length && n === killFirst) {
               continue
+            }
+            if (!isCheck) {
+              if (res.length === 0 && killRc[0].includes(n)){
+                continue
+              }
+              if (res.length === 1 && killRc[1].includes(n)){
+                continue
+              }
+              if (res.length === 2 && killRc[2].includes(n)){
+                continue
+              }
             }
             nums.push(n)
         }
@@ -7376,7 +7392,7 @@ const checkRatio = () => {
     let target = 0
     for (let i = dataSample.length-1; i>=0;i--) {
         const nextSample = dataSample[i-1] || []
-        const recommendNums = getNums(dataSample[i], nextSample)
+        const recommendNums = getNums(dataSample[i], nextSample, true)
         const f = recommendNums[0].includes(+nextSample[0])
         const s = recommendNums[1].includes(+nextSample[1])
         const l = recommendNums[2].includes(+nextSample[2])
