@@ -7297,7 +7297,7 @@ const killRc = [
   [4,5,0],
   [6,7,8]
 ]
-const sampleDataLen = 100;
+const sampleDataLen = 10000;
 const newstDateNum = 6;
 const dataSample = Object.keys(data).slice(0, sampleDataLen).map(e => e.split('-'));
 
@@ -7345,6 +7345,7 @@ const lastFc = {}
 const combine = {}
 const numshowTime = {}
 const numSum = {}
+
 
 const numBetween4Ratio = () => {
     for (const sample of dataSample) {
@@ -7507,7 +7508,7 @@ const getNums = (newestSample, nextSample, isCheck, idx) => {
       return [[],[],[]]
     }
     // 16
-    if (oec <= 110 || c >= 16) {
+    if ( c >= 16) {
       loopCount+=1
       return getNums(newestSample, nextSample, isCheck, idx)
     }
@@ -7614,14 +7615,53 @@ const checkRatio = () => {
 }
 // console.log(checkRatio());
 // let r = 0
-// for (let i = 0; i<1; i++) {
+// for (let i = 0; i<100; i++) {
+//   maxContinueErr = 0
 //   r+=checkRatio()
 // }
-// console.log('奇偶', oddEven);
+// // console.log('奇偶', oddEven);
 
 // console.log("连续最多没中:", maxContinueErr);
 
-// console.log(r/1);
+// console.log(r/100);
 
 console.log(getNums(undefined, [undefined, undefined, undefined, newstDateNum]));
 // 4~23
+
+
+const earn = () => {
+  // 250 -250 1040
+  // 500 -750 2080
+  // 750 -1500 3120
+  // 1000 -2500 4160
+  // 1250 -3750 5200
+  // 1500 -5250 6240
+  // 1750 -7000 7280
+
+  // 2250 -9250 9360
+
+  let cost = 0
+  let hit = 0
+  const buy = []
+  for (let i = 1; i<=20; i++) {
+    let costTmp = cost + (250*i)
+    hit = 1040*i
+    let j = 1
+    while (hit-costTmp <= 0) {
+      costTmp = cost + (250 * (i+j))
+      hit = 1040*(i+j)
+      j+=1
+    }
+    cost = costTmp
+    buy.push({
+      singleCost: 250*(i+j-1),
+      costTotal: cost,
+      hit,
+      beilv: i+j-1,
+      earn: hit-cost
+    })
+  }
+  console.log(cost, hit, buy);
+  
+  return hit-cost
+}
