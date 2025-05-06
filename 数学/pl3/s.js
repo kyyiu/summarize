@@ -40,7 +40,35 @@ const updateData = () => {
     console.error(err);
   }
 };
-updateData();
+// updateData();
+let i = 0
+let d = []
+const kill = () => {
+  try {
+    const write = fs.createWriteStream('./killData.json')
+    const rl = readline.createInterface({
+        input: fs.createReadStream('./index.html'),
+        output: write,
+        crlfDelay: Infinity
+    });
+    rl.on('line', (line) => {
+        const num = line.replace('<td><span class="nub-red">', '').replace('<td><span class="nub-blue">', '').replace('<td><span class="nub-gray">', '').replace("</span></td>", '').trim()
+
+        if (num && !isNaN(+num)) {
+            d.push(num)
+        }
+        if (d?.length === 12) {
+            write.write(`"${d.join('-')}-${i}":1,\n`)
+            d = []
+            i += 1
+        }
+    });
+
+} catch (err) {
+    console.error(err);
+}
+}
+kill()
 // try {
 //     const write = fs.createWriteStream('./data.json')
 //     const rl = readline.createInterface({

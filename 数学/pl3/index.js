@@ -1,4 +1,5 @@
 const data = {
+  "8-4-7-25115": 1,
   "1-9-2-25114": 1,
   "0-2-9-25113":1,
   "4-8-3-25112":1,
@@ -7184,12 +7185,119 @@ const data = {
   "3-1-7-04002":1,
   "1-9-2-04001":1
   }
+
+const killData = {
+  "0-1-2-8-2-0-1-9-3-1-0-2-0":1,
+"0-1-4-2-1-8-9-8-3-8-0-1-1":1,
+"5-4-3-8-5-6-8-3-0-8-5-4-2":1,
+"5-4-1-8-1-5-8-7-9-8-1-5-3":1,
+"1-0-2-1-0-2-5-7-9-1-0-5-4":1,
+"5-8-6-1-0-2-9-8-7-8-1-5-5":1,
+"8-7-0-6-8-2-7-6-8-8-7-6-6":1,
+"8-0-6-2-1-5-6-7-5-6-8-1-7":1,
+"0-1-2-8-6-1-7-6-5-0-8-1-8":1,
+"1-0-2-8-4-1-4-3-5-4-1-0-9":1,
+"1-0-2-4-5-8-4-1-3-4-1-0-10":1,
+"4-5-2-6-8-1-1-0-3-4-1-0-11":1,
+"2-1-3-2-4-1-4-1-3-1-4-2-12":1,
+"8-9-0-1-0-2-1-0-7-1-0-8-13":1,
+"8-1-0-8-1-5-7-4-8-1-4-8-14":1,
+"1-0-2-6-8-1-4-3-5-1-4-0-15":1,
+"1-0-2-8-1-5-1-3-0-1-0-2-16":1,
+"1-0-2-6-8-4-1-0-8-1-0-8-17":1,
+"8-6-0-4-5-1-7-9-8-4-8-5-18":1,
+"5-6-0-6-8-1-1-3-4-5-1-4-19":1,
+"4-5-6-2-4-3-4-3-5-4-5-3-20":1,
+"4-5-3-2-4-3-1-3-9-4-1-3-21":1,
+"8-6-0-1-3-2-0-1-9-1-0-8-22":1,
+"8-9-0-4-3-2-0-1-3-0-4-1-23":1,
+"8-2-0-8-0-1-3-4-8-8-4-0-24":1,
+"2-1-3-0-1-2-7-9-8-2-0-1-25":1,
+"2-1-8-1-4-2-1-2-3-2-1-4-26":1,
+"8-6-0-3-4-5-4-5-9-4-5-8-27":1,
+"5-6-3-3-4-5-4-3-5-3-4-5-28":1,
+"3-2-4-5-4-0-4-3-2-4-3-5-29":1,
+"2-4-5-0-1-4-3-4-5-3-4-5-30":1,
+"5-4-3-8-4-1-4-3-9-4-3-5-31":1,
+"3-2-4-4-3-5-4-3-5-4-3-5-32":1,
+"8-7-6-5-3-6-5-7-8-8-5-3-33":1,
+"8-2-6-3-2-4-9-8-7-3-8-2-34":1,
+"2-1-3-8-1-0-5-3-7-1-3-5-35":1,
+"1-0-2-2-1-0-3-4-5-1-3-0-36":1,
+"4-3-5-2-1-3-5-4-7-4-5-3-37":1,
+"4-3-5-0-1-4-3-7-8-3-4-0-38":1,
+"8-7-1-3-5-4-3-4-9-3-4-5-39":1,
+"1-0-2-8-3-6-9-8-0-1-0-2-40":1,
+"0-2-1-3-2-4-1-3-5-3-1-0-41":1,
+"8-4-0-3-4-2-5-4-0-4-5-3-42":1,
+"4-5-7-5-6-7-1-3-5-4-5-1-43":1,
+"7-6-8-8-3-6-1-0-4-0-4-1-44":1,
+"9-8-0-3-4-2-5-4-3-4-5-3-45":1,
+"8-6-4-8-7-6-5-4-1-5-4-1-46":1,
+"5-7-6-8-6-3-1-0-4-1-5-4-47":1,
+"0-2-1-8-9-6-4-3-5-4-0-5-48":1,
+"8-6-4-8-5-6-0-1-5-5-0-1-49":1,
+"5-7-4-6-4-5-5-6-7-4-6-5-50":1,
+"4-5-2-5-6-8-5-7-4-5-4-3-51":1,
+"2-4-1-5-6-4-0-7-8-5-4-1-52":1,
+"4-5-7-9-8-6-0-1-3-3-5-4-53":1,
+"7-8-4-9-8-6-3-4-1-7-9-3-54":1,
+"7-6-8-6-8-7-1-0-2-7-1-0-55":1,
+"7-5-2-6-8-3-1-5-2-5-7-1-56":1,
+"7-8-2-6-5-1-5-4-6-5-7-4-57":1,
+"7-8-9-1-0-6-5-7-6-1-5-7-58":1,
+"9-3-2-1-8-0-5-7-4-5-9-1-59":1,
+"2-4-3-9-8-6-4-5-9-9-5-3-60":1,
+"7-9-3-9-8-3-9-7-5-9-7-3-61":1,
+"2-4-3-3-6-0-7-6-3-3-7-9-62":1,
+"9-5-2-6-8-7-4-0-3-0-7-3-63":1,
+"4-0-5-6-8-3-0-1-7-0-5-7-64":1,
+"0-5-1-3-2-6-7-0-6-0-5-7-65":1,
+"5-4-6-6-8-0-0-1-6-0-5-6-66":1,
+"7-9-3-0-1-6-5-7-6-0-5-7-67":1,
+"4-7-3-6-8-2-2-1-3-2-3-7-68":1,
+"7-6-8-2-1-3-5-2-1-5-2-3-69":1,
+"7-9-5-0-1-5-5-4-6-5-0-9-70":1,
+"5-4-6-5-6-0-5-2-1-5-6-3-71":1,
+"5-9-6-6-1-8-5-4-6-5-6-9-72":1,
+"9-8-4-1-0-2-5-7-6-5-0-9-73":1,
+"9-5-7-6-8-0-5-4-6-5-9-0-74":1,
+"5-4-3-6-8-7-7-9-6-5-6-3-75":1,
+"2-4-5-6-5-7-5-7-6-5-6-2-76":1,
+"5-4-6-6-2-7-7-9-1-5-7-2-77":1,
+"5-4-6-2-1-3-0-9-1-5-2-4-78":1,
+"9-3-7-3-5-0-9-5-4-9-5-3-79":1,
+"3-2-4-0-1-3-9-4-5-3-0-9-80":1,
+"9-3-8-3-2-9-4-5-2-9-3-4-81":1,
+"3-4-5-1-9-8-2-1-3-3-9-2-82":1,
+"5-4-6-1-0-2-4-7-2-5-6-0-83":1,
+"3-4-2-8-9-6-7-6-9-9-6-2-84":1,
+"4-3-5-2-8-7-9-2-5-9-5-2-85":1,
+"9-8-7-2-1-3-2-1-9-2-9-0-86":1,
+"3-0-1-3-4-5-7-9-6-6-0-4-87":1,
+"3-4-6-3-5-7-7-6-5-6-3-7-88":1,
+"6-5-7-6-2-7-7-6-8-6-7-5-89":1,
+"3-2-1-2-1-3-7-9-8-2-3-7-90":1,
+"6-4-7-8-7-9-7-9-4-6-7-9-91":1,
+"3-4-5-8-7-9-4-5-6-4-3-5-92":1,
+"3-4-2-3-5-6-6-5-7-3-4-6-93":1,
+"1-0-2-6-3-2-9-4-6-6-9-2-94":1,
+"7-6-2-2-3-9-4-5-2-2-7-3-95":1,
+"1-3-9-9-8-5-2-6-3-9-2-5-96":1,
+"9-5-3-6-5-9-6-5-7-9-6-5-97":1,
+"9-3-5-6-7-9-2-4-3-9-6-3-98":1,
+"3-4-5-9-0-8-7-9-8-9-2-7-99":1,
+}
+// const killDataArr = Object.keys(killData).map(e => {
+//   const ns = e.split('-').map(e => +e)
+//   return [ns.slice(1, 3), ns.slice(2, 6), ns.slice(7, 9)]
+// });
 const killRc = [
   [1,2],
   [8,2,0],
   [1,9,3]
 ]
-const sampleDataLen = 100;
+const sampleDataLen = 50;
 const newstDateNum = 5;
 const dataSample = Object.keys(data).slice(0, sampleDataLen).map(e => e.split('-'));
 
@@ -7334,7 +7442,7 @@ const killNumWay3 = (sample) => {
   // console.log("误杀率:" , killErr/dataSample.length);
 }
 let loopCount = 0
-const getNums = (newestSample, nextSample, isCheck) => {
+const getNums = (newestSample, nextSample, isCheck, idx) => {
     const newest = newestSample || dataSample[0]
     // const killAll_1 = killNumWay1(newest[1])
     // const killAll_2 = killNumWay3(newest)
@@ -7351,6 +7459,15 @@ const getNums = (newestSample, nextSample, isCheck) => {
             if (!res.length && n === killFirst) {
               continue
             }
+            // if (res.length === 0 && killDataArr[idx][0].includes(n)){
+            //   continue
+            // }
+            // if (res.length === 1 && killDataArr[idx][1].includes(n)){
+            //   continue
+            // }
+            // if (res.length === 2 && killDataArr[idx][2].includes(n)){
+            //   continue
+            // }
             if (!isCheck) {
               if (res.length === 0 && killRc[0].includes(n)){
                 continue
@@ -7383,31 +7500,52 @@ const getNums = (newestSample, nextSample, isCheck) => {
     // 16
     if (c >= 16) {
       loopCount+=1
-      return getNums(newestSample, nextSample)
+      return getNums(newestSample, nextSample, isCheck, idx)
     }
     return res.map(e => e.sort((a,b)=>(a-b)))
 }
-
+let maxContinueErr = 0
+// let ea = []
 const checkRatio = () => {
     let target = 0
-    for (let i = dataSample.length-1; i>=0;i--) {
+    let continueErr = 0
+    let eat = []
+    for (let i = dataSample.length-2; i>=0;i--) {
         const nextSample = dataSample[i-1] || []
-        const recommendNums = getNums(dataSample[i], nextSample, true)
+        const recommendNums = getNums(dataSample[i], nextSample, true, i)
         const f = recommendNums[0].includes(+nextSample[0])
         const s = recommendNums[1].includes(+nextSample[1])
         const l = recommendNums[2].includes(+nextSample[2])
+        // const recommendNums = getNums(dataSample[i], dataSample[i+1], true, i)
+        // const f = recommendNums[0].includes(+dataSample[i][0])
+        // const s = recommendNums[1].includes(+dataSample[i][1])
+        // const l = recommendNums[2].includes(+dataSample[i][2])
         if (f && s && l) {
-            target += 1
+          continueErr = 0
+          target += 1
+          // eat = []
+        } else {
+          // eat.push(dataSample[i])
+          continueErr += 1
+          // if (continueErr > maxContinueErr) {
+          //   ea = eat
+          // }
+          maxContinueErr = Math.max(maxContinueErr, continueErr)
+
         }
     }
+    console.log('中了', target);
+    
     return target / dataSample.length
 }
 // console.log(checkRatio());
-// let r = 0
-// for (let i = 0; i<100; i++) {
-//   r+=checkRatio()
-// }
-// console.log(r/100);
+let r = 0
+for (let i = 0; i<1; i++) {
+  r+=checkRatio()
+}
+console.log("连续最多没中:", maxContinueErr);
 
-console.log(getNums(undefined, [undefined, undefined, undefined, newstDateNum]));
+console.log(r/1);
+
+// console.log(getNums(undefined, [undefined, undefined, undefined, newstDateNum]));
 // 4~23
