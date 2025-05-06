@@ -7293,12 +7293,12 @@ const killData = {
 //   return [ns.slice(1, 3), ns.slice(2, 6), ns.slice(7, 9)]
 // });
 const killRc = [
-  [1,2],
-  [8,2,0],
-  [1,9,3]
+  [0,1,8],
+  [4,5,0],
+  [6,7,8]
 ]
-const sampleDataLen = 50;
-const newstDateNum = 5;
+const sampleDataLen = 100;
+const newstDateNum = 6;
 const dataSample = Object.keys(data).slice(0, sampleDataLen).map(e => e.split('-'));
 
 
@@ -7484,9 +7484,18 @@ const getNums = (newestSample, nextSample, isCheck, idx) => {
         res.push(nums)
     }
     let c = 0
+    let oec = 0 
     for (const n1 of res[0]) {
       for (const n2 of res[1]) {
         for (const n3 of res[2]) {
+          const r = [n1,n2,n3].reduce((r,c) => {
+            r[+c%2] += 1
+            return r
+          }, [0, 0])
+          const oek = `${r[1]}-${r[0]}`
+          if (['2-1', '1-2','3-0'].includes(oek)) {
+            oec +=1
+          }
           if (((n1 + n2 + n3) < 4) || ((n1 + n2 + n3) >23)) {
             c+=1
           }
@@ -7498,20 +7507,85 @@ const getNums = (newestSample, nextSample, isCheck, idx) => {
       return [[],[],[]]
     }
     // 16
-    if (c >= 16) {
+    if (oec <= 110 || c >= 16) {
       loopCount+=1
       return getNums(newestSample, nextSample, isCheck, idx)
     }
     return res.map(e => e.sort((a,b)=>(a-b)))
 }
 let maxContinueErr = 0
+let oddEven = {
+  '0-3': {
+    maxContinue: 0,
+    count: 0,
+    continue: 0,
+    rest: 0,
+    maxRest: 0
+  },
+  '1-2': {
+    maxContinue: 0,
+    count: 0,
+    continue: 0,
+    rest: 0,
+    maxRest: 0
+  },
+  '2-1': {
+    maxContinue: 0,
+    count: 0,
+    continue: 0,
+    rest: 0,
+    maxRest: 0
+  },
+  '3-0': {
+    maxContinue: 0,
+    count: 0,
+    continue: 0,
+    rest: 0,
+    maxRest: 0
+  }
+}
 // let ea = []
 const checkRatio = () => {
     let target = 0
     let continueErr = 0
     let eat = []
-    for (let i = dataSample.length-2; i>=0;i--) {
+    let lastOre = ''
+    for (let i = dataSample.length-1; i>=0;i--) {
         const nextSample = dataSample[i-1] || []
+        const r = dataSample[i].slice(0,3).reduce((r,c) => {
+          r[+c%2] += 1
+          return r
+        }, [0, 0])
+        
+        const oek = `${r[1]}-${r[0]}`
+        
+        const oer = oddEven[oek]
+        const lastOer = oddEven[lastOre]
+        if (oer) {
+          oer.count += 1 
+          oer.date = dataSample[i][3]
+          oer.rest = 0
+          if (lastOre === oek) {
+            oer.continue += 1
+            if (oer.continue > oer.maxContinue) {
+              oer.maxContinue = oer.continue
+            }
+          } else {
+            
+            if (lastOer) {
+              lastOer.continue = 0
+            }
+          }
+          for (const k in oddEven) {
+            if (k !== oek) {
+              oddEven[k].rest += 1
+              if (oddEven[k].rest > oddEven[k].maxRest) {
+                oddEven[k].maxRest = oddEven[k].rest
+              }
+            }
+          }
+        }
+        lastOre = oek
         const recommendNums = getNums(dataSample[i], nextSample, true, i)
         const f = recommendNums[0].includes(+nextSample[0])
         const s = recommendNums[1].includes(+nextSample[1])
@@ -7534,18 +7608,20 @@ const checkRatio = () => {
 
         }
     }
-    console.log('中了', target);
+    // console.log('中了', target);
     
     return target / dataSample.length
 }
 // console.log(checkRatio());
-let r = 0
-for (let i = 0; i<1; i++) {
-  r+=checkRatio()
-}
-console.log("连续最多没中:", maxContinueErr);
+// let r = 0
+// for (let i = 0; i<1; i++) {
+//   r+=checkRatio()
+// }
+// console.log('奇偶', oddEven);
 
-console.log(r/1);
+// console.log("连续最多没中:", maxContinueErr);
 
-// console.log(getNums(undefined, [undefined, undefined, undefined, newstDateNum]));
+// console.log(r/1);
+
+console.log(getNums(undefined, [undefined, undefined, undefined, newstDateNum]));
 // 4~23
