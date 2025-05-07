@@ -7299,7 +7299,7 @@ const killRc = [
   [6, 5, 4], 
   [0, 1, 7], 
 ];
-const sampleDataLen = 50;
+const sampleDataLen = 10000;
 const newstDateNum = 7;
 const dataSample = Object.keys(data)
   .slice(0, sampleDataLen)
@@ -7391,7 +7391,7 @@ const numBetween4Ratio = () => {
     ratio4[key] = ratioVal + 1;
   }
 };
-numBetween4Ratio();
+// numBetween4Ratio();
 console.log("ratio4",ratio4);
 console.log("firstFc", firstFc);
 console.log("secondFc", secondFc);
@@ -7445,9 +7445,68 @@ const killNumWay2 = (newDate) => {
   // }
   // console.log("误杀率:" , killErr/dataSample.length);
 };
+// 百位误杀0.1
+const killNumWay5 = (beilv, add) => {
+  let killErr = 0;
+  for (let i = 0; i < dataSample.length - 1; i++) {
+    const sample = dataSample[i];
+    const nextSample = dataSample[i + 1];
+    const max = Math.max(...sample.slice(0, 3));
+    const min = Math.min(...sample.slice(0, 3)); 
+    const needKill = (((max-min))* beilv + add) % 10;
+    if (nextSample?.slice(0, 1)?.includes(`${Math.floor(needKill)}`)) {
+      killErr += 1;
+    }
+  }
+  return killErr / dataSample.length;
+};
+// 十个位误杀0.1
+const killNumWay6 = (beilv, add) => {
+  let killErr = 0;
+  for (let i = 0; i < dataSample.length - 1; i++) {
+    const sample = dataSample[i];
+    const nextSample = dataSample[i + 1];
+    const max = Math.max(...sample.slice(0, 3));
+    const min = Math.min(...sample.slice(0, 3)); 
+    const needKill = (((max+min)) * beilv - add) % 10;
+    if (nextSample?.slice(2, 3)?.includes(`${Math.floor(Math.abs(needKill))}`)) {
+      killErr += 1;
+    }
+  }
+  return killErr / dataSample.length;
+};
+
+const killCheck = () => {
+  let e = 10;
+  let e2 = 0
+  let mi = 0;
+  let mj = 0;
+  let mi2 = 0;
+  let mj2 = 0;
+  for (let i = 1; i < 10; i++) {
+    for (let j = 0; j < 10; j++) {
+      const b = killNumWay6(i, j)
+      min = Math.min(b, e);
+      max = Math.max(b, e2);
+      if (e !== min) {
+        e = min;
+        mi = i;
+        mj = j;
+      }
+      if (e2 !== max) {
+          e2 = max;
+          mi2 = i;
+          mj2 = j;
+      }
+    }
+  }
+  // 6 2
+  console.log("最优参数:", e, mi, mj);
+  console.log("最大误杀率:", e2, mi2, mj2);
+}
 
 // 0.25
-const killNumWay3 = (sample) => {
+const killNumWay3 = (sample,) => {
   return (+sample[0] + +sample[1] + +sample[2]) % 10;
   // let killErr = 0
   // for (let i = dataSample.length-1; i>=0; i--) {
@@ -7636,16 +7695,16 @@ const checkRatio = () => {
   return target / dataSample.length;
 };
 // console.log(checkRatio());
-let r = 0
-for (let i = 0; i<100; i++) {
-  maxContinueErr = 0
-  r+=checkRatio()
-}
+// let r = 0
+// for (let i = 0; i<100; i++) {
+//   maxContinueErr = 0
+//   r+=checkRatio()
+// }
 // // console.log('奇偶', oddEven);
 
 // console.log("连续最多没中:", maxContinueErr);
 
-console.log(r/100);
+// console.log(r/100);
 
 // console.log(
 //   getNums(undefined, [undefined, undefined, undefined, newstDateNum])
