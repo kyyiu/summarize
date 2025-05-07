@@ -7295,9 +7295,9 @@ const killData = {
 // });
 
 const killRc = [
-  [2, 4, 8],
-  [6, 5, 4],
-  [0, 1, 7],
+  [2, 4, 8], 
+  [6, 5, 4], 
+  [0, 1, 7], 
 ];
 const sampleDataLen = 50;
 const newstDateNum = 7;
