@@ -99,8 +99,10 @@ const data = {
   "1-9-2-4-0-97": 1,
   "8-4-7-4-0-98": 1,
   "3-6-0-4-6-99": 1,
+  "1-7-0-1-8-100": 1,
 };
-const dataSample = Object.keys(data).slice(90, 100).map((e) => e.split("-").map((e) => +e));
+
+const dataSample = Object.keys(data).slice(90, 1000).map((e) => e.split("-").map((e) => +e));
 
 const killNumWay3 = (beilv, add) => {
   let killErr = 0;

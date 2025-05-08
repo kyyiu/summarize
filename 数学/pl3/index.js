@@ -1,4 +1,5 @@
 const data = {
+  "1-7-0-25117": 1,
   "3-6-0-25116": 1,
   "8-4-7-25115": 1,
   "1-9-2-25114": 1,
@@ -7299,8 +7300,15 @@ const killRc = [
   [6, 5, 4], 
   [0, 1, 7], 
 ];
-const sampleDataLen = 10000;
-const newstDateNum = 7;
+// 0 1 2 3 4 5 6 7 8 9
+// 0 1 2 3 4 5 6 7 8 9
+// 0 1 2 3 4 5 6 7 8 9
+
+// 6 8 9
+// 0 2 3 
+// 6 7 8
+const sampleDataLen = 10;
+const newstDateNum = 8;
 const dataSample = Object.keys(data)
   .slice(0, sampleDataLen)
   .map((e) => e.split("-"));
@@ -7355,7 +7363,8 @@ const numShowSameTime = {}
 const numSum = {};
 
 const numBetween4Ratio = () => {
-  for (const sample of dataSample) {
+  for (let si = dataSample.length - 1; si >= 0; si--) {
+    const sample = dataSample[si];
     const num1 = sample[0];
     const num2 = sample[1];
     const num3 = sample[2];
@@ -7387,11 +7396,35 @@ const numBetween4Ratio = () => {
     combine[combineKey] += 1;
     // ratio4[key] = ratio4[key] || []
     // ratio4[key].push(sample)
-    const ratioVal = ratio4[key] || 0;
-    ratio4[key] = ratioVal + 1;
+    if (!ratio4[key]) {
+      ratio4[key] = {}
+    }
+    ratio4[key].continue = (ratio4[key].continue || 0) + 1
+    ratio4[key].maxContinue = Math.max(ratio4[key].maxContinue || 0, ratio4[key].continue)
+    ratio4[key].count = (ratio4[key].count || 0) + 1;
+    const ks = [0, 1]
+    for (const k of ks) {
+     for(const k2 of ks) {
+      for (const k3 of ks) {
+        const rk = `${k}-${k2}-${k3}`
+        if (!ratio4[rk]) {
+          ratio4[rk] = {}
+        }
+        if (rk !== key && ratio4[rk]) {
+          ratio4[rk].rest = (ratio4[rk].rest || 0) + 1
+          if (ratio4[rk].rest > (ratio4[rk].maxRest || 0)) {
+            ratio4[rk].maxRest = ratio4[rk].rest
+          }
+          ratio4[rk].continue = 0
+          continue
+        }
+        ratio4[key].rest = 0
+      }
+     } 
+    }
   }
 };
-// numBetween4Ratio();
+numBetween4Ratio();
 console.log("ratio4",ratio4);
 console.log("firstFc", firstFc);
 console.log("secondFc", secondFc);
@@ -7446,37 +7479,49 @@ const killNumWay2 = (newDate) => {
   // console.log("误杀率:" , killErr/dataSample.length);
 };
 // 百位误杀0.1
-const killNumWay5 = (beilv, add) => {
+const kill_first_1 = (beilv, add,checkSample, predictedSample) => {
+  if (predictedSample) {
+    const max = Math.max(...predictedSample.slice(0, 3));
+    const min = Math.min(...predictedSample.slice(0, 3)); 
+    const needKill = (((max-min))* beilv + add) % 10;
+    return Math.floor(Math.abs(needKill))
+  }
   let killErr = 0;
-  for (let i = 0; i < dataSample.length - 1; i++) {
-    const sample = dataSample[i];
-    const nextSample = dataSample[i + 1];
+  for (let i = checkSample.length-1; i > 0; i--) {
+    const sample = checkSample[i];
+    const nextSample = checkSample[i -1];
     const max = Math.max(...sample.slice(0, 3));
     const min = Math.min(...sample.slice(0, 3)); 
     const needKill = (((max-min))* beilv + add) % 10;
-    if (nextSample?.slice(0, 1)?.includes(`${Math.floor(needKill)}`)) {
+    if (nextSample?.slice(0, 1)?.includes(`${Math.floor(Math.abs(needKill))}`)) {
       killErr += 1;
     }
   }
-  return killErr / dataSample.length;
+  return killErr / checkSample.length;
 };
 // 十个位误杀0.1
-const killNumWay6 = (beilv, add) => {
+const kill_s_l_1 = (beilv, add, checkSample, predictedSample) => {
+  if (predictedSample) {
+    const max = Math.max(...predictedSample.slice(0, 3));
+    const min = Math.min(...predictedSample.slice(0, 3)); 
+    const needKill = (((max-min)) * beilv - add) % 10;
+    return Math.floor(Math.abs(needKill))
+  }
   let killErr = 0;
-  for (let i = 0; i < dataSample.length - 1; i++) {
-    const sample = dataSample[i];
-    const nextSample = dataSample[i + 1];
+  for (let i = checkSample.length - 1; i > 0; i--) {
+    const sample = checkSample[i];
+    const nextSample = checkSample[i - 1];
     const max = Math.max(...sample.slice(0, 3));
     const min = Math.min(...sample.slice(0, 3)); 
-    const needKill = (((max+min)) * beilv - add) % 10;
+    const needKill = (((max-min)) * beilv - add) % 10;
     if (nextSample?.slice(2, 3)?.includes(`${Math.floor(Math.abs(needKill))}`)) {
       killErr += 1;
     }
   }
-  return killErr / dataSample.length;
+  return killErr / checkSample.length;
 };
 
-const killCheck = () => {
+const killCheck = (fn, checkSampleIdx) => {
   let e = 10;
   let e2 = 0
   let mi = 0;
@@ -7485,7 +7530,7 @@ const killCheck = () => {
   let mj2 = 0;
   for (let i = 1; i < 10; i++) {
     for (let j = 0; j < 10; j++) {
-      const b = killNumWay6(i, j)
+      const b = fn(i, j, dataSample.slice(checkSampleIdx, sampleDataLen))
       min = Math.min(b, e);
       max = Math.max(b, e2);
       if (e !== min) {
@@ -7500,9 +7545,14 @@ const killCheck = () => {
       }
     }
   }
-  // 6 2
   console.log("最优参数:", e, mi, mj);
   console.log("最大误杀率:", e2, mi2, mj2);
+  return {
+    b: mi,
+    a: mj,
+    e,
+    maxE: e2
+  }
 }
 
 // 0.25
@@ -7525,16 +7575,30 @@ const getNums = (newestSample, nextSample, isCheck, idx) => {
   // const killAll_1 = killNumWay1(newest[1])
   // const killAll_2 = killNumWay3(newest)
   const killFirst = killNumWay2(nextSample[3]);
+  const {a: a1, b: b1, e: e1} = killCheck(kill_first_1, idx)
+  let killFirst2
+  if (e1 < 0.1) {
+    killFirst2 = kill_first_1(a1, b1, undefined, newest)
+  }
+  const {a: a2, b: b2, e: e2} = killCheck(kill_s_l_1, idx)
+  let kill_s_l
+  if (e2 < 0.1) {
+    kill_s_l = kill_s_l_1(a2, b2, undefined, newest)
+  }
   const res = [];
   while (res.length < 3) {
     let nums = [];
-    while (nums.length < 3) {
+    while (nums.length < 5) {
       const n = Math.floor(Math.random() * 10);
       if (nums.includes(n)) {
         continue;
       }
       // 杀百位
-      if (!res.length && n === killFirst) {
+      if (!res.length && [killFirst, killFirst2].includes(n)) {
+        continue;
+      }
+      // 杀个十位
+      if (res.length && [kill_s_l].includes(n)) {
         continue;
       }
       // if (res.length === 0 && killDataArr[idx][0].includes(n)){
@@ -7588,10 +7652,10 @@ const getNums = (newestSample, nextSample, isCheck, idx) => {
     return [[], [], []];
   }
   // 16
-  if (c >= 25) {
-    loopCount += 1;
-    return getNums(newestSample, nextSample, isCheck, idx);
-  }
+  // if (c >= 25) {
+  //   loopCount += 1;
+  //   return getNums(newestSample, nextSample, isCheck, idx);
+  // }
   return res.map((e) => e.sort((a, b) => a - b));
 };
 let maxContinueErr = 0;
@@ -7700,7 +7764,7 @@ const checkRatio = () => {
 //   maxContinueErr = 0
 //   r+=checkRatio()
 // }
-// // console.log('奇偶', oddEven);
+// // // console.log('奇偶', oddEven);
 
 // console.log("连续最多没中:", maxContinueErr);
 
@@ -7724,9 +7788,9 @@ const earn = () => {
 
   let cost = 0;
   let hit = 0;
-  const costLevel = 54
+  const costLevel = 128
   const buy = [];
-  for (let i = 1; i <= 30; i++) {
+  for (let i = 1; i <= 10; i++) {
     let costTmp = cost + costLevel * i;
     hit = 1040 * i;
     let j = 1;
@@ -7749,7 +7813,7 @@ const earn = () => {
   return hit - cost;
 };
 
-
+earn()
 function analyzeAndPredict(data) {
   // 1. 统计每个下标数字的升降趋势
   const trends = [[], [], []]; // 每个位置的趋势: 1(升), 0(平), -1(降)
