@@ -40,7 +40,7 @@ const updateData = () => {
     console.error(err);
   }
 };
-// updateData();
+updateData();
 let i = 0
 let d = []
 const kill = () => {
@@ -68,7 +68,7 @@ const kill = () => {
     console.error(err);
 }
 }
-kill()
+// kill()
 // try {
 //     const write = fs.createWriteStream('./data.json')
 //     const rl = readline.createInterface({
