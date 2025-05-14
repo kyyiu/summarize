@@ -7534,12 +7534,15 @@ console.log(handleKill(dataSample[0]));
 const check = () => {
   let mi = 1
   for (let i = 1; i<=14;i++) {
+    // 更新检查数据样本量, 检测最优参数
     sampleDataLen = 30 + i*5
     let kill = 0
     for (let j = 0; j<sampleDataLen-1;j++) {
+      // 要预测的数据期号
       newstDateNum = (+dataSample[j][3])%10
-      
+      // 用上一期的数据推测最新要杀的号
       const [first, second, last] = handleKill(dataSample[j+1]);
+      // 最新一期的数据如果有误杀，记录
       if (first.includes(+dataSample[j][0]) || second.includes(+dataSample[j][1]) || last.includes(+dataSample[j][2])) {
         console.log("误杀:", first, second, last, dataSample[j], dataSample[j+1]);
         
