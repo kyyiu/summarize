@@ -1,4 +1,5 @@
 const data = {
+  "8-4-2-25123": 1,
   "0-3-0-25122": 1,
   "4-2-4-25121": 1,
   "4-0-1-25120": 1,
@@ -7303,291 +7304,257 @@ const killRc = [
 // 0 1 2 3 4 5 6 7 8 9
 // 0 1 2 3 4 5 6 7 8 9
 // 0 1 2 3 4 5 6 7 8 9
-
-// 6 8 9
-// 0 2 3
-// 6 7 8
-const sampleDataLen = 100000;
-const newstDateNum = 3;
+// 数据取 0 ~ 30+n
+let sampleDataLen = 45;
+let newstDateNum = 4;
 const dataSample = Object.keys(data)
-  .slice(0, sampleDataLen)
+  .slice(0, 1000)
   .map((e) => e.split("-"));
 
-const firstRecommend = {
-  1: 1,
-  2: 2,
-  3: 3,
-  7: 7,
-  8: 8,
-};
-const secondRecommend = {
-  2: 2,
-  3: 3,
-  4: 4,
-  7: 7,
-  9: 9,
-};
-const lastRecommend = {
-  1: 1,
-  3: 3,
-  5: 5,
-  6: 6,
-  7: 7,
-};
+const statistics = () => {
+  const ratio4 = {};
+  const firstFc = {};
+  const secondFc = {};
+  const lastFc = {};
+  const combine = {};
+  const numshowTime = {
+    0: {},
+    1: {},
+    2: {},
+  };
+  const numShowSameTime = {};
+  const numSum = {};
 
-const recommendRatio = () => {
-  let r = 0;
-  for (const sample of dataSample) {
-    if (
-      firstRecommend[sample[0]] &&
-      secondRecommend[sample[1]] &&
-      lastRecommend[sample[2]]
-    ) {
-      r += 1;
-    }
-  }
-  return r / dataSample.length;
-};
-
-const ratio4 = {};
-const firstFc = {};
-const secondFc = {};
-const lastFc = {};
-const combine = {};
-const numshowTime = {
-  0: {},
-  1: {},
-  2: {},
-};
-const numShowSameTime = {};
-const numSum = {};
-
-const numBetween4Ratio = () => {
-  for (let si = dataSample.length - 1; si >= 0; si--) {
-    const sample = dataSample[si];
-    const num1 = sample[0];
-    const num2 = sample[1];
-    const num3 = sample[2];
-    firstFc[num1] = firstFc[num1] || 0;
-    firstFc[num1] += 1;
-    secondFc[num2] = secondFc[num2] || 0;
-    secondFc[num2] += 1;
-    lastFc[num3] = lastFc[num3] || 0;
-    lastFc[num3] += 1;
-    numshowTime[0][num1] = (numshowTime[0][num1] || 0) + 1;
-    numshowTime[1][num2] = (numshowTime[1][num2] || 0) + 1;
-    numshowTime[2][num3] = (numshowTime[2][num3] || 0) + 1;
-    for (const sampleNum of sample.slice(0, 3)) {
-      for (const sampleNumIdx in sample.slice(0, 3)) {
-        if (!numShowSameTime[sampleNum]) {
-          numShowSameTime[sampleNum] = {};
-        }
-        if (
-          !numShowSameTime[sampleNum][`${sampleNumIdx}-${sample[sampleNumIdx]}`]
-        ) {
+  const numBetween4Ratio = () => {
+    for (let si = dataSample.length - 1; si >= 0; si--) {
+      const sample = dataSample[si];
+      const num1 = sample[0];
+      const num2 = sample[1];
+      const num3 = sample[2];
+      firstFc[num1] = firstFc[num1] || 0;
+      firstFc[num1] += 1;
+      secondFc[num2] = secondFc[num2] || 0;
+      secondFc[num2] += 1;
+      lastFc[num3] = lastFc[num3] || 0;
+      lastFc[num3] += 1;
+      numshowTime[0][num1] = (numshowTime[0][num1] || 0) + 1;
+      numshowTime[1][num2] = (numshowTime[1][num2] || 0) + 1;
+      numshowTime[2][num3] = (numshowTime[2][num3] || 0) + 1;
+      for (const sampleNum of sample.slice(0, 3)) {
+        for (const sampleNumIdx in sample.slice(0, 3)) {
+          if (!numShowSameTime[sampleNum]) {
+            numShowSameTime[sampleNum] = {};
+          }
+          if (
+            !numShowSameTime[sampleNum][
+              `${sampleNumIdx}-${sample[sampleNumIdx]}`
+            ]
+          ) {
+            numShowSameTime[sampleNum][
+              `${sampleNumIdx}-${sample[sampleNumIdx]}`
+            ] = 0;
+          }
           numShowSameTime[sampleNum][
             `${sampleNumIdx}-${sample[sampleNumIdx]}`
-          ] = 0;
+          ] += 1;
         }
-        numShowSameTime[sampleNum][
-          `${sampleNumIdx}-${sample[sampleNumIdx]}`
-        ] += 1;
       }
-    }
-    const sumNum = sample.slice(0, 3).reduce((r, c) => +r + +c, 0);
-    numSum[sumNum] = (numSum[sumNum] || 0) + 1;
-    const key = `${Number(num1 > 4)}-${Number(num2 > 4)}-${Number(num3 > 4)}`;
-    const combineKey = `${num1}-${num2}-${num3}`;
-    combine[combineKey] = combine[combineKey] || 0;
-    combine[combineKey] += 1;
-    // ratio4[key] = ratio4[key] || []
-    // ratio4[key].push(sample)
-    if (!ratio4[key]) {
-      ratio4[key] = {};
-    }
-    ratio4[key].continue = (ratio4[key].continue || 0) + 1;
-    ratio4[key].maxContinue = Math.max(
-      ratio4[key].maxContinue || 0,
-      ratio4[key].continue
-    );
-    ratio4[key].count = (ratio4[key].count || 0) + 1;
-    const ks = [0, 1];
-    for (const k of ks) {
-      for (const k2 of ks) {
-        for (const k3 of ks) {
-          const rk = `${k}-${k2}-${k3}`;
-          if (!ratio4[rk]) {
-            ratio4[rk] = {};
-          }
-          if (rk !== key && ratio4[rk]) {
-            ratio4[rk].rest = (ratio4[rk].rest || 0) + 1;
-            if (ratio4[rk].rest > (ratio4[rk].maxRest || 0)) {
-              ratio4[rk].maxRest = ratio4[rk].rest;
+      const sumNum = sample.slice(0, 3).reduce((r, c) => +r + +c, 0);
+      numSum[sumNum] = (numSum[sumNum] || 0) + 1;
+      const key = `${Number(num1 > 4)}-${Number(num2 > 4)}-${Number(num3 > 4)}`;
+      const combineKey = `${num1}-${num2}-${num3}`;
+      combine[combineKey] = combine[combineKey] || 0;
+      combine[combineKey] += 1;
+      // ratio4[key] = ratio4[key] || []
+      // ratio4[key].push(sample)
+      if (!ratio4[key]) {
+        ratio4[key] = {};
+      }
+      ratio4[key].continue = (ratio4[key].continue || 0) + 1;
+      ratio4[key].maxContinue = Math.max(
+        ratio4[key].maxContinue || 0,
+        ratio4[key].continue
+      );
+      ratio4[key].count = (ratio4[key].count || 0) + 1;
+      const ks = [0, 1];
+      for (const k of ks) {
+        for (const k2 of ks) {
+          for (const k3 of ks) {
+            const rk = `${k}-${k2}-${k3}`;
+            if (!ratio4[rk]) {
+              ratio4[rk] = {};
             }
-            ratio4[rk].continue = 0;
-            continue;
+            if (rk !== key && ratio4[rk]) {
+              ratio4[rk].rest = (ratio4[rk].rest || 0) + 1;
+              if (ratio4[rk].rest > (ratio4[rk].maxRest || 0)) {
+                ratio4[rk].maxRest = ratio4[rk].rest;
+              }
+              ratio4[rk].continue = 0;
+              continue;
+            }
+            ratio4[key].rest = 0;
           }
-          ratio4[key].rest = 0;
         }
       }
     }
-  }
-};
-numBetween4Ratio();
-// console.log("ratio4", ratio4);
-// console.log("firstFc", firstFc);
-// console.log("secondFc", secondFc);
-// console.log("lastFc", lastFc);
-// console.log("combine", combine);
-// console.log("numshowTime:", numshowTime);
-// console.log("numShowSameTime:", numShowSameTime);
-// console.log("numSum", numSum);
-
-// 0.2
-const killNumWay1 = (mid) => {
-  const killDic = {
-    5: 9,
-    2: 6,
-    7: 2,
-    6: 1,
-    3: 4,
-    1: 8,
-    0: 0,
-    9: 6,
-    4: 7,
-    8: 3,
   };
-  return killDic[mid];
-  // let killErr = 0
-  // for (let i = dataSample.length-1; i>=0; i--) {
-  //     const sample = dataSample[i]
-  //     const nextSample = dataSample[i-1]
-  //     const needKill = killDic[sample[1]]
-  //     if (nextSample?.slice(0,3)?.includes(`${needKill}`)) {
-  //         killErr += 1
-  //     }
-  // }
-  // console.log("误杀率:" , killErr/dataSample.length);
+  numBetween4Ratio();
+  console.log("ratio4", ratio4);
+  console.log("firstFc", firstFc);
+  console.log("secondFc", secondFc);
+  console.log("lastFc", lastFc);
+  console.log("combine", combine);
+  console.log("numshowTime:", numshowTime);
+  console.log("numShowSameTime:", numShowSameTime);
+  console.log("numSum", numSum);
 };
 
-// 百位误杀率0.1
-// 1-9 / 2-1 / 5-7
-const killNumWay2 = (newDate, b, a) => {
-  // return (+newDate * 3 + 3) % 10;
-  let killErr = 0
-  for (let i = dataSample.length-1; i>=0; i--) {
-      const sample = dataSample[i]
-      const date = (+sample[3])%10
-      const kill = (date*b+a)%10
+const handleKill = (orgdata) => {
+  const first = [];
+  const second = [];
+  const last = [];
+  const killCheck = (fn, checkSampleIdx) => {
+    let e = 10;
+    let e2 = 0;
+    let mi = 0;
+    let mj = 0;
+    let mi2 = 0;
+    let mj2 = 0;
+    for (let i = 1; i < 10; i++) {
+      for (let j = 0; j < 10; j++) {
+        const b = fn(i, j, dataSample.slice(checkSampleIdx, sampleDataLen));
+        min = Math.min(b, e);
+        max = Math.max(b, e2);
+        if (e !== min) {
+          e = min;
+          mi = i;
+          mj = j;
+        }
+        if (e2 !== max) {
+          e2 = max;
+          mi2 = i;
+          mj2 = j;
+        }
+      }
+    }
+    // console.log("最优参数:", e, mi, mj);
+    // console.log("最大误杀率:", e2, mi2, mj2);
+    return {
+      b: mi,
+      a: mj,
+      e,
+      maxE: e2,
+    };
+  };
+  // 百位误杀率0.1
+  // 1-9 / 2-1 / 5-7
+  const killNumWay2 = (b, a, newDate) => {
+    if (typeof newDate === 'number') {
+      return (newDate * b + a) % 10;
+    }
+    // return (+newDate * 3 + 3) % 10;
+    let killErr = 0;
+    for (let i = dataSample.length - 1; i >= 0; i--) {
+      const sample = dataSample[i];
+      const date = +sample[3] % 10;
+      const kill = (date * b + a) % 10;
       if (+sample[0] === kill) {
-          killErr += 1
-
-      }
-  }
-  return killErr/dataSample.length
-  console.log("误杀率:" , killErr/dataSample.length);
-};
-// 百位误杀0.1
-const kill_first_1 = (beilv, add, checkSample, predictedSample) => {
-  if (predictedSample) {
-    const max = Math.max(...predictedSample.slice(0, 3));
-    const min = Math.min(...predictedSample.slice(0, 3));
-    const needKill = ((max - min) * beilv + add) % 10;
-    return Math.floor(Math.abs(needKill));
-  }
-  let killErr = 0;
-  for (let i = checkSample.length - 1; i > 0; i--) {
-    const sample = checkSample[i];
-    const nextSample = checkSample[i - 1];
-    const max = Math.max(...sample.slice(0, 3));
-    const min = Math.min(...sample.slice(0, 3));
-    const needKill = ((max - min) * beilv + add) % 10;
-    if (
-      nextSample?.slice(0, 1)?.includes(`${Math.floor(Math.abs(needKill))}`)
-    ) {
-      killErr += 1;
-    }
-  }
-  return killErr / checkSample.length;
-};
-// 十个位误杀0.1
-const kill_s_l_1 = (beilv, add, checkSample, predictedSample) => {
-  if (predictedSample) {
-    const max = Math.max(...predictedSample.slice(0, 3));
-    const min = Math.min(...predictedSample.slice(0, 3));
-    const needKill = ((max - min) * beilv - add) % 10;
-    return Math.floor(Math.abs(needKill));
-  }
-  let killErr = 0;
-  for (let i = checkSample.length - 1; i > 0; i--) {
-    const sample = checkSample[i];
-    const nextSample = checkSample[i - 1];
-    const max = Math.max(...sample.slice(0, 3));
-    const min = Math.min(...sample.slice(0, 3));
-    const needKill = ((max - min) * beilv - add) % 10;
-    if (
-      nextSample?.slice(2, 3)?.includes(`${Math.floor(Math.abs(needKill))}`)
-    ) {
-      killErr += 1;
-    }
-  }
-  return killErr / checkSample.length;
-};
-
-const killCheck = (fn, checkSampleIdx) => {
-  let e = 10;
-  let e2 = 0;
-  let mi = 0;
-  let mj = 0;
-  let mi2 = 0;
-  let mj2 = 0;
-  for (let i = 1; i < 10; i++) {
-    for (let j = 0; j < 10; j++) {
-      const b = fn(i, j, dataSample.slice(checkSampleIdx, sampleDataLen));
-      min = Math.min(b, e);
-      max = Math.max(b, e2);
-      if (e !== min) {
-        e = min;
-        mi = i;
-        mj = j;
-      }
-      if (e2 !== max) {
-        e2 = max;
-        mi2 = i;
-        mj2 = j;
+        killErr += 1;
       }
     }
-  }
-  console.log("最优参数:", e, mi, mj);
-  console.log("最大误杀率:", e2, mi2, mj2);
-  return {
-    b: mi,
-    a: mj,
-    e,
-    maxE: e2,
+    return killErr / dataSample.length;
+    console.log("误杀率:", killErr / dataSample.length);
   };
-};
+  // 百位误杀0.1
+  const kill_first_1 = (beilv, add, checkSample, predictedSample) => {
+    if (predictedSample) {
+      const max = Math.max(...predictedSample.slice(0, 3));
+      const min = Math.min(...predictedSample.slice(0, 3));
+      const needKill = ((max - min) * beilv + add) % 10;
+      return Math.floor(Math.abs(needKill));
+    }
+    let killErr = 0;
+    for (let i = checkSample.length - 1; i > 0; i--) {
+      const sample = checkSample[i];
+      const nextSample = checkSample[i - 1];
+      const max = Math.max(...sample.slice(0, 3));
+      const min = Math.min(...sample.slice(0, 3));
+      const needKill = ((max - min) * beilv + add) % 10;
+      if (
+        nextSample?.slice(0, 1)?.includes(`${Math.floor(Math.abs(needKill))}`)
+      ) {
+        killErr += 1;
+      }
+    }
+    return killErr / checkSample.length;
+  };
+  // 十个位误杀0.1
+  // 4-7 1-8 十位
+  // 2-9 2-7 个位
+  const kill_s_l_1 = (offset) => {
+    return (beilv, add, checkSample, predictedSample) => {
+      if (predictedSample) {
+        const max = Math.max(...predictedSample.slice(0, 3));
+        const min = Math.min(...predictedSample.slice(0, 3));
+        const needKill = ((max - min) * beilv - add) % 10;
+        return Math.floor(Math.abs(needKill));
+      }
+      let killErr = 0;
+      for (let i = checkSample.length - 1; i > 0; i--) {
+        const sample = checkSample[i];
+        const nextSample = checkSample[i - 1];
+        const max = Math.max(...sample.slice(0, 3));
+        const min = Math.min(...sample.slice(0, 3));
+        const needKill = ((max - min) * beilv - add) % 10;
+        if (
+          nextSample
+            ?.slice(offset, offset + 1)
+            ?.includes(`${Math.floor(Math.abs(needKill))}`)
+        ) {
+          killErr += 1;
+        }
+      }
+      return killErr / checkSample.length;
+    };
+  };
 
-// 0.25
-const killNumWay3 = (sample) => {
-  return (+sample[0] + +sample[1] + +sample[2]) % 10;
-  // let killErr = 0
-  // for (let i = dataSample.length-1; i>=0; i--) {
-  //     const sample = dataSample[i]
-  //     const nextSample = dataSample[i-1]
-  //     const needKill = (+sample[0] + +sample[1] + +sample[2])%10
-  //     if (nextSample?.slice(0,3)?.includes(`${needKill}`)) {
-  //         killErr += 1
-  //     }
-  // }
-  // console.log("误杀率:" , killErr/dataSample.length);
+  const { a: a1, b: b1 } = killCheck(killNumWay2, 0);
+  first.push(killNumWay2(b1, a1, newstDateNum));
+  const { a: a2, b: b2 } = killCheck(kill_first_1, 0);
+  first.push(kill_first_1(b2, a2, undefined, orgdata));
+  const { a: a3, b: b3 } = killCheck(kill_s_l_1(1), 0);
+  second.push(kill_s_l_1(1)(b3, a3, undefined, orgdata));
+  const { a: a4, b: b4 } = killCheck(kill_s_l_1(2), 0);
+  last.push(kill_s_l_1(2)(b4, a4, undefined, orgdata));
+
+  return [[...new Set(first)], [...new Set(second)], [...new Set(last)]];
 };
+console.log(handleKill(dataSample[0]));
+
+const check = () => {
+  let mi = 1
+  for (let i = 1; i<=14;i++) {
+    sampleDataLen = 30 + i*5
+    let kill = 0
+    for (let j = 0; j<sampleDataLen-1;j++) {
+      newstDateNum = (+dataSample[j][3])%10
+      
+      const [first, second, last] = handleKill(dataSample[j+1]);
+      if (first.includes(+dataSample[j][0]) || second.includes(+dataSample[j][1]) || last.includes(+dataSample[j][2])) {
+        console.log("误杀:", first, second, last, dataSample[j], dataSample[j+1]);
+        
+        kill+=1
+      }
+    }
+    console.log("sampleDataLen:", sampleDataLen, "kill:", kill/sampleDataLen, i)
+  }
+}
 let loopCount = 0;
 const getNums = (newestSample, nextSample, isCheck, idx) => {
   const newest = newestSample || dataSample[0];
   // const killAll_1 = killNumWay1(newest[1])
   // const killAll_2 = killNumWay3(newest)
-  const killFirst = killNumWay2(nextSample[3]);
+  const killFirst = undefined;
   const { a: a1, b: b1, e: e1 } = killCheck(kill_first_1, idx);
   let killFirst2;
   if (e1 < 0.1) {
@@ -7801,9 +7768,9 @@ const earn = () => {
 
   let cost = 0;
   let hit = 0;
-  const costLevel = 54;
+  const costLevel = 24;
   const buy = [];
-  for (let i = 1; i <= 40; i++) {
+  for (let i = 1; i <= 100; i++) {
     let costTmp = cost + costLevel * i;
     hit = 1040 * i;
     let j = 1;
