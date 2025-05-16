@@ -1,4 +1,6 @@
 const data = {
+  "6-2-7-25125": 1,
+  "5-2-7-25124": 1,
   "8-4-2-25123": 1,
   "0-3-0-25122": 1,
   "4-2-4-25121": 1,
@@ -7305,10 +7307,11 @@ const killRc = [
 // 0 1 2 3 4 5 6 7 8 9
 // 0 1 2 3 4 5 6 7 8 9
 // 数据取 0 ~ 30+n
+
 let sampleDataLen = 45;
-let newstDateNum = 4;
+let newstDateNum = 6;
 const dataSample = Object.keys(data)
-  .slice(0, 1000)
+  .slice(0, 100000)
   .map((e) => e.split("-"));
 
 const statistics = () => {
@@ -7324,6 +7327,224 @@ const statistics = () => {
   };
   const numShowSameTime = {};
   const numSum = {};
+  const numContinue = {
+    0: {
+      0: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      1: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      2: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      3: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      4: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      5: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      6: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      7: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      8: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      9: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+    },
+    1: {
+      0: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      1: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      2: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      3: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      4: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      5: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      6: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      7: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      8: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      9: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+    },
+    2: {
+      0: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      1: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      2: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      3: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      4: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      5: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      6: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      7: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      8: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+      9: {
+        maxContinue: 0,
+        count: 0,
+        continue: 0,
+        rest: 0,
+        maxRest: 0,
+      },
+    },
+  };
 
   const numBetween4Ratio = () => {
     for (let si = dataSample.length - 1; si >= 0; si--) {
@@ -7359,6 +7580,29 @@ const statistics = () => {
           ] += 1;
         }
       }
+      for (const ik of [0, 1, 2]) {
+        const curN = sample[ik];
+        for (let i = 0; i < 10; i++) {
+          if (i !== +num1) {
+            numContinue[ik][i].rest = (numContinue[0][i].rest || 0) + 1;
+            numContinue[ik][i].maxRest = Math.max(
+              numContinue[ik][i].maxRest,
+              numContinue[ik][i].rest
+            );
+            numContinue[ik][i].continue = 0;
+            continue;
+          }
+          numContinue[ik][curN].continue =
+            (numContinue[0][curN].continue || 0) + 1;
+          numContinue[ik][curN].maxContinue = Math.max(
+            numContinue[ik][curN].maxContinue,
+            numContinue[ik][curN].continue
+          );
+          numContinue[ik][curN].count = (numContinue[0][curN].count || 0) + 1;
+          numContinue[ik][curN].rest = 0;
+        }
+      }
+
       const sumNum = sample.slice(0, 3).reduce((r, c) => +r + +c, 0);
       numSum[sumNum] = (numSum[sumNum] || 0) + 1;
       const key = `${Number(num1 > 4)}-${Number(num2 > 4)}-${Number(num3 > 4)}`;
@@ -7407,8 +7651,10 @@ const statistics = () => {
   console.log("numshowTime:", numshowTime);
   console.log("numShowSameTime:", numShowSameTime);
   console.log("numSum", numSum);
+  console.log("numContinue", numContinue);
+  
 };
-
+statistics()
 const handleKill = (orgdata) => {
   const first = [];
   const second = [];
@@ -7449,7 +7695,7 @@ const handleKill = (orgdata) => {
   // 百位误杀率0.1
   // 1-9 / 2-1 / 5-7
   const killNumWay2 = (b, a, newDate) => {
-    if (typeof newDate === 'number') {
+    if (typeof newDate === "number") {
       return (newDate * b + a) % 10;
     }
     // return (+newDate * 3 + 3) % 10;
@@ -7529,29 +7775,47 @@ const handleKill = (orgdata) => {
 
   return [[...new Set(first)], [...new Set(second)], [...new Set(last)]];
 };
-console.log(handleKill(dataSample[0]));
 
 const check = () => {
-  let mi = 1
-  for (let i = 1; i<=14;i++) {
+  let mi = 1;
+  for (let i = 1; i <= 14; i++) {
     // 更新检查数据样本量, 检测最优参数
-    sampleDataLen = 30 + i*5
-    let kill = 0
-    for (let j = 0; j<sampleDataLen-1;j++) {
+    sampleDataLen = 30 + i * 5;
+    let kill = 0;
+    for (let j = 0; j < sampleDataLen - 1; j++) {
       // 要预测的数据期号
-      newstDateNum = (+dataSample[j][3])%10
+      newstDateNum = +dataSample[j][3] % 10;
       // 用上一期的数据推测最新要杀的号
-      const [first, second, last] = handleKill(dataSample[j+1]);
+      const [first, second, last] = handleKill(dataSample[j + 1]);
       // 最新一期的数据如果有误杀，记录
-      if (first.includes(+dataSample[j][0]) || second.includes(+dataSample[j][1]) || last.includes(+dataSample[j][2])) {
-        console.log("误杀:", first, second, last, dataSample[j], dataSample[j+1]);
-        
-        kill+=1
+      if (
+        first.includes(+dataSample[j][0]) ||
+        second.includes(+dataSample[j][1]) ||
+        last.includes(+dataSample[j][2])
+      ) {
+        console.log(
+          "误杀:",
+          first,
+          second,
+          last,
+          dataSample[j],
+          dataSample[j + 1]
+        );
+
+        kill += 1;
       }
     }
-    console.log("sampleDataLen:", sampleDataLen, "kill:", kill/sampleDataLen, i)
+    console.log(
+      "sampleDataLen:",
+      sampleDataLen,
+      "kill:",
+      kill / sampleDataLen,
+      i
+    );
   }
-}
+};
+// console.log(handleKill(dataSample[0]));
+
 let loopCount = 0;
 const getNums = (newestSample, nextSample, isCheck, idx) => {
   const newest = newestSample || dataSample[0];
@@ -7771,9 +8035,9 @@ const earn = () => {
 
   let cost = 0;
   let hit = 0;
-  const costLevel = 24;
+  const costLevel = 200;
   const buy = [];
-  for (let i = 1; i <= 100; i++) {
+  for (let i = 1; i <= 10; i++) {
     let costTmp = cost + costLevel * i;
     hit = 1040 * i;
     let j = 1;
