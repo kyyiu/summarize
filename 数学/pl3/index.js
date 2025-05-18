@@ -1,4 +1,6 @@
 const data = {
+  "4-9-2-25127": 1,
+  "1-8-4-25126": 1,
   "6-2-7-25125": 1,
   "5-2-7-25124": 1,
   "8-4-2-25123": 1,
@@ -7307,12 +7309,15 @@ const killRc = [
 // 0 1 2 3 4 5 6 7 8 9
 // 0 1 2 3 4 5 6 7 8 9
 // 数据取 0 ~ 30+n
+// 0 2 3 8 9
+// 0 1 2 4 9
+// 0 2 3 6 9
 
-let sampleDataLen = 45;
-let newstDateNum = 6;
+let sampleDataLen = 50;
 const dataSample = Object.keys(data)
-  .slice(0, 100000)
+  .slice(0, 1000)
   .map((e) => e.split("-"));
+let newstDateNum = (+dataSample[0][3] %10)+1
 
 const statistics = () => {
   const ratio4 = {};
@@ -7654,7 +7659,7 @@ const statistics = () => {
   console.log("numContinue", numContinue);
   
 };
-statistics()
+
 const handleKill = (orgdata) => {
   const first = [];
   const second = [];
@@ -7727,7 +7732,7 @@ const handleKill = (orgdata) => {
       const min = Math.min(...sample.slice(0, 3));
       const needKill = ((max - min) * beilv + add) % 10;
       if (
-        nextSample?.slice(0, 1)?.includes(`${Math.floor(Math.abs(needKill))}`)
+        nextSample.slice(0, 1).includes(`${Math.floor(Math.abs(needKill))}`)
       ) {
         killErr += 1;
       }
@@ -7754,8 +7759,8 @@ const handleKill = (orgdata) => {
         const needKill = ((max - min) * beilv - add) % 10;
         if (
           nextSample
-            ?.slice(offset, offset + 1)
-            ?.includes(`${Math.floor(Math.abs(needKill))}`)
+            .slice(offset, offset + 1)
+            .includes(`${Math.floor(Math.abs(needKill))}`)
         ) {
           killErr += 1;
         }
@@ -7775,7 +7780,7 @@ const handleKill = (orgdata) => {
 
   return [[...new Set(first)], [...new Set(second)], [...new Set(last)]];
 };
-
+console.log(handleKill(dataSample[0]));
 const check = () => {
   let mi = 1;
   for (let i = 1; i <= 14; i++) {
@@ -7814,7 +7819,7 @@ const check = () => {
     );
   }
 };
-// console.log(handleKill(dataSample[0]));
+// check()
 
 let loopCount = 0;
 const getNums = (newestSample, nextSample, isCheck, idx) => {
