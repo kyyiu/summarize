@@ -1,4 +1,5 @@
 const data = {
+  "8-7-0-25128": 1,
   "4-9-2-25127": 1,
   "1-8-4-25126": 1,
   "6-2-7-25125": 1,
@@ -7193,131 +7194,216 @@ const data = {
   "1-9-2-04001": 1,
 };
 
-const killData = {
-  "0-1-2-8-2-0-1-9-3-1-0-2-0": 1,
-  "0-1-4-2-1-8-9-8-3-8-0-1-1": 1,
-  "5-4-3-8-5-6-8-3-0-8-5-4-2": 1,
-  "5-4-1-8-1-5-8-7-9-8-1-5-3": 1,
-  "1-0-2-1-0-2-5-7-9-1-0-5-4": 1,
-  "5-8-6-1-0-2-9-8-7-8-1-5-5": 1,
-  "8-7-0-6-8-2-7-6-8-8-7-6-6": 1,
-  "8-0-6-2-1-5-6-7-5-6-8-1-7": 1,
-  "0-1-2-8-6-1-7-6-5-0-8-1-8": 1,
-  "1-0-2-8-4-1-4-3-5-4-1-0-9": 1,
-  "1-0-2-4-5-8-4-1-3-4-1-0-10": 1,
-  "4-5-2-6-8-1-1-0-3-4-1-0-11": 1,
-  "2-1-3-2-4-1-4-1-3-1-4-2-12": 1,
-  "8-9-0-1-0-2-1-0-7-1-0-8-13": 1,
-  "8-1-0-8-1-5-7-4-8-1-4-8-14": 1,
-  "1-0-2-6-8-1-4-3-5-1-4-0-15": 1,
-  "1-0-2-8-1-5-1-3-0-1-0-2-16": 1,
-  "1-0-2-6-8-4-1-0-8-1-0-8-17": 1,
-  "8-6-0-4-5-1-7-9-8-4-8-5-18": 1,
-  "5-6-0-6-8-1-1-3-4-5-1-4-19": 1,
-  "4-5-6-2-4-3-4-3-5-4-5-3-20": 1,
-  "4-5-3-2-4-3-1-3-9-4-1-3-21": 1,
-  "8-6-0-1-3-2-0-1-9-1-0-8-22": 1,
-  "8-9-0-4-3-2-0-1-3-0-4-1-23": 1,
-  "8-2-0-8-0-1-3-4-8-8-4-0-24": 1,
-  "2-1-3-0-1-2-7-9-8-2-0-1-25": 1,
-  "2-1-8-1-4-2-1-2-3-2-1-4-26": 1,
-  "8-6-0-3-4-5-4-5-9-4-5-8-27": 1,
-  "5-6-3-3-4-5-4-3-5-3-4-5-28": 1,
-  "3-2-4-5-4-0-4-3-2-4-3-5-29": 1,
-  "2-4-5-0-1-4-3-4-5-3-4-5-30": 1,
-  "5-4-3-8-4-1-4-3-9-4-3-5-31": 1,
-  "3-2-4-4-3-5-4-3-5-4-3-5-32": 1,
-  "8-7-6-5-3-6-5-7-8-8-5-3-33": 1,
-  "8-2-6-3-2-4-9-8-7-3-8-2-34": 1,
-  "2-1-3-8-1-0-5-3-7-1-3-5-35": 1,
-  "1-0-2-2-1-0-3-4-5-1-3-0-36": 1,
-  "4-3-5-2-1-3-5-4-7-4-5-3-37": 1,
-  "4-3-5-0-1-4-3-7-8-3-4-0-38": 1,
-  "8-7-1-3-5-4-3-4-9-3-4-5-39": 1,
-  "1-0-2-8-3-6-9-8-0-1-0-2-40": 1,
-  "0-2-1-3-2-4-1-3-5-3-1-0-41": 1,
-  "8-4-0-3-4-2-5-4-0-4-5-3-42": 1,
-  "4-5-7-5-6-7-1-3-5-4-5-1-43": 1,
-  "7-6-8-8-3-6-1-0-4-0-4-1-44": 1,
-  "9-8-0-3-4-2-5-4-3-4-5-3-45": 1,
-  "8-6-4-8-7-6-5-4-1-5-4-1-46": 1,
-  "5-7-6-8-6-3-1-0-4-1-5-4-47": 1,
-  "0-2-1-8-9-6-4-3-5-4-0-5-48": 1,
-  "8-6-4-8-5-6-0-1-5-5-0-1-49": 1,
-  "5-7-4-6-4-5-5-6-7-4-6-5-50": 1,
-  "4-5-2-5-6-8-5-7-4-5-4-3-51": 1,
-  "2-4-1-5-6-4-0-7-8-5-4-1-52": 1,
-  "4-5-7-9-8-6-0-1-3-3-5-4-53": 1,
-  "7-8-4-9-8-6-3-4-1-7-9-3-54": 1,
-  "7-6-8-6-8-7-1-0-2-7-1-0-55": 1,
-  "7-5-2-6-8-3-1-5-2-5-7-1-56": 1,
-  "7-8-2-6-5-1-5-4-6-5-7-4-57": 1,
-  "7-8-9-1-0-6-5-7-6-1-5-7-58": 1,
-  "9-3-2-1-8-0-5-7-4-5-9-1-59": 1,
-  "2-4-3-9-8-6-4-5-9-9-5-3-60": 1,
-  "7-9-3-9-8-3-9-7-5-9-7-3-61": 1,
-  "2-4-3-3-6-0-7-6-3-3-7-9-62": 1,
-  "9-5-2-6-8-7-4-0-3-0-7-3-63": 1,
-  "4-0-5-6-8-3-0-1-7-0-5-7-64": 1,
-  "0-5-1-3-2-6-7-0-6-0-5-7-65": 1,
-  "5-4-6-6-8-0-0-1-6-0-5-6-66": 1,
-  "7-9-3-0-1-6-5-7-6-0-5-7-67": 1,
-  "4-7-3-6-8-2-2-1-3-2-3-7-68": 1,
-  "7-6-8-2-1-3-5-2-1-5-2-3-69": 1,
-  "7-9-5-0-1-5-5-4-6-5-0-9-70": 1,
-  "5-4-6-5-6-0-5-2-1-5-6-3-71": 1,
-  "5-9-6-6-1-8-5-4-6-5-6-9-72": 1,
-  "9-8-4-1-0-2-5-7-6-5-0-9-73": 1,
-  "9-5-7-6-8-0-5-4-6-5-9-0-74": 1,
-  "5-4-3-6-8-7-7-9-6-5-6-3-75": 1,
-  "2-4-5-6-5-7-5-7-6-5-6-2-76": 1,
-  "5-4-6-6-2-7-7-9-1-5-7-2-77": 1,
-  "5-4-6-2-1-3-0-9-1-5-2-4-78": 1,
-  "9-3-7-3-5-0-9-5-4-9-5-3-79": 1,
-  "3-2-4-0-1-3-9-4-5-3-0-9-80": 1,
-  "9-3-8-3-2-9-4-5-2-9-3-4-81": 1,
-  "3-4-5-1-9-8-2-1-3-3-9-2-82": 1,
-  "5-4-6-1-0-2-4-7-2-5-6-0-83": 1,
-  "3-4-2-8-9-6-7-6-9-9-6-2-84": 1,
-  "4-3-5-2-8-7-9-2-5-9-5-2-85": 1,
-  "9-8-7-2-1-3-2-1-9-2-9-0-86": 1,
-  "3-0-1-3-4-5-7-9-6-6-0-4-87": 1,
-  "3-4-6-3-5-7-7-6-5-6-3-7-88": 1,
-  "6-5-7-6-2-7-7-6-8-6-7-5-89": 1,
-  "3-2-1-2-1-3-7-9-8-2-3-7-90": 1,
-  "6-4-7-8-7-9-7-9-4-6-7-9-91": 1,
-  "3-4-5-8-7-9-4-5-6-4-3-5-92": 1,
-  "3-4-2-3-5-6-6-5-7-3-4-6-93": 1,
-  "1-0-2-6-3-2-9-4-6-6-9-2-94": 1,
-  "7-6-2-2-3-9-4-5-2-2-7-3-95": 1,
-  "1-3-9-9-8-5-2-6-3-9-2-5-96": 1,
-  "9-5-3-6-5-9-6-5-7-9-6-5-97": 1,
-  "9-3-5-6-7-9-2-4-3-9-6-3-98": 1,
-  "3-4-5-9-0-8-7-9-8-9-2-7-99": 1,
-};
-// const killDataArr = Object.keys(killData).map(e => {
-//   const ns = e.split('-').map(e => +e)
-//   return [ns.slice(1, 3), ns.slice(2, 6), ns.slice(7, 9)]
-// });
-
-const killRc = [
-  [2, 4, 8],
-  [6, 5, 4],
-  [0, 1, 7],
-];
 // 0 1 2 3 4 5 6 7 8 9
 // 0 1 2 3 4 5 6 7 8 9
 // 0 1 2 3 4 5 6 7 8 9
 // 数据取 0 ~ 30+n
-// 0 2 3 8 9
-// 0 1 2 4 9
-// 0 2 3 6 9
 
-let sampleDataLen = 50;
+
+let sampleDataLen = 55;
 const dataSample = Object.keys(data)
   .slice(0, 1000)
   .map((e) => e.split("-"));
 let newstDateNum = (+dataSample[0][3] %10)+1
+
+const handleKill = (orgdata) => {
+  const first = [];
+  const second = [];
+  const last = [];
+  const killCheck = (fn, checkSampleIdx) => {
+    let e = 10;
+    let e2 = 0;
+    let mi = 0;
+    let mj = 0;
+    let mi2 = 0;
+    let mj2 = 0;
+    for (let i = 1; i < 10; i++) {
+      for (let j = 0; j < 10; j++) {
+        const b = fn(i, j, dataSample.slice(checkSampleIdx, sampleDataLen));
+        min = Math.min(b, e);
+        max = Math.max(b, e2);
+        if (e !== min) {
+          e = min;
+          mi = i;
+          mj = j;
+        }
+        if (e2 !== max) {
+          e2 = max;
+          mi2 = i;
+          mj2 = j;
+        }
+      }
+    }
+    // console.log("最优参数:", e, mi, mj);
+    // console.log("最大误杀率:", e2, mi2, mj2);
+    return {
+      b: mi,
+      a: mj,
+      e,
+      maxE: e2,
+    };
+  };
+  // 百位误杀率0.1
+  // 1-9 / 2-1 / 5-7
+  const killNumWay2 = (b, a, newDate) => {
+    if (typeof newDate === "number") {
+      return (newDate * b + a) % 10;
+    }
+    // return (+newDate * 3 + 3) % 10;
+    let killErr = 0;
+    for (let i = dataSample.length - 1; i >= 0; i--) {
+      const sample = dataSample[i];
+      const date = +sample[3] % 10;
+      const kill = (date * b + a) % 10;
+      if (+sample[0] === kill) {
+        killErr += 1;
+      }
+    }
+    return killErr / dataSample.length;
+    console.log("误杀率:", killErr / dataSample.length);
+  };
+  // 百位误杀0.1
+  const kill_first_1 = (beilv, add, checkSample, predictedSample) => {
+    if (predictedSample) {
+      const max = Math.max(...predictedSample.slice(0, 3));
+      const min = Math.min(...predictedSample.slice(0, 3));
+      const needKill = ((max - min) * beilv + add) % 10;
+      return Math.floor(Math.abs(needKill));
+    }
+    let killErr = 0;
+    for (let i = checkSample.length - 1; i > 0; i--) {
+      const sample = checkSample[i];
+      const nextSample = checkSample[i - 1];
+      const max = Math.max(...sample.slice(0, 3));
+      const min = Math.min(...sample.slice(0, 3));
+      const needKill = ((max - min) * beilv + add) % 10;
+      if (
+        nextSample.slice(0, 1).includes(`${Math.floor(Math.abs(needKill))}`)
+      ) {
+        killErr += 1;
+      }
+    }
+    return killErr / checkSample.length;
+  };
+  // 十个位误杀0.1
+  // 4-7 1-8 十位
+  // 2-9 2-7 个位
+  const kill_s_l_1 = (offset) => {
+    return (beilv, add, checkSample, predictedSample) => {
+      if (predictedSample) {
+        const max = Math.max(...predictedSample.slice(0, 3));
+        const min = Math.min(...predictedSample.slice(0, 3));
+        const needKill = ((max - min) * beilv - add) % 10;
+        return Math.floor(Math.abs(needKill));
+      }
+      let killErr = 0;
+      for (let i = checkSample.length - 1; i > 0; i--) {
+        const sample = checkSample[i];
+        const nextSample = checkSample[i - 1];
+        const max = Math.max(...sample.slice(0, 3));
+        const min = Math.min(...sample.slice(0, 3));
+        const needKill = ((max - min) * beilv - add) % 10;
+        if (
+          nextSample
+            .slice(offset, offset + 1)
+            .includes(`${Math.floor(Math.abs(needKill))}`)
+        ) {
+          killErr += 1;
+        }
+      }
+      return killErr / checkSample.length;
+    };
+  };
+
+  const { a: a1, b: b1 } = killCheck(killNumWay2, 0);
+  first.push(killNumWay2(b1, a1, newstDateNum));
+  const { a: a2, b: b2 } = killCheck(kill_first_1, 0);
+  first.push(kill_first_1(b2, a2, undefined, orgdata));
+  const { a: a3, b: b3 } = killCheck(kill_s_l_1(1), 0);
+  second.push(kill_s_l_1(1)(b3, a3, undefined, orgdata));
+  const { a: a4, b: b4 } = killCheck(kill_s_l_1(2), 0);
+  last.push(kill_s_l_1(2)(b4, a4, undefined, orgdata));
+
+  return [[...new Set(first)], [...new Set(second)], [...new Set(last)]];
+};
+const check = () => {
+  let mi = 1;
+  for (let i = 1; i <= 14; i++) {
+    // 更新检查数据样本量, 检测最优参数
+    sampleDataLen = 30 + i * 5;
+    let kill = 0;
+    for (let j = 0; j < sampleDataLen - 1; j++) {
+      // 要预测的数据期号
+      newstDateNum = +dataSample[j][3] % 10;
+      // 用上一期的数据推测最新要杀的号
+      const [first, second, last] = handleKill(dataSample[j + 1]);
+      // 最新一期的数据如果有误杀，记录
+      if (
+        first.includes(+dataSample[j][0]) ||
+        second.includes(+dataSample[j][1]) ||
+        last.includes(+dataSample[j][2])
+      ) {
+        console.log(
+          "误杀:",
+          first,
+          second,
+          last,
+          dataSample[j],
+          dataSample[j + 1]
+        );
+
+        kill += 1;
+      }
+    }
+    console.log(
+      "sampleDataLen:",
+      sampleDataLen,
+      "kill:",
+      kill / sampleDataLen,
+      i
+    );
+  }
+};
+console.log(handleKill(dataSample[0]));
+// check()
+
+const earn = () => {
+  // 250 -250 1040
+  // 500 -750 2080
+  // 750 -1500 3120
+  // 1000 -2500 4160
+  // 1250 -3750 5200
+  // 1500 -5250 6240
+  // 1750 -7000 7280
+
+  // 2250 -9250 9360
+
+  let cost = 0;
+  let hit = 0;
+  const costLevel = 200;
+  const buy = [];
+  for (let i = 1; i <= 10; i++) {
+    let costTmp = cost + costLevel * i;
+    hit = 1040 * i;
+    let j = 1;
+    while (hit - costTmp <= 0) {
+      costTmp = cost + costLevel * (i + j);
+      hit = 1040 * (i + j);
+      j += 1;
+    }
+    cost = costTmp;
+    buy.push({
+      singleCost: costLevel * (i + j - 1),
+      costTotal: cost,
+      hit,
+      beilv: i + j - 1,
+      earn: hit - cost,
+    });
+  }
+  console.log(cost, hit, buy);
+
+  return hit - cost;
+};
 
 const statistics = () => {
   const ratio4 = {};
@@ -7659,533 +7745,3 @@ const statistics = () => {
   console.log("numContinue", numContinue);
   
 };
-
-const handleKill = (orgdata) => {
-  const first = [];
-  const second = [];
-  const last = [];
-  const killCheck = (fn, checkSampleIdx) => {
-    let e = 10;
-    let e2 = 0;
-    let mi = 0;
-    let mj = 0;
-    let mi2 = 0;
-    let mj2 = 0;
-    for (let i = 1; i < 10; i++) {
-      for (let j = 0; j < 10; j++) {
-        const b = fn(i, j, dataSample.slice(checkSampleIdx, sampleDataLen));
-        min = Math.min(b, e);
-        max = Math.max(b, e2);
-        if (e !== min) {
-          e = min;
-          mi = i;
-          mj = j;
-        }
-        if (e2 !== max) {
-          e2 = max;
-          mi2 = i;
-          mj2 = j;
-        }
-      }
-    }
-    // console.log("最优参数:", e, mi, mj);
-    // console.log("最大误杀率:", e2, mi2, mj2);
-    return {
-      b: mi,
-      a: mj,
-      e,
-      maxE: e2,
-    };
-  };
-  // 百位误杀率0.1
-  // 1-9 / 2-1 / 5-7
-  const killNumWay2 = (b, a, newDate) => {
-    if (typeof newDate === "number") {
-      return (newDate * b + a) % 10;
-    }
-    // return (+newDate * 3 + 3) % 10;
-    let killErr = 0;
-    for (let i = dataSample.length - 1; i >= 0; i--) {
-      const sample = dataSample[i];
-      const date = +sample[3] % 10;
-      const kill = (date * b + a) % 10;
-      if (+sample[0] === kill) {
-        killErr += 1;
-      }
-    }
-    return killErr / dataSample.length;
-    console.log("误杀率:", killErr / dataSample.length);
-  };
-  // 百位误杀0.1
-  const kill_first_1 = (beilv, add, checkSample, predictedSample) => {
-    if (predictedSample) {
-      const max = Math.max(...predictedSample.slice(0, 3));
-      const min = Math.min(...predictedSample.slice(0, 3));
-      const needKill = ((max - min) * beilv + add) % 10;
-      return Math.floor(Math.abs(needKill));
-    }
-    let killErr = 0;
-    for (let i = checkSample.length - 1; i > 0; i--) {
-      const sample = checkSample[i];
-      const nextSample = checkSample[i - 1];
-      const max = Math.max(...sample.slice(0, 3));
-      const min = Math.min(...sample.slice(0, 3));
-      const needKill = ((max - min) * beilv + add) % 10;
-      if (
-        nextSample.slice(0, 1).includes(`${Math.floor(Math.abs(needKill))}`)
-      ) {
-        killErr += 1;
-      }
-    }
-    return killErr / checkSample.length;
-  };
-  // 十个位误杀0.1
-  // 4-7 1-8 十位
-  // 2-9 2-7 个位
-  const kill_s_l_1 = (offset) => {
-    return (beilv, add, checkSample, predictedSample) => {
-      if (predictedSample) {
-        const max = Math.max(...predictedSample.slice(0, 3));
-        const min = Math.min(...predictedSample.slice(0, 3));
-        const needKill = ((max - min) * beilv - add) % 10;
-        return Math.floor(Math.abs(needKill));
-      }
-      let killErr = 0;
-      for (let i = checkSample.length - 1; i > 0; i--) {
-        const sample = checkSample[i];
-        const nextSample = checkSample[i - 1];
-        const max = Math.max(...sample.slice(0, 3));
-        const min = Math.min(...sample.slice(0, 3));
-        const needKill = ((max - min) * beilv - add) % 10;
-        if (
-          nextSample
-            .slice(offset, offset + 1)
-            .includes(`${Math.floor(Math.abs(needKill))}`)
-        ) {
-          killErr += 1;
-        }
-      }
-      return killErr / checkSample.length;
-    };
-  };
-
-  const { a: a1, b: b1 } = killCheck(killNumWay2, 0);
-  first.push(killNumWay2(b1, a1, newstDateNum));
-  const { a: a2, b: b2 } = killCheck(kill_first_1, 0);
-  first.push(kill_first_1(b2, a2, undefined, orgdata));
-  const { a: a3, b: b3 } = killCheck(kill_s_l_1(1), 0);
-  second.push(kill_s_l_1(1)(b3, a3, undefined, orgdata));
-  const { a: a4, b: b4 } = killCheck(kill_s_l_1(2), 0);
-  last.push(kill_s_l_1(2)(b4, a4, undefined, orgdata));
-
-  return [[...new Set(first)], [...new Set(second)], [...new Set(last)]];
-};
-console.log(handleKill(dataSample[0]));
-const check = () => {
-  let mi = 1;
-  for (let i = 1; i <= 14; i++) {
-    // 更新检查数据样本量, 检测最优参数
-    sampleDataLen = 30 + i * 5;
-    let kill = 0;
-    for (let j = 0; j < sampleDataLen - 1; j++) {
-      // 要预测的数据期号
-      newstDateNum = +dataSample[j][3] % 10;
-      // 用上一期的数据推测最新要杀的号
-      const [first, second, last] = handleKill(dataSample[j + 1]);
-      // 最新一期的数据如果有误杀，记录
-      if (
-        first.includes(+dataSample[j][0]) ||
-        second.includes(+dataSample[j][1]) ||
-        last.includes(+dataSample[j][2])
-      ) {
-        console.log(
-          "误杀:",
-          first,
-          second,
-          last,
-          dataSample[j],
-          dataSample[j + 1]
-        );
-
-        kill += 1;
-      }
-    }
-    console.log(
-      "sampleDataLen:",
-      sampleDataLen,
-      "kill:",
-      kill / sampleDataLen,
-      i
-    );
-  }
-};
-// check()
-
-let loopCount = 0;
-const getNums = (newestSample, nextSample, isCheck, idx) => {
-  const newest = newestSample || dataSample[0];
-  // const killAll_1 = killNumWay1(newest[1])
-  // const killAll_2 = killNumWay3(newest)
-  const killFirst = undefined;
-  const { a: a1, b: b1, e: e1 } = killCheck(kill_first_1, idx);
-  let killFirst2;
-  if (e1 < 0.1) {
-    killFirst2 = kill_first_1(a1, b1, undefined, newest);
-  }
-  const { a: a2, b: b2, e: e2 } = killCheck(kill_s_l_1, idx);
-  let kill_s_l;
-  if (e2 < 0.1) {
-    kill_s_l = kill_s_l_1(a2, b2, undefined, newest);
-  }
-  const res = [];
-  while (res.length < 3) {
-    let nums = [];
-    while (nums.length < 5) {
-      const n = Math.floor(Math.random() * 10);
-      if (nums.includes(n)) {
-        continue;
-      }
-      // 杀百位
-      if (!res.length && [killFirst, killFirst2].includes(n)) {
-        continue;
-      }
-      // 杀个十位
-      if (res.length && [kill_s_l].includes(n)) {
-        continue;
-      }
-      // if (res.length === 0 && killDataArr[idx][0].includes(n)){
-      //   continue
-      // }
-      // if (res.length === 1 && killDataArr[idx][1].includes(n)){
-      //   continue
-      // }
-      // if (res.length === 2 && killDataArr[idx][2].includes(n)){
-      //   continue
-      // }
-      if (!isCheck) {
-        if (res.length === 0 && killRc[0].includes(n)) {
-          continue;
-        }
-        if (res.length === 1 && killRc[1].includes(n)) {
-          continue;
-        }
-        if (res.length === 2 && killRc[2].includes(n)) {
-          continue;
-        }
-      }
-      nums.push(n);
-    }
-    res.push(nums);
-  }
-  let c = 0;
-  let oec = 0;
-  for (const n1 of res[0]) {
-    for (const n2 of res[1]) {
-      for (const n3 of res[2]) {
-        const r = [n1, n2, n3].reduce(
-          (r, c) => {
-            r[+c % 2] += 1;
-            return r;
-          },
-          [0, 0]
-        );
-        const oek = `${r[1]}-${r[0]}`;
-        if (["2-1", "1-2", "3-0"].includes(oek)) {
-          oec += 1;
-        }
-        if (n1 + n2 + n3 < 9 || n1 + n2 + n3 > 21) {
-          c += 1;
-        }
-      }
-    }
-  }
-  if (loopCount > 4) {
-    loopCount = 0;
-    return [[], [], []];
-  }
-  // 16
-  // if (c >= 25) {
-  //   loopCount += 1;
-  //   return getNums(newestSample, nextSample, isCheck, idx);
-  // }
-  return res.map((e) => e.sort((a, b) => a - b));
-};
-let maxContinueErr = 0;
-let oddEven = {
-  "0-3": {
-    maxContinue: 0,
-    count: 0,
-    continue: 0,
-    rest: 0,
-    maxRest: 0,
-  },
-  "1-2": {
-    maxContinue: 0,
-    count: 0,
-    continue: 0,
-    rest: 0,
-    maxRest: 0,
-  },
-  "2-1": {
-    maxContinue: 0,
-    count: 0,
-    continue: 0,
-    rest: 0,
-    maxRest: 0,
-  },
-  "3-0": {
-    maxContinue: 0,
-    count: 0,
-    continue: 0,
-    rest: 0,
-    maxRest: 0,
-  },
-};
-// let ea = []
-const checkRatio = () => {
-  let target = 0;
-  let continueErr = 0;
-  let eat = [];
-  let lastOre = "";
-  for (let i = dataSample.length - 1; i >= 0; i--) {
-    const nextSample = dataSample[i - 1] || [];
-    const r = dataSample[i].slice(0, 3).reduce(
-      (r, c) => {
-        r[+c % 2] += 1;
-        return r;
-      },
-      [0, 0]
-    );
-
-    const oek = `${r[1]}-${r[0]}`;
-
-    const oer = oddEven[oek];
-    const lastOer = oddEven[lastOre];
-    if (oer) {
-      oer.count += 1;
-      oer.date = dataSample[i][3];
-      oer.rest = 0;
-      if (lastOre === oek) {
-        oer.continue += 1;
-        if (oer.continue > oer.maxContinue) {
-          oer.maxContinue = oer.continue;
-        }
-      } else {
-        if (lastOer) {
-          lastOer.continue = 0;
-        }
-      }
-      for (const k in oddEven) {
-        if (k !== oek) {
-          oddEven[k].rest += 1;
-          if (oddEven[k].rest > oddEven[k].maxRest) {
-            oddEven[k].maxRest = oddEven[k].rest;
-          }
-        }
-      }
-    }
-    lastOre = oek;
-    const recommendNums = getNums(dataSample[i], nextSample, true, i);
-    const f = recommendNums[0].includes(+nextSample[0]);
-    const s = recommendNums[1].includes(+nextSample[1]);
-    const l = recommendNums[2].includes(+nextSample[2]);
-    // const recommendNums = getNums(dataSample[i], dataSample[i+1], true, i)
-    // const f = recommendNums[0].includes(+dataSample[i][0])
-    // const s = recommendNums[1].includes(+dataSample[i][1])
-    // const l = recommendNums[2].includes(+dataSample[i][2])
-    if (f && s && l) {
-      continueErr = 0;
-      target += 1;
-      // eat = []
-    } else {
-      // eat.push(dataSample[i])
-      continueErr += 1;
-      // if (continueErr > maxContinueErr) {
-      //   ea = eat
-      // }
-      maxContinueErr = Math.max(maxContinueErr, continueErr);
-    }
-  }
-  // console.log('中了', target);
-
-  return target / dataSample.length;
-};
-// console.log(checkRatio());
-// let r = 0
-// for (let i = 0; i<100; i++) {
-//   maxContinueErr = 0
-//   r+=checkRatio()
-// }
-// // // console.log('奇偶', oddEven);
-
-// console.log("连续最多没中:", maxContinueErr);
-
-// console.log(r/100);
-
-// console.log(
-//   getNums(undefined, [undefined, undefined, undefined, newstDateNum])
-// );
-// 4~23
-
-const earn = () => {
-  // 250 -250 1040
-  // 500 -750 2080
-  // 750 -1500 3120
-  // 1000 -2500 4160
-  // 1250 -3750 5200
-  // 1500 -5250 6240
-  // 1750 -7000 7280
-
-  // 2250 -9250 9360
-
-  let cost = 0;
-  let hit = 0;
-  const costLevel = 200;
-  const buy = [];
-  for (let i = 1; i <= 10; i++) {
-    let costTmp = cost + costLevel * i;
-    hit = 1040 * i;
-    let j = 1;
-    while (hit - costTmp <= 0) {
-      costTmp = cost + costLevel * (i + j);
-      hit = 1040 * (i + j);
-      j += 1;
-    }
-    cost = costTmp;
-    buy.push({
-      singleCost: costLevel * (i + j - 1),
-      costTotal: cost,
-      hit,
-      beilv: i + j - 1,
-      earn: hit - cost,
-    });
-  }
-  console.log(cost, hit, buy);
-
-  return hit - cost;
-};
-
-function analyzeAndPredict(data) {
-  // 1. 统计每个下标数字的升降趋势
-  const trends = [[], [], []]; // 每个位置的趋势: 1(升), 0(平), -1(降)
-  const trendData = [
-    {
-      continueUp: 0,
-      maxContinueUp: 0,
-      continueDown: 0,
-      maxContinueDown: 0,
-      continueFlat: 0,
-      maxContinueFlat: 0,
-    },
-    {
-      continueUp: 0,
-      maxContinueUp: 0,
-      continueDown: 0,
-      maxContinueDown: 0,
-      continueFlat: 0,
-      maxContinueFlat: 0,
-    },
-    {
-      continueUp: 0,
-      maxContinueUp: 0,
-      continueDown: 0,
-      maxContinueDown: 0,
-      continueFlat: 0,
-      maxContinueFlat: 0,
-    },
-  ];
-
-  for (let i = data.length - 2; i >= 0; i--) {
-    for (let j = 0; j < 3; j++) {
-      const prev = +data[i + 1][j];
-      const curr = +data[i][j];
-
-      if (curr > prev) {
-        trends[j].push(1); // 上升
-        trendData[j].continueUp += 1;
-        if (trendData[j].continueUp > trendData[j].maxContinueUp) {
-          trendData[j].maxContinueUp = trendData[j].continueUp;
-        }
-        trendData[j].continueDown = 0;
-        trendData[j].continueFlat = 0;
-      } else if (curr < prev) {
-        trends[j].push(-1); // 下降
-        trendData[j].continueDown += 1;
-        if (trendData[j].continueDown > trendData[j].maxContinueDown) {
-          trendData[j].maxContinueDown = trendData[j].continueDown;
-        }
-        trendData[j].continueUp = 0;
-        trendData[j].continueFlat = 0;
-      } else {
-        trends[j].push(0); // 持平
-        trendData[j].continueFlat += 1;
-        if (trendData[j].continueFlat > trendData[j].maxContinueFlat) {
-          trendData[j].maxContinueFlat = trendData[j].continueFlat;
-        }
-        trendData[j].continueUp = 0;
-        trendData[j].continueDown = 0;
-      }
-    }
-  }
-  console.log(trendData);
-
-  // 2. 统计每个下标数字出现的频率
-  const frequencies = [{}, {}, {}]; // 每个位置的数字频率
-
-  for (let j = 0; j < 3; j++) {
-    for (let i = 0; i < data.length; i++) {
-      const num = +data[i][j];
-      frequencies[j][num] = (frequencies[j][num] || 0) + 1;
-    }
-  }
-  console.log(frequencies);
-  // 3. 生成预测数据
-  const prediction = [];
-  const preTrend = [];
-
-  for (let j = 0; j < 3; j++) {
-    // 计算趋势权重
-    const trendSum = trends[j].reduce((sum, t) => sum + t, 0);
-    const trendDirection = Math.sign(trendSum) || 0; // 主要趋势方向
-
-    // 获取频率最高的数字
-    const freqEntries = Object.entries(frequencies[j]);
-    freqEntries.sort((a, b) => b[1] - a[1]);
-    const mostFrequentNum =
-      freqEntries.length > 0 ? parseInt(freqEntries[0][0]) : 0;
-
-    // 获取最后一个数字
-    const lastNum = +data[data.length - 1][j];
-
-    // 基于趋势和频率生成预测数字
-    let predictedNum;
-    if (trendDirection === 1) {
-      // 上升趋势
-      predictedNum = lastNum + 1;
-      preTrend.push(1);
-    } else if (trendDirection === -1) {
-      // 下降趋势
-      predictedNum = lastNum - 1;
-      preTrend.push(-1);
-    } else {
-      // 无明确趋势，使用频率最高的数字
-      predictedNum = mostFrequentNum;
-      preTrend.push(0);
-    }
-
-    // 确保数字在0-9范围内
-    predictedNum = Math.max(0, Math.min(9, predictedNum));
-
-    // 如果趋势预测与高频数字不同，考虑加权平均
-    if (predictedNum !== mostFrequentNum) {
-      predictedNum = Math.round(predictedNum * 0.7 + mostFrequentNum * 0.3);
-      predictedNum = Math.max(0, Math.min(9, predictedNum));
-    }
-
-    prediction.push(predictedNum);
-  }
-
-  return [prediction, preTrend];
-}
-// const prediction = analyzeAndPredict(dataSample.slice(2, sampleDataLen));
-// console.log("预测的下一个数字数组:", prediction);
