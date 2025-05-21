@@ -7201,11 +7201,11 @@ const data = {
 // 0 1 2 3 4 5 6 7 8 9
 // 数据取 0 ~ 30+n
 
-let sampleDataLen = 50;
+let sampleDataLen = 200;
 const dataSample = Object.keys(data)
-  .slice(0, 10000)
+  .slice(0, 1000)
   .map((e) => e.split("-"));
-let newstDateNum = (+dataSample[0][3] %10)+1
+let newstDateNum = (+dataSample[0][3] % 10) + 1;
 
 const handleKill = (orgdata) => {
   const first = [];
@@ -7365,7 +7365,7 @@ const check = () => {
     );
   }
 };
-console.log(handleKill(dataSample[0]));
+// console.log(handleKill(dataSample[0]));
 // check()
 
 const earn = () => {
@@ -7637,7 +7637,7 @@ const statistics = () => {
       },
     },
   };
-  const n012 = {}
+  const n012 = {};
 
   const numBetween4Ratio = () => {
     for (let si = dataSample.length - 1; si >= 0; si--) {
@@ -7695,7 +7695,7 @@ const statistics = () => {
           numContinue[ik][curN].rest = 0;
         }
       }
-      const key012 = `${+num1%3}-${+num2%3}-${+num3%3}`
+      const key012 = `${+num1 % 3}-${+num2 % 3}-${+num3 % 3}`;
       if (!n012[key012]) {
         n012[key012] = {
           maxContinue: 0,
@@ -7703,28 +7703,23 @@ const statistics = () => {
           continue: 0,
           rest: 0,
           maxRest: 0,
-        }
+        };
       }
-      n012[key012].continue =
-        (n012[key012].continue || 0) + 1;
+      n012[key012].continue = (n012[key012].continue || 0) + 1;
       n012[key012].maxContinue = Math.max(
         n012[key012].maxContinue,
         n012[key012].continue
       );
       n012[key012].count = (n012[key012].count || 0) + 1;
-      n012[key012].lastRest = n012[key012].rest
+      n012[key012].lastRest = n012[key012].rest;
       n012[key012].rest = 0;
       for (const k in n012) {
         if (k !== key012) {
           n012[k].rest = (n012[k].rest || 0) + 1;
-          n012[k].maxRest = Math.max(
-            n012[k].maxRest || 0,
-            n012[k].rest || 0
-          );
+          n012[k].maxRest = Math.max(n012[k].maxRest || 0, n012[k].rest || 0);
           n012[k].continue = 0;
         }
       }
-      
 
       const sumNum = sample.slice(0, 3).reduce((r, c) => +r + +c, 0);
       numSum[sumNum] = (numSum[sumNum] || 0) + 1;
@@ -7776,5 +7771,164 @@ const statistics = () => {
   console.log("numSum", numSum);
   console.log("numContinue", numContinue);
   console.log("n012", n012);
-  
 };
+
+const get012 = (orgdata) => {
+  const first = [];
+  const second = [];
+  const last = [];
+  const getCheck = (fn, checkSampleIdx) => {
+    let e = 10;
+    let e2 = 0;
+    let mi = 0;
+    let mj = 0;
+    let mi2 = 0;
+    let mj2 = 0;
+    for (let i = 1; i < 10; i++) {
+      for (let j = 0; j < 10; j++) {
+        const b = fn(i, j, dataSample.slice(checkSampleIdx, sampleDataLen));
+        min = Math.min(b, e);
+        max = Math.max(b, e2);
+        if (e !== min) {
+          e = min;
+          mi = i;
+          mj = j;
+        }
+        if (e2 !== max) {
+          e2 = max;
+          mi2 = i;
+          mj2 = j;
+        }
+      }
+    }
+    // console.log("最优参数:", e, mi, mj);
+    // console.log("最大误杀率:", e2, mi2, mj2);
+    return {
+      b: mi2,
+      a: mj2,
+      e,
+      maxE: e2,
+    };
+  };
+  const getf = (beilv, add, checkSample, predictedSample) => {
+    if (predictedSample) {
+      const max = Math.max(...predictedSample.slice(0, 3));
+      const min = Math.min(...predictedSample.slice(0, 3));
+      const needKill = ((max) * beilv + add) % 10
+      return Math.floor(Math.abs(needKill))%3;
+    }
+    let killErr = 0;
+    for (let i = checkSample.length - 1; i > 0; i--) {
+      const sample = checkSample[i];
+      const nextSample = checkSample[i - 1];
+      const max = Math.max(...sample.slice(0, 3));
+      const min = Math.min(...sample.slice(0, 3));
+      // 0.3886031966643502 7 7
+      // 首位
+      // const needKill = ((max) * beilv + add) % 10;
+      // 0.38498957609451007 5 0
+      // 次位
+      // const needKill = ((min*(+nextSample[3]%10)) * beilv + add) % 10;
+      // 0.38318276580959 5 0
+      // 末位
+      // const needKill = ((min*(+nextSample[3]%10)) * beilv + add) % 10;
+      const needKill =
+        ((+sample[0] + sample[1] + sample[2]) * beilv + add) % 10;
+      if (+nextSample[0] % 3 === Math.floor(Math.abs(needKill)) % 3) {
+        killErr += 1;
+      }
+    }
+    return killErr / checkSample.length;
+  };
+  const gets = (beilv, add, checkSample, predictedSample) => {
+    if (predictedSample) {
+      const max = Math.max(...predictedSample.slice(0, 3));
+      const min = Math.min(...predictedSample.slice(0, 3));
+      const needKill =  ((min) * beilv + add) % 10;
+      return Math.floor(Math.abs(needKill))%3;
+    }
+    let killErr = 0;
+    for (let i = checkSample.length - 1; i > 0; i--) {
+      const sample = checkSample[i];
+      const nextSample = checkSample[i - 1];
+      const max = Math.max(...sample.slice(0, 3));
+      const min = Math.min(...sample.slice(0, 3));
+      const needKill =
+        ((min) * beilv + add) % 10;
+      if (+nextSample[1] % 3 === Math.floor(Math.abs(needKill)) % 3) {
+        killErr += 1;
+      }
+    }
+    return killErr / checkSample.length;
+  };
+  const getl = (beilv, add, checkSample, predictedSample) => {
+    if (predictedSample) {
+      const max = Math.max(...predictedSample.slice(0, 3));
+      const min = Math.min(...predictedSample.slice(0, 3));
+      const needKill = (min * beilv + add) % 10;
+      return Math.floor(Math.abs(needKill))%3;
+    }
+    let killErr = 0;
+    for (let i = checkSample.length - 1; i > 0; i--) {
+      const sample = checkSample[i];
+      const nextSample = checkSample[i - 1];
+      const max = Math.max(...sample.slice(0, 3));
+      const min = Math.min(...sample.slice(0, 3));
+      const needKill = (min * beilv + add) % 10;
+      if (+nextSample[2] % 3 === Math.floor(Math.abs(needKill)) % 3) {
+        killErr += 1;
+      }
+    }
+    return killErr / checkSample.length;
+  };
+  const { a: a2, b: b2 } = getCheck(getf, 0);
+  first.push(getf(b2, a2, undefined, orgdata));
+  const { a: a3, b: b3 } = getCheck(gets, 0);
+  second.push(gets(b3, a3, undefined, orgdata));
+  const { a: a4, b: b4 } = getCheck(getl, 0);
+  last.push(getl(b4, a4, undefined, orgdata));
+
+  return [[...new Set(first)], [...new Set(second)], [...new Set(last)]];
+};
+
+const check012 = () => {
+  let mi = 1;
+  for (let i = 1; i <= 14; i++) {
+    // 更新检查数据样本量, 检测最优参数
+    sampleDataLen = 30 + i * 5;
+    let hit = 0;
+    for (let j = 0; j < sampleDataLen - 1; j++) {
+      // 要预测的数据期号
+      newstDateNum = +dataSample[j][3] % 10;
+      // 用上一期的数据推测最新要杀的号
+      const [first, second, last] = get012(dataSample[j + 1]);
+      // 最新一期的数据如果有误杀，记录
+      if (
+        first.includes(+dataSample[j][0]%3) &&
+        second.includes(+dataSample[j][1]%3) &&
+        last.includes(+dataSample[j][2]%3)
+      ) {
+        console.log(
+          "匹配:",
+          first,
+          second,
+          last,
+          dataSample[j],
+          dataSample[j + 1]
+        );
+
+        hit += 1;
+      }
+    }
+    console.log(
+      "sampleDataLen:",
+      sampleDataLen,
+      "hit:",
+      hit / sampleDataLen,
+      i
+    );
+  }
+};
+
+check012()
+
