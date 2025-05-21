@@ -7712,6 +7712,7 @@ const statistics = () => {
         n012[key012].continue
       );
       n012[key012].count = (n012[key012].count || 0) + 1;
+      n012[key012].lastRest = n012[key012].rest
       n012[key012].rest = 0;
       for (const k in n012) {
         if (k !== key012) {
@@ -7777,4 +7778,3 @@ const statistics = () => {
   console.log("n012", n012);
   
 };
-statistics()
