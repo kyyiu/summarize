@@ -1,4 +1,6 @@
 const data = {
+  "0-6-8-25130": 1,
+  "1-8-9-25129": 1,
   "8-7-0-25128": 1,
   "4-9-2-25127": 1,
   "1-8-4-25126": 1,
@@ -7199,10 +7201,9 @@ const data = {
 // 0 1 2 3 4 5 6 7 8 9
 // 数据取 0 ~ 30+n
 
-
-let sampleDataLen = 55;
+let sampleDataLen = 50;
 const dataSample = Object.keys(data)
-  .slice(0, 1000)
+  .slice(0, 10000)
   .map((e) => e.split("-"));
 let newstDateNum = (+dataSample[0][3] %10)+1
 
@@ -7380,9 +7381,9 @@ const earn = () => {
 
   let cost = 0;
   let hit = 0;
-  const costLevel = 200;
+  const costLevel = 54;
   const buy = [];
-  for (let i = 1; i <= 10; i++) {
+  for (let i = 1; i <= 50; i++) {
     let costTmp = cost + costLevel * i;
     hit = 1040 * i;
     let j = 1;
@@ -7636,6 +7637,7 @@ const statistics = () => {
       },
     },
   };
+  const n012 = {}
 
   const numBetween4Ratio = () => {
     for (let si = dataSample.length - 1; si >= 0; si--) {
@@ -7672,10 +7674,10 @@ const statistics = () => {
         }
       }
       for (const ik of [0, 1, 2]) {
-        const curN = sample[ik];
+        const curN = +sample[ik];
         for (let i = 0; i < 10; i++) {
           if (i !== +num1) {
-            numContinue[ik][i].rest = (numContinue[0][i].rest || 0) + 1;
+            numContinue[ik][i].rest = (numContinue[ik][i].rest || 0) + 1;
             numContinue[ik][i].maxRest = Math.max(
               numContinue[ik][i].maxRest,
               numContinue[ik][i].rest
@@ -7684,15 +7686,44 @@ const statistics = () => {
             continue;
           }
           numContinue[ik][curN].continue =
-            (numContinue[0][curN].continue || 0) + 1;
+            (numContinue[ik][curN].continue || 0) + 1;
           numContinue[ik][curN].maxContinue = Math.max(
             numContinue[ik][curN].maxContinue,
             numContinue[ik][curN].continue
           );
-          numContinue[ik][curN].count = (numContinue[0][curN].count || 0) + 1;
+          numContinue[ik][curN].count = (numContinue[ik][curN].count || 0) + 1;
           numContinue[ik][curN].rest = 0;
         }
       }
+      const key012 = `${+num1%3}-${+num2%3}-${+num3%3}`
+      if (!n012[key012]) {
+        n012[key012] = {
+          maxContinue: 0,
+          count: 0,
+          continue: 0,
+          rest: 0,
+          maxRest: 0,
+        }
+      }
+      n012[key012].continue =
+        (n012[key012].continue || 0) + 1;
+      n012[key012].maxContinue = Math.max(
+        n012[key012].maxContinue,
+        n012[key012].continue
+      );
+      n012[key012].count = (n012[key012].count || 0) + 1;
+      n012[key012].rest = 0;
+      for (const k in n012) {
+        if (k !== key012) {
+          n012[k].rest = (n012[k].rest || 0) + 1;
+          n012[k].maxRest = Math.max(
+            n012[k].maxRest || 0,
+            n012[k].rest || 0
+          );
+          n012[k].continue = 0;
+        }
+      }
+      
 
       const sumNum = sample.slice(0, 3).reduce((r, c) => +r + +c, 0);
       numSum[sumNum] = (numSum[sumNum] || 0) + 1;
@@ -7743,5 +7774,7 @@ const statistics = () => {
   console.log("numShowSameTime:", numShowSameTime);
   console.log("numSum", numSum);
   console.log("numContinue", numContinue);
+  console.log("n012", n012);
   
 };
+statistics()
