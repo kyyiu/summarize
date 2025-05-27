@@ -1,4 +1,10 @@
 const data = {
+  "3-2-4-25136": 1,
+  "8-1-6-25135": 1,
+  "5-1-0-25134": 1,
+  "8-6-6-25133": 1,
+  "2-7-5-25132": 1,
+  "3-6-7-25131": 1,
   "0-6-8-25130": 1,
   "1-8-9-25129": 1,
   "8-7-0-25128": 1,
@@ -7201,7 +7207,7 @@ const data = {
 // 0 1 2 3 4 5 6 7 8 9
 // 数据取 0 ~ 30+n
 
-let sampleDataLen = 200;
+let sampleDataLen = 55;
 const dataSample = Object.keys(data)
   .slice(0, 1000)
   .map((e) => e.split("-"));
@@ -7317,13 +7323,20 @@ const handleKill = (orgdata) => {
   };
 
   const { a: a1, b: b1 } = killCheck(killNumWay2, 0);
-  first.push(killNumWay2(b1, a1, newstDateNum));
+  const dateWayKill = killNumWay2(b1, a1, newstDateNum)
+  first.push(dateWayKill);
   const { a: a2, b: b2 } = killCheck(kill_first_1, 0);
-  first.push(kill_first_1(b2, a2, undefined, orgdata));
+  const fk = kill_first_1(b2, a2, undefined, orgdata)
+  first.push(Math.floor((fk+dateWayKill)/2));
+  first.push(fk);
   const { a: a3, b: b3 } = killCheck(kill_s_l_1(1), 0);
-  second.push(kill_s_l_1(1)(b3, a3, undefined, orgdata));
+  const sk = kill_s_l_1(1)(b3, a3, undefined, orgdata)
+  second.push(Math.floor((sk+dateWayKill)/2));
+  second.push(sk)
   const { a: a4, b: b4 } = killCheck(kill_s_l_1(2), 0);
-  last.push(kill_s_l_1(2)(b4, a4, undefined, orgdata));
+  const lk = kill_s_l_1(2)(b4, a4, undefined, orgdata)
+  last.push(Math.floor((lk+dateWayKill)/2))
+  last.push(lk);
 
   return [[...new Set(first)], [...new Set(second)], [...new Set(last)]];
 };
@@ -7365,7 +7378,7 @@ const check = () => {
     );
   }
 };
-// console.log(handleKill(dataSample[0]));
+console.log(handleKill(dataSample[0]));
 // check()
 
 const earn = () => {
@@ -7381,7 +7394,7 @@ const earn = () => {
 
   let cost = 0;
   let hit = 0;
-  const costLevel = 54;
+  const costLevel = 128;
   const buy = [];
   for (let i = 1; i <= 50; i++) {
     let costTmp = cost + costLevel * i;
@@ -7405,7 +7418,6 @@ const earn = () => {
 
   return hit - cost;
 };
-
 const statistics = () => {
   const ratio4 = {};
   const firstFc = {};
@@ -7692,6 +7704,7 @@ const statistics = () => {
             numContinue[ik][curN].continue
           );
           numContinue[ik][curN].count = (numContinue[ik][curN].count || 0) + 1;
+          numContinue[ik][curN].lastRest = numContinue[ik][curN].rest || 0;
           numContinue[ik][curN].rest = 0;
         }
       }
@@ -7754,6 +7767,7 @@ const statistics = () => {
               ratio4[rk].continue = 0;
               continue;
             }
+            ratio4[key].lastRest = ratio4[key].rest || 0;
             ratio4[key].rest = 0;
           }
         }
@@ -7772,7 +7786,6 @@ const statistics = () => {
   console.log("numContinue", numContinue);
   console.log("n012", n012);
 };
-
 const get012 = (orgdata) => {
   const first = [];
   const second = [];
@@ -7930,5 +7943,42 @@ const check012 = () => {
   }
 };
 
-check012()
+function calculateAmplitude(data) {
+  const keys = Object.keys(data).slice(0,100);
+  const result = {};
 
+  for (let i = 1; i < keys.length; i++) {
+    const prevKey = keys[i - 1].split('-').slice(0, 3).map(Number);
+    const currentKey = keys[i].split('-').slice(0, 3).map(Number);
+    
+    const amplitude = [
+      Math.abs(currentKey[0] - prevKey[0]),
+      Math.abs(currentKey[1] - prevKey[1]),
+      Math.abs(currentKey[2] - prevKey[2])
+    ];
+    
+    const amplitudeKey = amplitude.join('-');
+    result[amplitudeKey] = (result[amplitudeKey] || 0) + 1;
+  }
+
+  return result;
+}
+
+function random() {
+  return Math.floor(Math.random() * 10);
+}
+
+function getRandomData() {
+  const result = {
+    0: {},
+    1: {},
+    2: {}
+  };
+  for (let i = 0; i < 3; i++) {
+    for (let j = 0; j < 100; j++) {
+      const r = random()
+      result[i][r] =( result[i][r] || 0) + 1;
+    }
+  }
+  return result;
+}
