@@ -6,6 +6,82 @@
     <title>Document</title>
 </head>
 <body>
-    <script src="./index.js"></script>
+    <input type="file" id="excelFile"/>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- <script src="./index.js"></script> -->
+    <script>
+        function logBase(x, base) {
+    return Math.log(x) / Math.log(base);
+}
+
+    document.getElementById('excelFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                
+                // 获取第一个工作表
+                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                
+                // 转换为JSON
+                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+                const anlData = jsonData.slice(1, jsonData.length);
+                let killErr = 0
+                let killErr2 = 0
+                let killErr3 = 0
+                let killErr4 = 0
+                let hit = 0
+                for (let i = 0; i<anlData.length; i++) {
+                    const curData = anlData[i];
+                    const openNumber = `${curData['开号']}`.split('').map(e => +e);
+                    const bs = `${curData['百位杀']}`.split('');
+                    const dateKill = +bs.shift()
+                    const bs1 = +(bs.pop() || dateKill)
+                    // const k1 = [Math.floor((dateKill+bs1)/1.5)%10, bs1];
+                    const ss = +(`${curData['十位杀']}`.split('').pop());
+                    // const k2 = [Math.floor((dateKill +ss)/1.5)%10, ss];
+                    const gs = +(`${curData['个位杀']}`.split('').pop());
+                    // const k3 = [Math.floor((dateKill +gs)/2)%10, gs];
+                    // 误杀0.2
+                    // const k1 = [Math.floor(logBase(dateKill+1, 5)*10)%10, bs1];
+                    // const k2 = [ Math.floor(logBase(bs1+1,2)*10)%10, ss];
+                    // const k3 = [Math.floor(logBase(ss+1,7)*10)%10, gs];
+
+                    const k1 = [Math.abs(bs1-2), (Math.abs(bs1-8)), bs1];
+                    const k2 = [Math.abs(ss-5), (Math.abs(ss-9)), ss];
+                    const k3 = [Math.abs(gs-4), Math.abs(gs-8), gs];
+                    
+                    //  || k2.includes(openNumber[1]) || k3.includes(openNumber[2])
+                    if (k1.includes(openNumber[0])) {
+                        killErr+=1
+                    }
+                    if (k2.includes(openNumber[1])) {
+                        killErr2+=1 
+                    }
+                    if (k3.includes(openNumber[2])) {
+                        killErr3+=1 
+                    }
+                    if (k1.includes(openNumber[0]) || k2.includes(openNumber[1]) || k3.includes(openNumber[2])) {
+                        console.log( '百位错', k1.includes(openNumber[0]) , '十位错', k2.includes(openNumber[1]), '个位错', k3.includes(openNumber[2]), i, );
+                        killErr4+=1
+                    }
+                    if (k1.includes(openNumber[0]) && k2.includes(openNumber[1]) && k3.includes(openNumber[2])) {
+                        hit +=1
+                    }
+                }
+                console.log('误杀率', killErr / (anlData.length - 1), killErr);
+                console.log("误杀率2", killErr2 / (anlData.length - 1), killErr2);
+                console.log("误杀率3", killErr3 / (anlData.length - 1), killErr3);
+                console.log("误杀率4", killErr4 / (anlData.length - 1), killErr4);
+                console.log("命中率", hit / (anlData.length - 1), hit);
+                
+                
+            };
+            reader.readAsArrayBuffer(file);
+        });
+    </script>
 </body>
 </html>
