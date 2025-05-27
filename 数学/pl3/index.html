@@ -11,8 +11,8 @@
     <!-- <script src="./index.js"></script> -->
     <script>
         function logBase(x, base) {
-    return Math.log(x) / Math.log(base);
-}
+            return Math.log(x) / Math.log(base);
+        }
 
     document.getElementById('excelFile').addEventListener('change', function(e) {
             const file = e.target.files[0];
@@ -46,13 +46,13 @@
                     const gs = +(`${curData['个位杀']}`.split('').pop());
                     // const k3 = [Math.floor((dateKill +gs)/2)%10, gs];
                     // 误杀0.2
-                    // const k1 = [Math.floor(logBase(dateKill+1, 5)*10)%10, bs1];
-                    // const k2 = [ Math.floor(logBase(bs1+1,2)*10)%10, ss];
-                    // const k3 = [Math.floor(logBase(ss+1,7)*10)%10, gs];
+                    const k1 = [Math.floor(logBase(dateKill+1, 5)*10)%10];
+                    const k2 = [ Math.floor(logBase(bs1+1,2)*10)%10];
+                    const k3 = [Math.floor(logBase(ss+1,7)*10)%10];
 
-                    const k1 = [Math.abs(bs1-2), (Math.abs(bs1-8)), bs1];
-                    const k2 = [Math.abs(ss-5), (Math.abs(ss-9)), ss];
-                    const k3 = [Math.abs(gs-4), Math.abs(gs-8), gs];
+                    // const k1 = [bs1];
+                    // const k2 = [ss];
+                    // const k3 = [gs];
                     
                     //  || k2.includes(openNumber[1]) || k3.includes(openNumber[2])
                     if (k1.includes(openNumber[0])) {

@@ -7213,10 +7213,17 @@ const dataSample = Object.keys(data)
   .map((e) => e.split("-"));
 let newstDateNum = (+dataSample[0][3] % 10) + 1;
 
-const handleKill = (orgdata) => {
+const handleKill = (orgdata, isCheck) => {
   const first = [];
   const second = [];
   const last = [];
+  function killLog(dateKill, bs1, ss) {
+    return [
+      Math.floor(logBase(dateKill + 1, 5) * 10) % 10,
+      Math.floor(logBase(bs1 + 1, 2) * 10) % 10,
+      Math.floor(logBase(ss + 1, 7) * 10) % 10,
+    ];
+  }
   const killCheck = (fn, checkSampleIdx) => {
     let e = 10;
     let e2 = 0;
@@ -7323,19 +7330,28 @@ const handleKill = (orgdata) => {
   };
 
   const { a: a1, b: b1 } = killCheck(killNumWay2, 0);
-  const dateWayKill = killNumWay2(b1, a1, newstDateNum)
-  first.push(dateWayKill);
+  const dateWayKill = killNumWay2(b1, a1, newstDateNum);
+  
   const { a: a2, b: b2 } = killCheck(kill_first_1, 0);
-  const fk = kill_first_1(b2, a2, undefined, orgdata)
-  first.push(Math.floor((fk+dateWayKill)/2));
-  first.push(fk);
+  const fk = kill_first_1(b2, a2, undefined, orgdata);
+  
   const { a: a3, b: b3 } = killCheck(kill_s_l_1(1), 0);
-  const sk = kill_s_l_1(1)(b3, a3, undefined, orgdata)
-  second.push(Math.floor((sk+dateWayKill)/2));
-  second.push(sk)
+  const sk = kill_s_l_1(1)(b3, a3, undefined, orgdata);
+  
   const { a: a4, b: b4 } = killCheck(kill_s_l_1(2), 0);
-  const lk = kill_s_l_1(2)(b4, a4, undefined, orgdata)
-  last.push(Math.floor((lk+dateWayKill)/2))
+  const lk = kill_s_l_1(2)(b4, a4, undefined, orgdata);
+
+  const killLogData = killLog(dateWayKill, fk, sk);
+
+  
+  if (!isCheck) {
+    first.push(dateWayKill);
+    first.push(killLogData[0]);
+    second.push(killLogData[1]);
+    last.push(killLogData[2]);
+  }
+  first.push(fk);
+  second.push(sk);
   last.push(lk);
 
   return [[...new Set(first)], [...new Set(second)], [...new Set(last)]];
@@ -7350,7 +7366,7 @@ const check = () => {
       // 要预测的数据期号
       newstDateNum = +dataSample[j][3] % 10;
       // 用上一期的数据推测最新要杀的号
-      const [first, second, last] = handleKill(dataSample[j + 1]);
+      const [first, second, last] = handleKill(dataSample[j + 1], true);
       // 最新一期的数据如果有误杀，记录
       if (
         first.includes(+dataSample[j][0]) ||
@@ -7378,8 +7394,8 @@ const check = () => {
     );
   }
 };
-console.log(handleKill(dataSample[0]));
-// check()
+// console.log(handleKill(dataSample[0]));
+check()
 
 const earn = () => {
   // 250 -250 1040
@@ -7827,8 +7843,8 @@ const get012 = (orgdata) => {
     if (predictedSample) {
       const max = Math.max(...predictedSample.slice(0, 3));
       const min = Math.min(...predictedSample.slice(0, 3));
-      const needKill = ((max) * beilv + add) % 10
-      return Math.floor(Math.abs(needKill))%3;
+      const needKill = (max * beilv + add) % 10;
+      return Math.floor(Math.abs(needKill)) % 3;
     }
     let killErr = 0;
     for (let i = checkSample.length - 1; i > 0; i--) {
@@ -7857,8 +7873,8 @@ const get012 = (orgdata) => {
     if (predictedSample) {
       const max = Math.max(...predictedSample.slice(0, 3));
       const min = Math.min(...predictedSample.slice(0, 3));
-      const needKill =  ((min) * beilv + add) % 10;
-      return Math.floor(Math.abs(needKill))%3;
+      const needKill = (min * beilv + add) % 10;
+      return Math.floor(Math.abs(needKill)) % 3;
     }
     let killErr = 0;
     for (let i = checkSample.length - 1; i > 0; i--) {
@@ -7866,8 +7882,7 @@ const get012 = (orgdata) => {
       const nextSample = checkSample[i - 1];
       const max = Math.max(...sample.slice(0, 3));
       const min = Math.min(...sample.slice(0, 3));
-      const needKill =
-        ((min) * beilv + add) % 10;
+      const needKill = (min * beilv + add) % 10;
       if (+nextSample[1] % 3 === Math.floor(Math.abs(needKill)) % 3) {
         killErr += 1;
       }
@@ -7879,7 +7894,7 @@ const get012 = (orgdata) => {
       const max = Math.max(...predictedSample.slice(0, 3));
       const min = Math.min(...predictedSample.slice(0, 3));
       const needKill = (min * beilv + add) % 10;
-      return Math.floor(Math.abs(needKill))%3;
+      return Math.floor(Math.abs(needKill)) % 3;
     }
     let killErr = 0;
     for (let i = checkSample.length - 1; i > 0; i--) {
@@ -7917,9 +7932,9 @@ const check012 = () => {
       const [first, second, last] = get012(dataSample[j + 1]);
       // 最新一期的数据如果有误杀，记录
       if (
-        first.includes(+dataSample[j][0]%3) &&
-        second.includes(+dataSample[j][1]%3) &&
-        last.includes(+dataSample[j][2]%3)
+        first.includes(+dataSample[j][0] % 3) &&
+        second.includes(+dataSample[j][1] % 3) &&
+        last.includes(+dataSample[j][2] % 3)
       ) {
         console.log(
           "匹配:",
@@ -7944,20 +7959,20 @@ const check012 = () => {
 };
 
 function calculateAmplitude(data) {
-  const keys = Object.keys(data).slice(0,100);
+  const keys = Object.keys(data).slice(0, 100);
   const result = {};
 
   for (let i = 1; i < keys.length; i++) {
-    const prevKey = keys[i - 1].split('-').slice(0, 3).map(Number);
-    const currentKey = keys[i].split('-').slice(0, 3).map(Number);
-    
+    const prevKey = keys[i - 1].split("-").slice(0, 3).map(Number);
+    const currentKey = keys[i].split("-").slice(0, 3).map(Number);
+
     const amplitude = [
       Math.abs(currentKey[0] - prevKey[0]),
       Math.abs(currentKey[1] - prevKey[1]),
-      Math.abs(currentKey[2] - prevKey[2])
+      Math.abs(currentKey[2] - prevKey[2]),
     ];
-    
-    const amplitudeKey = amplitude.join('-');
+
+    const amplitudeKey = amplitude.join("-");
     result[amplitudeKey] = (result[amplitudeKey] || 0) + 1;
   }
 
@@ -7968,16 +7983,20 @@ function random() {
   return Math.floor(Math.random() * 10);
 }
 
+function logBase(x, base) {
+  return Math.log(x) / Math.log(base);
+}
+
 function getRandomData() {
   const result = {
     0: {},
     1: {},
-    2: {}
+    2: {},
   };
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 100; j++) {
-      const r = random()
-      result[i][r] =( result[i][r] || 0) + 1;
+      const r = random();
+      result[i][r] = (result[i][r] || 0) + 1;
     }
   }
   return result;
