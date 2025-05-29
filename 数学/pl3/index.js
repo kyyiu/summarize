@@ -1,4 +1,6 @@
 const data = {
+  "8-9-5-25138": 1,
+  "7-2-1-25137": 1,
   "3-2-4-25136": 1,
   "8-1-6-25135": 1,
   "5-1-0-25134": 1,
@@ -7394,8 +7396,8 @@ const check = () => {
     );
   }
 };
-// console.log(handleKill(dataSample[0]));
-check()
+console.log(handleKill(dataSample[0]));
+// check()
 
 const earn = () => {
   // 250 -250 1040
