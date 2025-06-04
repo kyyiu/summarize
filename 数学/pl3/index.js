@@ -1,4 +1,5 @@
 const data = {
+  "3-8-9-25144": 1,
   "9-4-4-25143": 1,
   "3-4-3-25142": 1,
   "4-7-5-25141": 1,
@@ -7214,7 +7215,7 @@ const data = {
 // 0 1 2 3 4 5 6 7 8 9
 // 数据取 0 ~ 30+n
 
-let sampleDataLen = 60;
+let sampleDataLen = 45;
 const dataSample = Object.keys(data)
   .slice(0, 1000)
   .map((e) => e.split("-"));
@@ -7352,9 +7353,17 @@ const handleKill = (orgdata, isCheck) => {
 
   
   if (!isCheck) {
+    first.push(a1)
+    first.push(b1)
+    first.push(a2)
+    first.push(b2)
     first.push(dateWayKill);
     first.push(killLogData[0]);
+    second.push(a3)
+    second.push(b3)
     second.push(killLogData[1]);
+    last.push(a4)
+    last.push(b4)
     last.push(killLogData[2]);
   }
   first.push(fk);
