@@ -1,4 +1,6 @@
 const data = {
+  "8-2-2-25146": 1,
+  "4-7-1-25145": 1,
   "3-8-9-25144": 1,
   "9-4-4-25143": 1,
   "3-4-3-25142": 1,
@@ -7353,17 +7355,17 @@ const handleKill = (orgdata, isCheck) => {
 
   
   if (!isCheck) {
-    first.push(a1)
-    first.push(b1)
-    first.push(a2)
-    first.push(b2)
+    first.push((a1+newstDateNum)%10)
+    first.push((b1+newstDateNum)%10)
+    first.push((a2+newstDateNum)%10)
+    first.push((b2+newstDateNum)%10)
     first.push(dateWayKill);
     first.push(killLogData[0]);
-    second.push(a3)
-    second.push(b3)
+    second.push((a3+newstDateNum)%10)
+    second.push((b3+newstDateNum)%10)
     second.push(killLogData[1]);
-    last.push(a4)
-    last.push(b4)
+    last.push((a4+newstDateNum)%10)
+    last.push((b4+newstDateNum)%10)
     last.push(killLogData[2]);
   }
   first.push(fk);
