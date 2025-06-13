@@ -1,9 +1,9 @@
 const data = {
-  "8-9-4-25153": 1,
-  "7-4-7-25152": 1,
-  "6-8-6-25151": 1,
-  "2-1-2-25150": 1,
-  "7-7-2-25149": 1,
+  // "8-9-4-25153": 1,
+  // "7-4-7-25152": 1,
+  // "6-8-6-25151": 1,
+  // "2-1-2-25150": 1,
+  // "7-7-2-25149": 1,
   "5-5-7-25148": 1,
   "0-2-3-25147": 1,
   "8-2-2-25146": 1,
@@ -7419,8 +7419,12 @@ const check = () => {
     );
   }
 };
-console.log(handleKill(dataSample[0]));
+const killAll = () => {
+  return Math.floor(logBase(newstDateNum, 21) * 10) % 10
+};
+console.log(handleKill(dataSample[0]), [killAll(),newstDateNum%10]);
 // check()
+
 
 const earn = () => {
   // 250 -250 1040
@@ -7435,7 +7439,7 @@ const earn = () => {
 
   let cost = 0;
   let hit = 0;
-  const costLevel = 10;
+  const costLevel = 8;
   const buy = [];
   for (let i = 1; i <= 70; i++) {
     let costTmp = cost + costLevel * i;
@@ -7459,6 +7463,7 @@ const earn = () => {
 
   return hit - cost;
 };
+
 const statistics = () => {
   const ratio4 = {};
   const firstFc = {};
@@ -7832,7 +7837,7 @@ const statistics = () => {
   console.log("numContinue", numContinue);
   console.log("n012", n012);
 };
-statistics()
+
 const get012 = (orgdata) => {
   const first = [];
   const second = [];
