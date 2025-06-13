@@ -7226,7 +7226,7 @@ const data = {
 
 let sampleDataLen = 45;
 const dataSample = Object.keys(data)
-  .slice(0, 1000)
+  .slice(0, 10000)
   .map((e) => e.split("-"));
 let newstDateNum = (+dataSample[0][3] % 10) + 1;
 
@@ -7435,15 +7435,15 @@ const earn = () => {
 
   let cost = 0;
   let hit = 0;
-  const costLevel = 128;
+  const costLevel = 10;
   const buy = [];
-  for (let i = 1; i <= 50; i++) {
+  for (let i = 1; i <= 70; i++) {
     let costTmp = cost + costLevel * i;
-    hit = 1040 * i;
+    hit = 173 * i;
     let j = 1;
     while (hit - costTmp <= 0) {
       costTmp = cost + costLevel * (i + j);
-      hit = 1040 * (i + j);
+      hit = 173 * (i + j);
       j += 1;
     }
     cost = costTmp;
@@ -7707,11 +7707,16 @@ const statistics = () => {
       numshowTime[0][num1] = (numshowTime[0][num1] || 0) + 1;
       numshowTime[1][num2] = (numshowTime[1][num2] || 0) + 1;
       numshowTime[2][num3] = (numshowTime[2][num3] || 0) + 1;
+      // sampleNum 当前出现的数字
       for (const sampleNum of sample.slice(0, 3)) {
+        // sampleNumIdx 当前数字出现的位置
         for (const sampleNumIdx in sample.slice(0, 3)) {
+          // 当前出现数字的集合
           if (!numShowSameTime[sampleNum]) {
             numShowSameTime[sampleNum] = {};
           }
+          // 下面这个结构代表当前位置出现的这个数字，和它一起出现的数字
+          // 例如：0: {0-0: 10, 0-1: 10, 0-2: 10....},0出现在首位时，出现了10次1，2
           if (
             !numShowSameTime[sampleNum][
               `${sampleNumIdx}-${sample[sampleNumIdx]}`
@@ -7827,6 +7832,7 @@ const statistics = () => {
   console.log("numContinue", numContinue);
   console.log("n012", n012);
 };
+statistics()
 const get012 = (orgdata) => {
   const first = [];
   const second = [];
