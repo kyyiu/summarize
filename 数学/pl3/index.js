@@ -1,9 +1,12 @@
 const data = {
-  // "8-9-4-25153": 1,
-  // "7-4-7-25152": 1,
-  // "6-8-6-25151": 1,
-  // "2-1-2-25150": 1,
-  // "7-7-2-25149": 1,
+  "6-3-8-25156": 1,
+  "0-4-0-25155": 1,
+  "9-8-9-25154": 1,
+  "8-9-4-25153": 1,
+  "7-4-7-25152": 1,
+  "6-8-6-25151": 1,
+  "2-1-2-25150": 1,
+  "7-7-2-25149": 1,
   "5-5-7-25148": 1,
   "0-2-3-25147": 1,
   "8-2-2-25146": 1,
@@ -7422,7 +7425,7 @@ const check = () => {
 const killAll = () => {
   return Math.floor(logBase(newstDateNum, 21) * 10) % 10
 };
-// console.log(handleKill(dataSample[0]), [killAll(),newstDateNum%10]);
+console.log(handleKill(dataSample[0]), [killAll(),newstDateNum%10]);
 // check()
 
 
