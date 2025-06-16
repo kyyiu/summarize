@@ -7422,7 +7422,7 @@ const check = () => {
 const killAll = () => {
   return Math.floor(logBase(newstDateNum, 21) * 10) % 10
 };
-console.log(handleKill(dataSample[0]), [killAll(),newstDateNum%10]);
+// console.log(handleKill(dataSample[0]), [killAll(),newstDateNum%10]);
 // check()
 
 
@@ -8036,4 +8036,52 @@ function getRandomData() {
     }
   }
   return result;
+}
+
+function combinations(arr, k) {
+  const result = [];
+
+  function backtrack(start, current) {
+    if (current.length === k) {
+      result.push([...current]);
+      return;
+    }
+
+    for (let i = start; i < arr.length; i++) {
+      current.push(arr[i]);
+      backtrack(i + 1, current);
+      current.pop();
+    }
+  }
+
+  backtrack(0, []);
+  return result;
+}
+
+const getCombie6 = () => {
+  const c = combinations(Array(10).fill(0).map((e,i) => i), 3)
+  const cs = c.map(e => combinations(e, 3))
+  let maxHit = []
+  for (const csI of cs) {
+    const maxHitTmp = []
+    for (const c6Item of csI) {
+      for (const sample of dataSample) {
+        const n1 = +sample[0]
+        const n2 = +sample[1]
+        const n3 = +sample[2]
+        if (n1 !== n2 && n2 !== n3 && n1!==n3) {
+          if (c6Item.includes(n1) && c6Item.includes(n2) && c6Item.includes(n3)) {
+            maxHitTmp.push(sample)
+          }
+        }
+      }
+      if (maxHitTmp.length > maxHit.length) {
+        maxHit = maxHitTmp
+      }
+    }
+  }
+  
+  console.log(maxHit.sort((a,b) => (+b[3]-(+a[3]))));
+  console.log(maxHit.length/dataSample.length);
+  
 }
